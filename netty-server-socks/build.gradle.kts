@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
+group = "io.intellij.netty.server"
+version = "1.0"
+
 val projectJdkVersion = libs.versions.java.get().toInt()
 
 java {
@@ -22,7 +25,7 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform(){
+    useJUnitPlatform() {
         includeEngines("junit-jupiter")
     }
 }

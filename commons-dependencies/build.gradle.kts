@@ -24,5 +24,5 @@ dependencies {
 }
 
 tasks.jar {
-    archiveFileName = "netty-application-commons.jar"
+    archiveFileName = "netty-kotlin-commons.jar"
 }
