@@ -29,3 +29,27 @@ tasks.test {
         includeEngines("junit-jupiter")
     }
 }
+
+tasks.register<Jar>("fatJar") {
+    group = "build"
+
+    archiveClassifier.set("all")
+
+    from(sourceSets.main.get().output)
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get()
+            .filter { it.name.endsWith("jar") }
+            .map { zipTree(it) }
+    })
+
+    manifest {
+        attributes["Main-Class"] = "io.intellij.netty.server.socks.SocksServerKt"
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.build {
+    dependsOn(tasks.named("fatJar"))
+}
