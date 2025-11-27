@@ -14,4 +14,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "netty-kotlin"
 
-include("netty-kotlin-commons")
+include("commons-dependencies")
+include("netty-client-reconnect:echo-server")
+include("netty-client-reconnect:reconnect-client")

@@ -1,5 +1,4 @@
 plugins {
-    id("java-library")
     alias(libs.plugins.kotlin.jvm)
 }
 
@@ -16,8 +15,14 @@ kotlin {
 }
 
 dependencies {
-    api(libs.commons.lang3)
-    api(libs.netty.all)
-    api(libs.slf4j.api)
+    implementation(project(":commons-dependencies"))
 
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+}
+
+tasks.test {
+    useJUnitPlatform(){
+        includeEngines("junit-jupiter")
+    }
 }

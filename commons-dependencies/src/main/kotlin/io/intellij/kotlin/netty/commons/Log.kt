@@ -8,4 +8,6 @@ import org.slf4j.LoggerFactory
  *
  * @author tech@intellij.io
  */
-fun getLogger(forClass: Class<*>): Logger = LoggerFactory.getLogger(forClass)
+fun getLogger(clazz: Class<*>): Logger = LoggerFactory.getLogger(clazz)
+
+fun getLogger(name: String): Logger = LoggerFactory.getLogger(name)
