@@ -9,7 +9,7 @@ grp-spring-boot-starter = "3.1.0.RELEASE"
 jackson = "3.0.1"
 commons-lang3 = "3.20.0"
 netty-all = "4.1.115.Final"
-logback = "1.5.18"
+logback = "1.5.21"
 slf4j = "2.0.12"
 junit-jupiter = "6.0.1"
 

@@ -17,3 +17,7 @@ rootProject.name = "netty-kotlin"
 include("commons-dependencies")
 include("netty-client-reconnect:echo-server")
 include("netty-client-reconnect:reconnect-client")
+
+include("netty-server-socks")
+include("netty-server-tcp-proxy")
+include("netty-tcp-loadbalancer")
