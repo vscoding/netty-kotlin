@@ -1,8 +1,11 @@
 plugins {
+    id("java-library")
     alias(libs.plugins.kotlin.jvm)
 }
 
-group = "io.intellij.kt.netty.server"
+group = "io.intellij.kt.netty.frp"
+
+version = "1.0"
 
 val projectJdkVersion = libs.versions.java.get().toInt()
 
@@ -16,11 +19,9 @@ kotlin {
     jvmToolchain(projectJdkVersion)
 }
 
-dependencies {
-    implementation(project(":commons-dependencies"))
 
-    implementation(libs.fastjson2)
-    implementation(libs.commons.io)
+dependencies {
+    api(project(":netty-frp-tcp:frp-tcp-commons"))
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
@@ -47,7 +48,7 @@ tasks.register<Jar>("fatJar") {
     })
 
     manifest {
-        attributes["Main-Class"] = "io.intellij.kt.netty.tcp.lb.TcpLoadBalancerKt"
+        attributes["Main-Class"] = "io.intellij.kt.netty.tcpfrp.server.FrpServerMain"
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

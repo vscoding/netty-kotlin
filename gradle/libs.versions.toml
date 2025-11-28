@@ -2,6 +2,7 @@
 freefair-lombok = "8.13.1"
 java = "21"
 kotlin = "2.2.21"
+
 spring-boot = "3.2.10"
 protoc = "3.24.3"
 grpc = "1.76.0"
@@ -29,7 +30,10 @@ netty-all = { module = "io.netty:netty-all", version.ref = "netty-all" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+
 fastjson2 = { module = "com.alibaba.fastjson2:fastjson2", version.ref = "fastjson2" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }

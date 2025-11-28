@@ -1,0 +1,35 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 7000,
+    "auth": {
+      "token": "bf6355f8-66ef-4dcb-9d61-433a2cf544cf"
+    }
+  },
+  "clients": [
+    {
+      "name": "mysql",
+      "local_ip": "dev1.iproute.org",
+      "local_port": 3306,
+      "remote_port": 3306
+    },
+    {
+      "name": "pgsql",
+      "local_ip": "dev1.iproute.org",
+      "local_port": 5432,
+      "remote_port": 5432
+    },
+    {
+      "name": "mstsc",
+      "local_ip": "127.0.0.1",
+      "local_port": 3389,
+      "remote_port": 13389
+    },
+    {
+      "name": "unknown",
+      "local_ip": "127.0.0.1",
+      "local_port": 12345,
+      "remote_port": 12345
+    }
+  ]
+}
