@@ -17,12 +17,15 @@ kotlin {
 dependencies {
     implementation(project(":commons-dependencies"))
 
+    implementation(libs.fastjson2)
+    implementation(libs.commons.io)
+
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
 tasks.test {
-    useJUnitPlatform(){
+    useJUnitPlatform() {
         includeEngines("junit-jupiter")
     }
 }

@@ -12,6 +12,8 @@ netty-all = "4.1.115.Final"
 logback = "1.5.21"
 slf4j = "2.0.12"
 junit-jupiter = "6.0.1"
+fastjson2 = "2.0.60"
+commons-io = "2.21.0"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -27,6 +29,8 @@ netty-all = { module = "io.netty:netty-all", version.ref = "netty-all" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+fastjson2 = { module = "com.alibaba.fastjson2:fastjson2", version.ref = "fastjson2" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
