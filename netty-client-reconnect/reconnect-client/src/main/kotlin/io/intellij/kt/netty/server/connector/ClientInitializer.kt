@@ -20,6 +20,7 @@ class ClientInitializer : ChannelInitializer<Channel>() {
         private val UUID_LENGTH = UUID.randomUUID().toString().length
     }
 
+    @Throws(Exception::class)
     override fun initChannel(ch: Channel) {
         val p = ch.pipeline()
         p.addLast(FixedLengthFrameDecoder(UUID_LENGTH))

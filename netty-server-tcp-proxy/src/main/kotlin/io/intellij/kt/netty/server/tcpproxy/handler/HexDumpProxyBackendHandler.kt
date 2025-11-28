@@ -1,5 +1,6 @@
 package io.intellij.kt.netty.server.tcpproxy.handler
 
+import io.intellij.kt.netty.commons.utils.ChannelUtils.closeOnFlush
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
@@ -35,13 +36,13 @@ class HexDumpProxyBackendHandler(
 
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        HexDumpProxyFrontendHandler.closeOnFlush(inboundChannel)
+        closeOnFlush(inboundChannel)
     }
 
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext?, cause: Throwable) {
         // cause.printStackTrace();
-        HexDumpProxyFrontendHandler.closeOnFlush(inboundChannel)
+        closeOnFlush(inboundChannel)
     }
 
 }

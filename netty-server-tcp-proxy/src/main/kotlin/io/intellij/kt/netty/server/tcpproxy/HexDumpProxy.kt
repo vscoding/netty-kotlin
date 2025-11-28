@@ -30,7 +30,7 @@ data class TcpProxyConfig(
 
 @Throws(Exception::class)
 fun main() {
-    val config = readProperties()
+    val config = loadConfig()
     log.info("config:{}", config)
 
     log.info("Proxying *:{} to {}:{}", config.localPort, config.remoteHost, config.remotePort)
@@ -54,7 +54,7 @@ fun main() {
 }
 
 @Throws(Exception::class)
-fun readProperties(): TcpProxyConfig {
+fun loadConfig(): TcpProxyConfig {
     return if (File("config.properties").exists()) {
         log.info("read config file")
 
@@ -62,7 +62,7 @@ fun readProperties(): TcpProxyConfig {
         p.load(FileInputStream("config.properties"))
         val localHost = p.getProperty("localHost", "127.0.0.1")
         val localPort = p.getProperty("localPort", "3306").toInt()
-        val remoteHost = p.getProperty("remoteHost", "172.100.1.100")
+        val remoteHost = p.getProperty("remoteHost", "dev1.iproute.org")
         val remotePort = p.getProperty("remotePort", "3306").toInt()
         TcpProxyConfig(localHost, localPort, remoteHost, remotePort)
     } else {
@@ -74,6 +74,3 @@ fun readProperties(): TcpProxyConfig {
         TcpProxyConfig(localHost, localPort, remoteHost, remotePort)
     }
 }
-
-
-

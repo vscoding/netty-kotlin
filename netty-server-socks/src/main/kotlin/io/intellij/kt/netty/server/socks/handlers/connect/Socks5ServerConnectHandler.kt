@@ -56,8 +56,8 @@ class Socks5ServerConnectHandler : SimpleChannelInboundHandler<Socks5CommandRequ
 
         b.group(inboundChannel.eventLoop())
             .channel(NioSocketChannel::class.java)
-            .option<Int?>(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-            .option<Boolean?>(ChannelOption.SO_KEEPALIVE, true)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
+            .option(ChannelOption.SO_KEEPALIVE, true)
             .handler(DirectClientHandler(promise))
 
         b.connect(request.dstAddr(), request.dstPort()).addListener(ChannelFutureListener { future: ChannelFuture ->
@@ -73,4 +73,5 @@ class Socks5ServerConnectHandler : SimpleChannelInboundHandler<Socks5CommandRequ
             }
         })
     }
+
 }

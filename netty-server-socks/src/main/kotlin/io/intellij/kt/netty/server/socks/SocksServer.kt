@@ -17,25 +17,29 @@ import io.netty.handler.logging.LoggingHandler
  *
  * @author tech@intellij.io
  */
-private val log = getLogger("SocksServer")
+object SocksServer {
+    private val log = getLogger(SocksServer::class.java)
 
-@Throws(Exception::class)
-fun main() {
-    val bossGroup: EventLoopGroup = NioEventLoopGroup(1)
-    val workerGroup: EventLoopGroup = NioEventLoopGroup()
+    @Throws(Exception::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val bossGroup: EventLoopGroup = NioEventLoopGroup(1)
+        val workerGroup: EventLoopGroup = NioEventLoopGroup()
 
-    val authenticator: Authenticator = PasswordAuthenticator()
-    try {
-        val b = ServerBootstrap()
-        b.group(bossGroup, workerGroup)
-            .channel(NioServerSocketChannel::class.java)
-            .handler(LoggingHandler(LogLevel.INFO))
-            .childHandler(SocksServerInitializer(authenticator))
-        val sync: ChannelFuture = b.bind(PORT).sync()
-        log.info("Socks server started on port {}", PORT)
-        sync.channel().closeFuture().sync()
-    } finally {
-        bossGroup.shutdownGracefully()
-        workerGroup.shutdownGracefully()
+        val authenticator: Authenticator = PasswordAuthenticator()
+        try {
+            val b = ServerBootstrap()
+            b.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel::class.java)
+                .handler(LoggingHandler(LogLevel.INFO))
+                .childHandler(SocksServerInitializer(authenticator))
+            val sync: ChannelFuture = b.bind(PORT).sync()
+            log.info("Socks server started on port {}", PORT)
+            sync.channel().closeFuture().sync()
+        } finally {
+            bossGroup.shutdownGracefully()
+            workerGroup.shutdownGracefully()
+        }
     }
+
 }

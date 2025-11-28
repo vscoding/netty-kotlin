@@ -70,6 +70,7 @@ class Connector(
             val channelFuture = bootstrap.connect(serverAddr)
 
             channelFuture.addListener(object : ChannelFutureListener {
+
                 @Throws(Exception::class)
                 override fun operationComplete(future: ChannelFuture) {
                     if (future.isSuccess) {

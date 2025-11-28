@@ -1,5 +1,6 @@
 package io.intellij.kt.netty.server.tcpproxy.handler
 
+import io.intellij.kt.netty.commons.utils.ChannelUtils.closeOnFlush
 import io.netty.bootstrap.Bootstrap
 import io.netty.buffer.Unpooled
 import io.netty.channel.Channel
@@ -83,17 +84,4 @@ class HexDumpProxyFrontendHandler(
         }
     }
 
-    companion object {
-        /**
-         * Close on the flush.
-         *
-         * @param ch the ch
-         */
-        fun closeOnFlush(ch: Channel) {
-            if (ch.isActive) {
-                ch.writeAndFlush(Unpooled.EMPTY_BUFFER)
-                    .addListener(ChannelFutureListener.CLOSE)
-            }
-        }
-    }
 }

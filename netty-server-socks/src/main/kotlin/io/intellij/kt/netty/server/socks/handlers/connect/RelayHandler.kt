@@ -18,10 +18,12 @@ class RelayHandler(val relayChannel: Channel) : ChannelInboundHandlerAdapter() {
         private val log = getLogger(RelayHandler::class.java)
     }
 
+    @Throws(Exception::class)
     override fun channelActive(ctx: ChannelHandlerContext) {
         ctx.writeAndFlush(Unpooled.EMPTY_BUFFER)
     }
 
+    @Throws(Exception::class)
     override fun channelRead(ctx: ChannelHandlerContext?, msg: Any?) {
         if (relayChannel.isActive) {
             relayChannel.writeAndFlush(msg)
@@ -30,6 +32,7 @@ class RelayHandler(val relayChannel: Channel) : ChannelInboundHandlerAdapter() {
         }
     }
 
+    @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext?) {
         if (relayChannel.isActive) {
             closeOnFlush(relayChannel)

@@ -45,7 +45,8 @@ tasks.register<Jar>("fatJar") {
     })
 
     manifest {
-        attributes["Main-Class"] = "io.intellij.netty.server.socks.SocksServerKt"
+        // attributes["Main-Class"] = "io.intellij.netty.server.socks.SocksServerKt"
+        attributes["Main-Class"] = "io.intellij.netty.server.socks.SocksServer"
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
