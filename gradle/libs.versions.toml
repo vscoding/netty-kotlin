@@ -34,6 +34,7 @@ commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-jupiter" }
 
 
 grpc-protobuf = { module = "io.grpc:grpc-protobuf", version = "1.76.0" }

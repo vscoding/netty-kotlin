@@ -41,10 +41,16 @@ class BootstrapLoopConnector(
             .option(ChannelOption.AUTO_READ, false)
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
 
-        this.loopConnect(selector.select()!!)
+        this.loopConnect(selector.select())
     }
 
-    private fun loopConnect(backend: Backend) {
+    private fun loopConnect(backend: Backend?) {
+        if (backend == null) {
+            log.error("No available backend server to connect")
+            ChannelUtils.closeOnFlush(inboundChannel)
+            return
+        }
+
         val f: ChannelFuture = b.connect(backend.host, backend.port)
         f.addListener(
             ChannelFutureListener { channelFuture: ChannelFuture ->
@@ -61,10 +67,11 @@ class BootstrapLoopConnector(
                 } else {
                     log.error("connect to backend failed: {}", channelFuture.cause().message)
                     val next: Backend? = selector.nextIfConnectFailed(backend)
+
                     if (next != null) {
                         loopConnect(next)
                     } else {
-                        log.error("No available backend server")
+                        log.error("No available backend server After all failed")
                         ChannelUtils.closeOnFlush(inboundChannel)
                     }
                 }

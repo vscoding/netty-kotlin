@@ -20,7 +20,6 @@ class BackendOutboundHandler(
     val target: Backend
 ) : ChannelInboundHandlerAdapter() {
 
-
     @Throws(Exception::class)
     override fun channelActive(ctx: ChannelHandlerContext) {
         selector.onChannelActive(target)
@@ -43,14 +42,12 @@ class BackendOutboundHandler(
 
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        // server closes the connection
         selector.onChannelInactive(target)
         ChannelUtils.closeOnFlush(inboundChannel)
     }
 
     @Throws(Exception::class)
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
-        // cause.printStackTrace();
+    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
         ChannelUtils.closeOnFlush(ctx.channel())
     }
 }

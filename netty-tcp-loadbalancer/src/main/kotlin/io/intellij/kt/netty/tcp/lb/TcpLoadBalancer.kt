@@ -14,7 +14,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
  *
  * @author tech@intellij.io
  */
-
 private val log = getLogger("TcpLoadBalancer")
 
 fun main() {

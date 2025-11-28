@@ -26,7 +26,7 @@
     </appender>
 
     <logger name="io.netty" level="INFO"/>
-    <logger name="io.intellij.netty" level="INFO"/>
+    <logger name="io.intellij.kt.netty" level="INFO"/>
 
     <root level="info">
         <appender-ref ref="console"/>
