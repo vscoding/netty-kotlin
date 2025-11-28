@@ -42,9 +42,8 @@ class MultiPortHttpServerTest {
         val boss = NioEventLoopGroup(1)
         val worker = NioEventLoopGroup(2)
 
-        val lock: Lock = ReentrantLock()
-        // Condition to signal shutdown
-        val shutdownCondition = lock.newCondition()
+        val lock = ReentrantLock()
+        val shutdownCondition = lock.newCondition() // Condition to signal shutdown
 
         try {
             for (port in ports) {

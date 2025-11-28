@@ -29,10 +29,10 @@ class MultiPortEchoServerTest {
     fun running() {
         val ports: List<Int> = listOf(8081, 8082, 8083)
 
-        val boss: EventLoopGroup = NioEventLoopGroup(1)
-        val worker: EventLoopGroup = NioEventLoopGroup(2)
+        val boss = NioEventLoopGroup(1)
+        val worker = NioEventLoopGroup(2)
 
-        val lock: Lock = ReentrantLock()
+        val lock = ReentrantLock()
         val shutdownCondition = lock.newCondition()
 
         try {
