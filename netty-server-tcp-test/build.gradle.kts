@@ -47,7 +47,7 @@ tasks.register<Jar>("fatJar") {
     })
 
     manifest {
-        attributes["Main-Class"] = "io.intellij.kt.netty.tcp.lb.TcpLoadBalancerKt"
+        attributes["Main-Class"] = "io.intellij.kt.netty.server.test.TcpServer"
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

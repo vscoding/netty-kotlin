@@ -19,19 +19,20 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 object TcpServer {
     private val log = getLogger(TcpServer::class.java)
 
-    private val port = System.getProperty("port")?.toInt() ?: 8080
-    private val type = System.getProperty("type") ?: "echo"
+    private data class Config(
+        val port: Int = 8080,
+        val type: String = "echo" // "echo" or "log"
+    )
+
+    private fun resolveConfig(): Config {
+        val port = System.getenv("SERVER_PORT")?.toIntOrNull() ?: 8080
+        val type = System.getenv("TEST_TYPE")?.lowercase() ?: "log"
+        return Config(port, type)
+    }
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val handler = when (type) {
-            "echo" -> EchoHandler()
-            "log" -> LogHandler()
-            else -> {
-                log.error("Unknown server type: $type")
-                return
-            }
-        }
+        val config = resolveConfig()
 
         val boss = NioEventLoopGroup(1)
         val worker = NioEventLoopGroup()
@@ -45,12 +46,18 @@ object TcpServer {
                 override fun initChannel(ch: SocketChannel) {
                     ch.pipeline()
                         .addLast(ConnectionHandler())
-                        .addLast(handler)
+                        .addLast(
+                            when (config.type) {
+                                "echo" -> EchoHandler()
+                                "log" -> LogHandler()
+                                else -> LogHandler()
+                            }
+                        )
                 }
             })
         try {
-            val sync = b.bind(port).sync()
-            log.info("TcpServer (type:{}) start on port: {}", type, port)
+            val sync = b.bind(config.port).sync()
+            log.info("TcpServer (type:{}) start on port: {}", config.type, config.port)
             sync.channel().closeFuture().sync()
         } catch (e: Exception) {
             log.error("TcpServer start failed: ${e.message}", e)
