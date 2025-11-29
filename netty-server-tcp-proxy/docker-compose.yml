@@ -1,0 +1,11 @@
+services:
+  netty-server-tcp-test:
+    image: "svcops/netty-server-tcp-proxy"
+    ports:
+      - "3306:3306"
+    environment:
+      - TZ=Asia/Shanghai
+      - JAVA_OPTS=-Xmx128m -Xms128m
+      - LOCAL_PORT=3306
+      - REMOTE_HOST=example.com
+      - REMOTE_PORT=3306

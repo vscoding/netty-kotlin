@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
+group = "io.intellij.kt.netty.server"
+version = 1.0
+
 val projectJdkVersion = libs.versions.java.get().toInt()
 
 java {
@@ -42,7 +45,7 @@ tasks.register<Jar>("fatJar") {
     })
 
     manifest {
-        attributes["Main-Class"] = "io.intellij.kt.netty.server.tcpproxy.HexDumpProxyKt"
+        attributes["Main-Class"] = "io.intellij.kt.netty.server.tcpproxy.HexDumpProxy"
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
