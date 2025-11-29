@@ -9,16 +9,16 @@
 
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>
-            ./logs/tcp-test.log
+            ./logs/tcp.log
         </file>
         <append>true</append>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15.15thread] %-40.40logger{39} : %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%15.15thread] %-40.40logger{39} : %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>
-                ./logs/tcp-test-%d{yyyy-MM-dd}.%i.log
+                ./logs/tcp-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <maxHistory>30</maxHistory>
             <maxFileSize>20MB</maxFileSize>
