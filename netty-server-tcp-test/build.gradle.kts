@@ -3,6 +3,7 @@ plugins {
 }
 
 group = "io.intellij.kt.netty.server"
+version = 1.0
 
 val projectJdkVersion = libs.versions.java.get().toInt()
 
