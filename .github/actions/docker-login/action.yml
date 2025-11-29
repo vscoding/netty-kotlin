@@ -1,0 +1,35 @@
+name: 'Docker Login'
+description: 'Log in to DockerHub and Aliyun Container Registry'
+inputs:
+  dockerhub-username:
+    description: 'DockerHub Username'
+    required: true
+  dockerhub-password:
+    description: 'DockerHub Password'
+    required: true
+  aliyun-registry:
+    description: 'Aliyun Registry URL'
+    required: true
+  aliyun-username:
+    description: 'Aliyun Username'
+    required: true
+  aliyun-password:
+    description: 'Aliyun Password'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        registry: docker.io
+        username: ${{ inputs.dockerhub-username }}
+        password: ${{ inputs.dockerhub-password }}
+
+    - name: Log in to Aliyun Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ inputs.aliyun-registry }}
+        username: ${{ inputs.aliyun-username }}
+        password: ${{ inputs.aliyun-password }}
