@@ -17,7 +17,7 @@ jobs:
     # 支持手动构建和提交信息中存在关键字 build_ubuntu-ext
     if: >-
       github.event_name == 'workflow_dispatch' || 
-      contains(github.event.head_commit.message, 'build_tcp_test')
+      contains(github.event.head_commit.message, 'build_tcp_proxy')
 
     steps:
       - name: Checkout code
