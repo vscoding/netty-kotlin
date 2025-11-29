@@ -8,7 +8,7 @@ import io.intellij.kt.netty.tcpfrp.protocol.server.ListeningResponse
  *
  * @author tech@intellij.io
  */
-object MultiPortUtils {
+object MultiPortsTestUtils {
 
     fun test(listeningPorts: List<Int>): ListeningResponse {
         val listeningStatus = HashMap<Int, Boolean>()

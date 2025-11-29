@@ -8,8 +8,8 @@ import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningRequest
 import io.intellij.kt.netty.tcpfrp.protocol.server.ListeningResponse
 import io.intellij.kt.netty.tcpfrp.server.handlers.dispatch.DispatchToUserHandler
 import io.intellij.kt.netty.tcpfrp.server.handlers.dispatch.ReceiveServiceStateHandler
-import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortNettyServer
-import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortUtils
+import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortsNettyServer
+import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortsTestUtils
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandlerContext
@@ -41,10 +41,10 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
         log.info("get listening request: {}", listeningRequest)
         val listeningPorts: List<Int> = listeningRequest.listeningPorts
         // 测试可以监听
-        val test: ListeningResponse = MultiPortUtils.test(listeningPorts)
-        if (test.success) {
+        val test: ListeningResponse = MultiPortsTestUtils.test(listeningPorts)
 
-            val server = MultiPortNettyServer(listeningPorts, frpChannel)
+        if (test.success) {
+            val server = MultiPortsNettyServer(listeningPorts, frpChannel)
             if (server.start()) {
                 frpChannel.write(FrpBasicMsg.createListeningResponse(test)).addListener(
                     ChannelFutureListener { f: ChannelFuture ->
@@ -53,7 +53,7 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
                             val p = ctx.pipeline()
                             p.remove(this)
                             log.info("init MultiPortNettyServer")
-                            MultiPortNettyServer.buildIn(frpChannel.getBy(), server)
+                            MultiPortsNettyServer.buildIn(frpChannel.getBy(), server)
 
                             log.info("init DispatchManager")
                             DispatchManager.buildIn(frpChannel.getBy())

@@ -18,30 +18,31 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * @author tech@intellij.io
  */
-class MultiPortNettyServer(
+class MultiPortsNettyServer(
     val ports: List<Int>,
     val frpChannel: FrpChannel
 ) {
 
     companion object {
-        private val log = getLogger(MultiPortNettyServer::class.java)
+        private val log = getLogger(MultiPortsNettyServer::class.java)
 
-        private var MULTI_PORT_NETTY_SERVER_KEY = AttributeKey.valueOf<MultiPortNettyServer>("multiPortNettyServer")
+        private var MULTI_PORTS_NETTY_SERVER_KEY = AttributeKey.valueOf<MultiPortsNettyServer>("multiPortsNettyServer")
 
-        fun buildIn(ch: Channel, server: MultiPortNettyServer) {
-            ch.attr(MULTI_PORT_NETTY_SERVER_KEY).set(server)
+        fun buildIn(ch: Channel, server: MultiPortsNettyServer) {
+            ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).set(server)
         }
 
         fun stopIn(ch: Channel) {
-            val server = ch.attr(MULTI_PORT_NETTY_SERVER_KEY).get()
+            val server = ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).get()
             if (server != null) {
                 server.stop()
-                ch.attr(MULTI_PORT_NETTY_SERVER_KEY).set(null)
+                ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).set(null)
             }
         }
 
     }
 
+    // port -> serverChannel
     private val serverChannelMap = ConcurrentHashMap<Int, Channel>()
 
     fun start(): Boolean {
@@ -54,7 +55,7 @@ class MultiPortNettyServer(
                 val b = ServerBootstrap()
                 b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel::class.java)
-                    .childOption<Boolean?>(ChannelOption.AUTO_READ, false)
+                    .childOption(ChannelOption.AUTO_READ, false)
                     .childHandler(object : ChannelInitializer<SocketChannel>() {
                         @Throws(Exception::class)
                         override fun initChannel(ch: SocketChannel) {

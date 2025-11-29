@@ -7,7 +7,7 @@ import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.client.ServiceState
 import io.intellij.kt.netty.tcpfrp.protocol.server.UserState
-import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortNettyServer
+import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortsNettyServer
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 
@@ -73,7 +73,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
         log.warn("stop multi port server")
-        MultiPortNettyServer.stopIn(ctx.channel())
+        MultiPortsNettyServer.stopIn(ctx.channel())
     }
 
 }

@@ -34,12 +34,12 @@ class FrpDecoder(
     private var type: FrpMsgType? = null
     private var length: Int = 0
 
-    override fun decode(ctx: ChannelHandlerContext, `in`: ByteBuf, out: MutableList<Any>) {
+    override fun decode(ctx: ChannelHandlerContext, inByteBuf: ByteBuf, out: MutableList<Any>) {
         // 用循环模拟 Java switch 的“可能贯穿”行为，每个分支完成后根据需要 checkpoint 并 return/continue
         while (true) {
             when (state()) {
                 READ_TYPE -> {
-                    val t = FrpMsgType.getByType(`in`.readByte().toInt())
+                    val t = FrpMsgType.getByType(inByteBuf.readByte().toInt())
                         ?: throw IllegalStateException("无效的消息类型")
                     type = t
                     if (t == FrpMsgType.DATA_PACKET) {
@@ -51,15 +51,17 @@ class FrpDecoder(
                 }
 
                 READ_LENGTH -> {
-                    length = `in`.readInt()
-                    if (length <= 0) throw IllegalStateException("无效的消息长度")
+                    length = inByteBuf.readInt()
+                    if (length <= 0) {
+                        throw IllegalStateException("无效的消息长度")
+                    }
                     checkpoint(READ_BASIC_MSG)
                     // 继续落入下一状态
                 }
 
                 READ_BASIC_MSG -> {
                     val content = ByteArray(length)
-                    `in`.readBytes(content)
+                    inByteBuf.readBytes(content)
                     val json = String(content)
 
                     when (mode) {
@@ -112,18 +114,20 @@ class FrpDecoder(
                         }
                     }
 
-                    checkpoint(READ_TYPE)
+                    checkpoint(READ_TYPE) // 准备读取下一条消息
                     return
                 }
 
                 READ_DISPATCH_PACKET -> {
                     val dispatchIdBytes = ByteArray(DispatchIdUtils.ID_LENGTH)
-                    `in`.readBytes(dispatchIdBytes)
+                    inByteBuf.readBytes(dispatchIdBytes)
                     val dispatchId = String(dispatchIdBytes)
-                    val packetLen = `in`.readInt()
-                    if (packetLen <= 0) throw IllegalStateException("无效的DispatchPacket消息长度")
-                    out.add(DispatchPacket.createAndRetain(dispatchId, `in`.readSlice(packetLen)))
-                    checkpoint(READ_TYPE)
+                    val packetLen = inByteBuf.readInt()
+                    if (packetLen <= 0) {
+                        throw IllegalStateException("无效的DispatchPacket消息长度")
+                    }
+                    out.add(DispatchPacket.createAndRetain(dispatchId, inByteBuf.readSlice(packetLen)))
+                    checkpoint(READ_TYPE) // 准备读取下一条消息
                     return
                 }
             }
