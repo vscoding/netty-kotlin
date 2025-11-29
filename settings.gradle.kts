@@ -21,6 +21,7 @@ include("netty-client-reconnect:reconnect-client")
 include("netty-server-socks")
 include("netty-server-tcp-proxy")
 include("netty-tcp-loadbalancer")
+include("netty-server-tcp-test")
 
 include("netty-frp-tcp:frp-tcp-commons")
 include("netty-frp-tcp:netty-frp-tcp-client")

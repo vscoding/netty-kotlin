@@ -13,4 +13,8 @@ data class ConnInfo(
         fun of(host: String, port: Int) = ConnInfo(host, port)
         fun unknown() = ConnInfo("unknown", -1)
     }
+
+    override fun toString(): String {
+        return "ConnInfo(host='$host', port=$port)"
+    }
 }

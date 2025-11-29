@@ -6,39 +6,35 @@ This repository contains several distinct modules for handling various TCP netwo
 
 ## Modules
 
-The project is organized into several submodules:
+The project is organized into several modules, each serving a specific networking purpose:
 
-### 1. netty-tcp-loadbalancer
+* **commons-dependencies**
+  * Core module containing shared dependencies and utility classes (e.g., `ByteUtils`, `ChannelUtils`) used across other modules.
 
-A TCP Load Balancer implementation.
+* **netty-client-reconnect**
+  * `reconnect-client`: A robust TCP client implementation featuring automatic reconnection logic for resilient connectivity.
+  * `echo-server`: A simple server used for testing the reconnection client.
 
-- **Key Features**: Handles incoming TCP traffic and distributes it to backend servers.
-- **Configuration**: Uses `lb-config.json` for defining listening ports and backend targets.
-- **Structure**: Includes logic for connection handling (`handlers`) and target selection strategies (`selector`).
+* **netty-server-socks**
+  * Implementation of a SOCKS proxy server.
 
-### 2. netty-server-socks
+* **netty-server-tcp-proxy**
+  * A TCP proxy server designed to forward traffic between clients and backend servers.
+  * Includes capabilities like `HexDumpProxy` for traffic inspection and debugging.
 
-A SOCKS proxy server implementation.
+* **netty-tcp-loadbalancer**
+  * A TCP load balancer module for distributing incoming network traffic across multiple backend servers.
 
-- Handle SOCKS protocol negotiation and traffic relaying.
+* **netty-server-tcp-test**
+  * A versatile TCP testing server (`TcpServer`) that supports multiple modes:
+    * **Echo Mode**: Echoes received data back to the client.
+    * **Log Mode**: Logs received bytes (Hex/ASCII) for analysis without responding.
 
-### 3. netty-server-tcp-proxy
-
-A standard TCP Proxy server.
-
-- Forwards TCP traffic from a local port to a remote destination.
-
-### 4. netty-frp-tcp
-
-**FRP (Fast Reverse Proxy)** implementation for TCP.
-
-- Likely used to expose a local server behind a NAT or firewall to the internet.
-
-### 5. netty-client-reconnect
-
-A client-side utility module.
-
-- Focuses on robust TCP client connections with automatic reconnection logic.
+* **netty-frp-tcp**
+  * A Fast Reverse Proxy (FRP) implementation over TCP.
+  * `netty-frp-tcp-client`: The client-side component for the reverse proxy.
+  * `netty-frp-tcp-server`: The server-side component for the reverse proxy.
+  * `frp-tcp-commons`: Shared definitions and logic for the FRP modules.
 
 ## Tech Stack
 
