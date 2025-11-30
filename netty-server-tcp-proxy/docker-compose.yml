@@ -3,6 +3,8 @@ services:
     image: "svcops/netty-server-tcp-proxy"
     ports:
       - "3306:3306"
+    volumes:
+      - ./logs:/opt/app/logs
     environment:
       - TZ=Asia/Shanghai
       - JAVA_OPTS=-Xmx128m -Xms128m

@@ -3,6 +3,8 @@ services:
     image: "svcops/netty-server-tcp-test"
     ports:
       - "8080:8080"
+    volumes:
+      - ./logs:/opt/app/logs
     environment:
       - TZ=Asia/Shanghai
       - SERVER_PORT=8080
