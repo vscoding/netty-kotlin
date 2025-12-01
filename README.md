@@ -30,6 +30,10 @@ The project is organized into several modules, each serving a specific networkin
     * **Echo Mode**: Echoes received data back to the client.
     * **Log Mode**: Logs received bytes (Hex/ASCII) for analysis without responding.
 
+* **netty-spring-boot**
+  * Integration module for using Netty within Spring Boot applications.
+  * Provides a `NettyServer` class that can be easily configured and started as part of a Spring Boot application.
+
 * **netty-frp-tcp**
   * A Fast Reverse Proxy (FRP) implementation over TCP.
   * `netty-frp-tcp-client`: The client-side component for the reverse proxy.
