@@ -19,17 +19,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 object TcpServer {
     private val log = getLogger(TcpServer::class.java)
 
-    private data class Config(
-        val port: Int = 8080,
-        val type: String = "echo" // "echo" or "log"
-    )
-
-    private fun resolveConfig(): Config {
-        val port = System.getenv("SERVER_PORT")?.toIntOrNull() ?: 8080
-        val type = System.getenv("TEST_TYPE")?.lowercase() ?: "log"
-        return Config(port, type)
-    }
-
     @JvmStatic
     fun main(args: Array<String>) {
         val config = resolveConfig()
@@ -37,12 +26,12 @@ object TcpServer {
         val boss = NioEventLoopGroup(1)
         val worker = NioEventLoopGroup()
 
-        val b = ServerBootstrap()
-
-        b.group(boss, worker)
-            .channel(NioServerSocketChannel::class.java)
-            .childOption(ChannelOption.SO_KEEPALIVE, true)
-            .childHandler(object : ChannelInitializer<SocketChannel>() {
+        val b = ServerBootstrap().apply {
+            this.group(boss, worker)
+                .channel(NioServerSocketChannel::class.java)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+        }.apply {
+            this.childHandler(object : ChannelInitializer<SocketChannel>() {
                 override fun initChannel(ch: SocketChannel) {
                     ch.pipeline()
                         .addLast(ActiveHandler())
@@ -55,17 +44,30 @@ object TcpServer {
                         )
                 }
             })
-        try {
+        }
+
+        runCatching {
             val sync = b.bind(config.port).sync()
             log.info("TcpServer (type:{}) start on port: {}", config.type, config.port)
             sync.channel().closeFuture().sync()
-        } catch (e: Exception) {
-            log.error("TcpServer start failed: ${e.message}", e)
-        } finally {
+        }.onFailure { e ->
+            log.error("TcpServer start error", e)
+        }.also {
             boss.shutdownGracefully()
             worker.shutdownGracefully()
         }
 
+    }
+
+    private data class Config(
+        val port: Int = 8080,
+        val type: String = "echo" // "echo" or "log"
+    )
+
+    private fun resolveConfig(): Config {
+        val port = System.getenv("SERVER_PORT")?.toIntOrNull() ?: 8080
+        val type = System.getenv("TEST_TYPE")?.lowercase() ?: "log"
+        return Config(port, type)
     }
 
 }
