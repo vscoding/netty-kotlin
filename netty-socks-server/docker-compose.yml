@@ -1,5 +1,5 @@
 services:
-  netty-server-tcp-test:
+  netty-socks-server:
     image: "svcops/netty-socks-server"
     ports:
       - "1080:1080"

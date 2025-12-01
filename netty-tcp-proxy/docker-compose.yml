@@ -1,5 +1,5 @@
 services:
-  netty-server-tcp-test:
+  netty-tcp-proxy:
     image: "svcops/netty-tcp-proxy"
     ports:
       - "3306:3306"
