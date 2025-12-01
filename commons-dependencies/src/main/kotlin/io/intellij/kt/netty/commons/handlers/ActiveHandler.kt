@@ -1,4 +1,4 @@
-package io.intellij.kt.netty.server.test.handlers
+package io.intellij.kt.netty.commons.handlers
 
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.commons.utils.CtxUtils
@@ -6,13 +6,13 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 
 /**
- * ConnectionHandler
+ * ActiveHandler
  *
  * @author tech@intellij.io
  */
-class ConnectionHandler : ChannelInboundHandlerAdapter() {
+class ActiveHandler : ChannelInboundHandlerAdapter() {
     companion object {
-        private val log = getLogger(ConnectionHandler::class.java)
+        private val log = getLogger(ActiveHandler::class.java)
     }
 
     @Throws(Exception::class)
@@ -22,12 +22,8 @@ class ConnectionHandler : ChannelInboundHandlerAdapter() {
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         // Pass to the next handler
+        ctx.pipeline().remove(this)
         ctx.fireChannelRead(msg)
-    }
-
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.warn("Client disconnected|{}", CtxUtils.getRemoteAddress(ctx))
     }
 
 }

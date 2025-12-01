@@ -1,9 +1,8 @@
 [versions]
-freefair-lombok = "8.13.1"
 java = "21"
 kotlin = "2.2.21"
 
-spring-boot = "3.2.10"
+spring-boot = "3.4.12"
 protoc = "3.24.3"
 grpc = "1.76.0"
 grp-spring-boot-starter = "3.1.0.RELEASE"

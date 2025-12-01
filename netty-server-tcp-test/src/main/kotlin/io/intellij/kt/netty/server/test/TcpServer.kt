@@ -1,9 +1,9 @@
 package io.intellij.kt.netty.server.test
 
 import io.intellij.kt.netty.commons.getLogger
-import io.intellij.kt.netty.server.test.handlers.ConnectionHandler
-import io.intellij.kt.netty.server.test.handlers.EchoHandler
-import io.intellij.kt.netty.server.test.handlers.LogHandler
+import io.intellij.kt.netty.commons.handlers.ActiveHandler
+import io.intellij.kt.netty.commons.handlers.EchoHandler
+import io.intellij.kt.netty.commons.handlers.LogHandler
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
@@ -45,7 +45,7 @@ object TcpServer {
             .childHandler(object : ChannelInitializer<SocketChannel>() {
                 override fun initChannel(ch: SocketChannel) {
                     ch.pipeline()
-                        .addLast(ConnectionHandler())
+                        .addLast(ActiveHandler())
                         .addLast(
                             when (config.type) {
                                 "echo" -> EchoHandler()

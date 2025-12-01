@@ -1,6 +1,6 @@
 package io.intellij.kt.netty.server.test
 
-import io.intellij.kt.netty.server.test.handlers.EchoHandler
+import io.intellij.kt.netty.commons.handlers.EchoHandler
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.channel.embedded.EmbeddedChannel

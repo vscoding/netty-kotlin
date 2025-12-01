@@ -1,4 +1,4 @@
-package io.intellij.kt.netty.server.test
+package io.intellij.kt.netty.commons.utils
 
 import io.intellij.kt.netty.commons.getLogger
 import org.slf4j.Logger

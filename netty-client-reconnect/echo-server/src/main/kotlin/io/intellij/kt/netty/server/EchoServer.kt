@@ -1,8 +1,12 @@
 package io.intellij.kt.netty.server
 
 import io.intellij.kt.netty.commons.getLogger
+import io.intellij.kt.netty.commons.handlers.ActiveHandler
+import io.intellij.kt.netty.commons.handlers.DirectEchoHandler
 import io.netty.bootstrap.ServerBootstrap
+import io.netty.channel.ChannelInitializer
 import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.logging.LogLevel
 import io.netty.handler.logging.LoggingHandler
@@ -25,7 +29,13 @@ object EchoServer {
                 group(boss, worker)
                 channel(NioServerSocketChannel::class.java)
                 handler(LoggingHandler(LogLevel.DEBUG))
-                childHandler(ServerChannelInitial())
+                childHandler(object : ChannelInitializer<SocketChannel>() {
+                    override fun initChannel(ch: SocketChannel) {
+                        ch.pipeline()
+                            .addLast(ActiveHandler())
+                            .addLast(DirectEchoHandler())
+                    }
+                })
             }.also {
                 val future = it.bind(port).sync()
                 log.info("Echo server started on port: $port")
