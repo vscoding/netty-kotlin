@@ -15,17 +15,17 @@ The project is organized into several modules, each serving a specific networkin
   * `reconnect-client`: A robust TCP client implementation featuring automatic reconnection logic for resilient connectivity.
   * `echo-server`: A simple server used for testing the reconnection client.
 
-* **netty-server-socks**
+* **netty-socks-server**
   * Implementation of a SOCKS proxy server.
 
-* **netty-server-tcp-proxy**
+* **netty-tcp-proxy**
   * A TCP proxy server designed to forward traffic between clients and backend servers.
   * Includes capabilities like `HexDumpProxy` for traffic inspection and debugging.
 
 * **netty-tcp-loadbalancer**
   * A TCP load balancer module for distributing incoming network traffic across multiple backend servers.
 
-* **netty-server-tcp-test**
+* **netty-tcp-server-test**
   * A versatile TCP testing server (`TcpServer`) that supports multiple modes:
     * **Echo Mode**: Echoes received data back to the client.
     * **Log Mode**: Logs received bytes (Hex/ASCII) for analysis without responding.
