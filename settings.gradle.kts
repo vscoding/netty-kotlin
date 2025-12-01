@@ -21,10 +21,10 @@ include(":examples")
 include("netty-client-reconnect:echo-server")
 include("netty-client-reconnect:reconnect-client")
 
-include("netty-server-socks")
-include("netty-server-tcp-proxy")
+include("netty-socks-server")
+include("netty-tcp-proxy")
 include("netty-tcp-loadbalancer")
-include("netty-server-tcp-test")
+include("netty-tcp-server-test")
 
 include("netty-spring-boot")
 

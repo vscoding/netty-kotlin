@@ -9,8 +9,9 @@ branch="main"
 
 # 可用关键字列表
 key_word_list=(
-  "build_all"
-  "build_tcp_test"
+  "build_tcp_server_test"
+  "build_tcp_proxy"
+  "build_socks_server"
 )
 
 # 如果没有提供参数，直接退出

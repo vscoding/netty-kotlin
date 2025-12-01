@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
-group = "io.intellij.netty.server"
+group = "io.intellij.kt.netty.server"
 version = "1.0"
 
 val projectJdkVersion = libs.versions.java.get().toInt()
@@ -45,8 +45,8 @@ tasks.register<Jar>("fatJar") {
     })
 
     manifest {
-        // attributes["Main-Class"] = "io.intellij.netty.server.socks.SocksServerKt"
-        attributes["Main-Class"] = "io.intellij.netty.server.socks.SocksServer"
+        // attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServerKt"
+        attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServer"
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
