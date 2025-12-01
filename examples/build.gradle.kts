@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.jackson.annotations)
     implementation(libs.jackson.module.kotlin)
 
+    implementation(libs.fastjson2)
+
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testRuntimeOnly(libs.junit.platform.launcher)

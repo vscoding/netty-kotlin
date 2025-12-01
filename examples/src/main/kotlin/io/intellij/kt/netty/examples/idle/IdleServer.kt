@@ -22,7 +22,8 @@ import java.util.concurrent.TimeUnit
  */
 object IdleServer {
     private val log = getLogger(IdleServer::class.java)
-    var port: Int = 7000
+
+    const val PORT: Int = 7000
 
     @JvmStatic
     @Throws(Exception::class)
@@ -67,12 +68,12 @@ object IdleServer {
                     }
                 })
 
-            val bind = bootstrap.bind(port).sync()
+            val bind = bootstrap.bind(PORT).sync()
             bind.addListener(GenericFutureListener { future: Future<in Void> ->
                 if (future.isSuccess) {
-                    log.info("Idle Server Started successfully on port {}", port)
+                    log.info("Idle Server Started successfully on port {}", PORT)
                 } else {
-                    log.error("Idle Server Started failed on port {}", port, future.cause())
+                    log.error("Idle Server Started failed on port {}", PORT, future.cause())
                 }
             })
 

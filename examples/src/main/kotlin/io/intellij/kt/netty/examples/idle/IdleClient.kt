@@ -45,7 +45,7 @@ object IdleClient {
                     }
                 })
 
-            val connect = bootstrap.connect("127.0.0.1", IdleServer.port)
+            val connect = bootstrap.connect("127.0.0.1", IdleServer.PORT)
             connect.addListener(GenericFutureListener { future: Future<in Void> ->
                 if (future.isSuccess) {
                     log.info("连接服务端成功|channel.remoteAddr={}", connect.channel().remoteAddress())
