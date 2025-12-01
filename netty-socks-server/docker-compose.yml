@@ -1,13 +1,12 @@
 services:
   netty-server-tcp-test:
-    image: "svcops/netty-tcp-proxy"
+    image: "svcops/netty-socks-server"
     ports:
-      - "3306:3306"
+      - "1080:1080"
     volumes:
       - ./logs:/opt/app/logs
     environment:
       - TZ=Asia/Shanghai
       - JAVA_OPTS=-Xmx128m -Xms128m
-      - LOCAL_PORT=3306
-      - REMOTE_HOST=example.com
-      - REMOTE_PORT=3306
+      # - SOCKS5_USERNAME=admin # optional
+      # - SOCKS5_PASSWORD=admin # optional
