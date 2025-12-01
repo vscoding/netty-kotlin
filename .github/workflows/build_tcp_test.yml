@@ -23,14 +23,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Login to Registries
+      - name: Docker Login (DockerHub,ACR)
         uses: ./.github/actions/docker-login
         with:
-          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
-          dockerhub-password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          aliyun-registry: ${{ secrets.ALIYUN_REGISTRY }}
-          aliyun-username: ${{ secrets.ALIYUN_USERNAME }}
-          aliyun-password: ${{ secrets.ALIYUN_PASSWORD }}
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          aliyun_registry: ${{ secrets.ALIYUN_REGISTRY }}
+          aliyun_username: ${{ secrets.ALIYUN_USERNAME }}
+          aliyun_password: ${{ secrets.ALIYUN_PASSWORD }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
