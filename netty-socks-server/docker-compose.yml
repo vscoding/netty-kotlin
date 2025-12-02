@@ -8,5 +8,6 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - JAVA_OPTS=-Xmx128m -Xms128m
+      - SERVER_PORT=1080
       # - SOCKS5_USERNAME=admin # optional
       # - SOCKS5_PASSWORD=admin # optional
