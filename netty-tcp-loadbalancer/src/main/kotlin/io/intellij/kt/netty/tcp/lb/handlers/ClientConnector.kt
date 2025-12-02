@@ -14,18 +14,18 @@ import io.netty.channel.ChannelOption
 import io.netty.channel.socket.SocketChannel
 
 /**
- * BootstrapLoopConnector
+ * ClientConnector
  *
  * @author tech@intellij.io
  */
-class BootstrapLoopConnector(
+class ClientConnector(
     val selector: BackendSelector,
     val inboundChannel: Channel
 ) {
     private val b = Bootstrap()
 
     companion object {
-        private val log = getLogger(BootstrapLoopConnector::class.java)
+        private val log = getLogger(ClientConnector::class.java)
     }
 
     fun connect() {

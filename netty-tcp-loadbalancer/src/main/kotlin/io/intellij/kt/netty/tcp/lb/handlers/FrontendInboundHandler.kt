@@ -32,7 +32,7 @@ class FrontendInboundHandler(
         val inboundChannel = ctx.channel()
 
         val chooser: BackendSelector = BackendSelector.get(strategy, backends)
-        val loop = BootstrapLoopConnector(chooser, inboundChannel)
+        val loop = ClientConnector(chooser, inboundChannel)
         loop.connect()
     }
 
