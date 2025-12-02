@@ -6,7 +6,7 @@ WORKDIR /opt/builder
 COPY --chown=gradle:gradle . /opt/builder
 RUN gradle clean :${SUB_MODULE}:build -x test --no-daemon
 
-FROM eclipse-temurin:21-jre-jammy
+FROM azul/zulu-openjdk:21-jdk-crac
 ARG SUB_MODULE
 ARG JAR_NAME
 ENV JAR_NAME=${JAR_NAME}
