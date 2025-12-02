@@ -54,7 +54,7 @@ object AdapterMain {
             }
 
             @Throws(Exception::class)
-            override fun exceptionCaught(ctx: ChannelHandlerContext?, cause: Throwable) {
+            override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
                 log.error("exception caught: {}", cause.message)
             }
         })

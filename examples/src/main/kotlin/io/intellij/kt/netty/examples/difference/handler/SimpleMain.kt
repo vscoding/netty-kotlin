@@ -47,12 +47,12 @@ object SimpleMain {
             }
 
             @Throws(Exception::class)
-            override fun channelInactive(ctx: ChannelHandlerContext?) {
+            override fun channelInactive(ctx: ChannelHandlerContext) {
                 log.warn("channel inactive")
             }
 
             @Throws(Exception::class)
-            override fun exceptionCaught(ctx: ChannelHandlerContext?, cause: Throwable?) {
+            override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
                 log.error("exception caught", cause)
             }
         })
