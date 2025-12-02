@@ -45,5 +45,5 @@ jobs:
             svcops/netty-tcp-server-test:latest
             ${{ secrets.ALIYUN_REGISTRY }}/svcops/netty-tcp-server-test:latest
           build-args: |
-            SUB_MODULE=netty-tcp-server-test
+            SUB_PROJECT=netty-tcp-server-test
             JAR_NAME=netty-tcp-server-test-1.0-all.jar

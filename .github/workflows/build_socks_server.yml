@@ -45,5 +45,5 @@ jobs:
             svcops/netty-socks-server:latest
             ${{ secrets.ALIYUN_REGISTRY }}/svcops/netty-socks-server:latest
           build-args: |
-            SUB_MODULE=netty-socks-server
+            SUB_PROJECT=netty-socks-server
             JAR_NAME=netty-socks-server-1.0-all.jar

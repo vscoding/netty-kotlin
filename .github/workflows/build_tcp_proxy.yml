@@ -45,5 +45,5 @@ jobs:
             svcops/netty-tcp-proxy:latest
             ${{ secrets.ALIYUN_REGISTRY }}/svcops/netty-tcp-proxy:latest
           build-args: |
-            SUB_MODULE=netty-tcp-proxy
+            SUB_PROJECT=netty-tcp-proxy
             JAR_NAME=netty-tcp-proxy-1.0-all.jar
