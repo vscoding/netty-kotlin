@@ -25,28 +25,28 @@ import java.util.concurrent.locks.ReentrantLock
 class MultiPortEchoServerTest {
 
     @Test
-    @Throws(Exception::class)
     fun running() {
         val ports: List<Int> = listOf(8081, 8082, 8083)
-
         val boss = NioEventLoopGroup(1)
         val worker = NioEventLoopGroup(2)
 
         val lock = ReentrantLock()
-        val shutdownCondition = lock.newCondition()
+        val shutdownCondition = lock.newCondition()  // Condition to signal shutdown
 
-        try {
+        runCatching {
             for (port in ports) {
                 startServer(port, boss, worker, lock, shutdownCondition)
             }
             lock.lock()
-            try {
-                // curl localhost:8081/shutdown stop all server
+            run {
+                // send shutdown stops all server
                 shutdownCondition.await()
-            } finally {
+            }.also {
                 lock.unlock()
             }
-        } finally {
+        }.onFailure { e ->
+            println("start server error: ${e.message}")
+        }.also {
             boss.shutdownGracefully()
             worker.shutdownGracefully()
         }

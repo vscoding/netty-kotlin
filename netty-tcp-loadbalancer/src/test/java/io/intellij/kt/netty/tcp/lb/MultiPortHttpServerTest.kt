@@ -35,7 +35,6 @@ import java.util.concurrent.locks.ReentrantLock
 class MultiPortHttpServerTest {
 
     @Test
-    @Throws(Exception::class)
     fun running() {
         val ports = listOf(8081, 8082, 8083)
 
@@ -45,21 +44,24 @@ class MultiPortHttpServerTest {
         val lock = ReentrantLock()
         val shutdownCondition = lock.newCondition() // Condition to signal shutdown
 
-        try {
+        runCatching {
             for (port in ports) {
                 startServer(port, boss, worker, lock, shutdownCondition)
             }
             lock.lock()
-            try {
-                // curl localhost:8081/shutdown stop all server
+            run {
                 shutdownCondition.await()
-            } finally {
+            }.also {
                 lock.unlock()
             }
-        } finally {
+
+        }.onFailure { e ->
+            println("start server error: ${e.message}")
+        }.also {
             boss.shutdownGracefully()
             worker.shutdownGracefully()
         }
+
     }
 
     @Throws(Exception::class)
@@ -103,6 +105,7 @@ class MultiPortHttpServerTest {
                         "port" to port
                     )
                 )
+
                 val bytes = msg.toByteArray()
                 val response: FullHttpResponse = DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1,
