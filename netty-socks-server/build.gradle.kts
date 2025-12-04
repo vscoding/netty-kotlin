@@ -44,6 +44,9 @@ tasks.register<Jar>("fatJar") {
             .map { zipTree(it) }
     })
 
+    // 排除所有签名相关文件，避免 JVM 校验证书导致 SecurityException
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+
     manifest {
         // attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServerKt"
         attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServer"
