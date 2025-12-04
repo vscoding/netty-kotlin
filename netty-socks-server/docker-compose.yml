@@ -1,6 +1,6 @@
 services:
   netty-socks-server:
-    image: "acr.kubectl.net/svcops/netty-socks-server"
+    image: "svcops/netty-socks-server"
     ports:
       - "1080:1080"
     volumes:
