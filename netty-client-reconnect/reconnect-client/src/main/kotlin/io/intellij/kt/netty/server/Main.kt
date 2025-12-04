@@ -2,7 +2,8 @@ package io.intellij.kt.netty.server
 
 import io.intellij.kt.netty.server.connector.ClientInitializer
 import io.intellij.kt.netty.server.connector.Connector
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit
  * @author tech@intellij.io
  */
 fun main() {
-    val worker = NioEventLoopGroup(1)
+    val worker = MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory())
 
     val connector = Connector("127.0.0.1", 8082, worker, ClientInitializer())
         .apply { connect() }

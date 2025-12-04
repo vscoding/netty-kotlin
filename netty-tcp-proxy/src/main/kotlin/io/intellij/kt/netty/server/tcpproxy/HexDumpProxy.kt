@@ -4,7 +4,8 @@ import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.server.tcpproxy.handler.HexDumpProxyInitializer
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelOption
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.logging.LogLevel
 import io.netty.handler.logging.LoggingHandler
@@ -27,8 +28,9 @@ object HexDumpProxy {
 
         log.info("Proxying *:{} to {}:{}", config.localPort, config.remoteHost, config.remotePort)
 
-        val boss = NioEventLoopGroup(1)
-        val worker = NioEventLoopGroup()
+        val factory = NioIoHandler.newFactory()
+        val boss = MultiThreadIoEventLoopGroup(1, factory)
+        val worker = MultiThreadIoEventLoopGroup(factory)
 
         val b = ServerBootstrap()
             .apply {

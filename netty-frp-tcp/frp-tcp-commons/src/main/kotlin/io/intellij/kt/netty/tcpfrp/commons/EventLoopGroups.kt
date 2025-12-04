@@ -1,7 +1,8 @@
 package io.intellij.kt.netty.tcpfrp.commons
 
 import io.netty.channel.EventLoopGroup
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 
 /**
  * EventLoopGroups
@@ -20,6 +21,8 @@ class EventLoopGroups private constructor() {
     private var bossGroup: EventLoopGroup?
     private var workerGroup: EventLoopGroup?
 
+    private val factory = NioIoHandler.newFactory()
+
     init {
         this.bossGroup = null
         this.workerGroup = null
@@ -27,21 +30,21 @@ class EventLoopGroups private constructor() {
 
     fun getBossGroup(): EventLoopGroup {
         if (this.bossGroup == null) {
-            this.bossGroup = NioEventLoopGroup(1)
+            this.bossGroup = MultiThreadIoEventLoopGroup(1, factory)
         }
         return this.bossGroup!!
     }
 
     fun getWorkerGroup(): EventLoopGroup {
         if (this.workerGroup == null) {
-            this.workerGroup = NioEventLoopGroup()
+            this.workerGroup = MultiThreadIoEventLoopGroup(factory)
         }
         return this.workerGroup!!
     }
 
     fun getWorkerGroup(nThreads: Int): EventLoopGroup {
         if (this.workerGroup == null) {
-            this.workerGroup = NioEventLoopGroup(nThreads)
+            this.workerGroup = MultiThreadIoEventLoopGroup(nThreads, factory)
         }
         return this.workerGroup!!
     }

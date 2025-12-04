@@ -5,7 +5,8 @@ import io.intellij.kt.netty.tcp.lb.config.ConfigParser
 import io.intellij.kt.netty.tcp.lb.handlers.LoadBalancerInitializer
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelOption
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.nio.NioServerSocketChannel
 
 /**
@@ -19,8 +20,10 @@ fun main() {
     ConfigParser.loadConfig("lb-config.json")?.let {
         log.info("lbConfig: {}", it)
 
-        val boss = NioEventLoopGroup(1)
-        val worker = NioEventLoopGroup()
+        val factory = NioIoHandler.newFactory()
+        val boss = MultiThreadIoEventLoopGroup(1, factory)
+        val worker = MultiThreadIoEventLoopGroup(factory)
+
         val bootstrap = ServerBootstrap()
             .group(boss, worker)
             .channel(NioServerSocketChannel::class.java)

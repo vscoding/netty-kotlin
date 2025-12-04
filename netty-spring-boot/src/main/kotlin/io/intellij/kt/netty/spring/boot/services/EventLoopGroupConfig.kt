@@ -1,7 +1,8 @@
 package io.intellij.kt.netty.spring.boot.services
 
 import io.netty.channel.EventLoopGroup
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -13,14 +14,16 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class EventLoopGroupConfig {
 
+    private val factory = NioIoHandler.newFactory()
+
     @Bean
     fun bossGroup(): EventLoopGroup {
-        return NioEventLoopGroup(1)
+        return MultiThreadIoEventLoopGroup(1, factory)
     }
 
     @Bean
     fun workerGroup(): EventLoopGroup {
-        return NioEventLoopGroup()
+        return MultiThreadIoEventLoopGroup(factory)
     }
 
 }

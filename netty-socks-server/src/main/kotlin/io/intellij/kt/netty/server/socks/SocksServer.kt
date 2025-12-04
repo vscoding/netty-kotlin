@@ -6,7 +6,9 @@ import io.intellij.kt.netty.server.socks.handlers.socks5auth.Authenticator
 import io.intellij.kt.netty.server.socks.handlers.socks5auth.PasswordAuthenticator
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelFuture
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.EventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.logging.LogLevel
 import io.netty.handler.logging.LoggingHandler
@@ -22,8 +24,9 @@ object SocksServer {
     @Throws(Exception::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        val boss = NioEventLoopGroup(1)
-        val worker = NioEventLoopGroup()
+        val factory = NioIoHandler.newFactory()
+        val boss: EventLoopGroup = MultiThreadIoEventLoopGroup(1, factory)
+        val worker: EventLoopGroup = MultiThreadIoEventLoopGroup(factory)
 
         val authenticator: Authenticator = PasswordAuthenticator()
 

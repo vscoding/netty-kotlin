@@ -7,8 +7,9 @@ import io.netty.channel.ChannelFutureListener
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.EventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
 import io.netty.channel.SimpleChannelInboundHandler
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http.DefaultFullHttpResponse
@@ -38,8 +39,9 @@ class MultiPortHttpServerTest {
     fun running() {
         val ports = listOf(8081, 8082, 8083)
 
-        val boss = NioEventLoopGroup(1)
-        val worker = NioEventLoopGroup(2)
+        val factory = NioIoHandler.newFactory()
+        val boss = MultiThreadIoEventLoopGroup(1, factory)
+        val worker = MultiThreadIoEventLoopGroup(factory)
 
         val lock = ReentrantLock()
         val shutdownCondition = lock.newCondition() // Condition to signal shutdown

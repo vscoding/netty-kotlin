@@ -6,7 +6,8 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.EventLoopGroup
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.timeout.IdleStateEvent
@@ -28,8 +29,10 @@ object IdleServer {
     @JvmStatic
     @Throws(Exception::class)
     fun main(args: Array<String>) {
-        val boss: EventLoopGroup = NioEventLoopGroup(1)
-        val worker: EventLoopGroup = NioEventLoopGroup(2)
+
+        val f = NioIoHandler.newFactory()
+        val boss: EventLoopGroup = MultiThreadIoEventLoopGroup(1, f)
+        val worker: EventLoopGroup = MultiThreadIoEventLoopGroup(2, f)
 
         val bootstrap = ServerBootstrap()
 

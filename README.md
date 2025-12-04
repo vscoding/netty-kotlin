@@ -43,7 +43,7 @@ The project is organized into several modules, each serving a specific networkin
 ## Tech Stack
 
 * **Language**: Kotlin
-* **Network Framework**: Netty (4.1.x)
+* **Network Framework**: Netty (4.2.x)
 * **Build System**: Gradle (Kotlin DSL)
 * **Logging**: SLF4J with Logback
 * **Utilities**:

@@ -7,7 +7,8 @@ import io.intellij.kt.netty.commons.handlers.LogHandler
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 
@@ -23,8 +24,9 @@ object TcpServer {
     fun main(args: Array<String>) {
         val config = resolveConfig()
 
-        val boss = NioEventLoopGroup(1)
-        val worker = NioEventLoopGroup()
+        val factory = NioIoHandler.newFactory()
+        val boss = MultiThreadIoEventLoopGroup(1, factory)
+        val worker = MultiThreadIoEventLoopGroup(factory)
 
         val b = ServerBootstrap().apply {
             this.group(boss, worker)

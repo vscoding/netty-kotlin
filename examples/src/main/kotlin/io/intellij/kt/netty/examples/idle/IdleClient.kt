@@ -5,8 +5,8 @@ import io.netty.bootstrap.Bootstrap
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.channel.ChannelInitializer
-import io.netty.channel.EventLoopGroup
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.util.concurrent.Future
@@ -22,7 +22,8 @@ object IdleClient {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val group: EventLoopGroup = NioEventLoopGroup(2)
+        val factory = NioIoHandler.newFactory()
+        val group = MultiThreadIoEventLoopGroup(1, factory)
 
         val bootstrap = Bootstrap()
         try {
