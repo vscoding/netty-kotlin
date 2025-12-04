@@ -21,11 +21,17 @@ class ClientInitializer : ChannelInitializer<SocketChannel>() {
     override fun initChannel(ch: SocketChannel) {
         val p = ch.pipeline()
 
-        p.addLast(DispatchDecoder())
-        p.addLast(HeartBeatEncoder())
-        p.addLast(DataBodyEncoder())
+        /*
+        | type  | length  | body |
+        | 1 byte | 4 byte | ... |
+        type: 消息类型 1: HeartBeat 2: DataBody
+         */
+        p.addLast(DispatchDecoder()) // 接收服务端返回的消息，根据自定义的协议
 
-        p.addLast(LoginReqEncoder())
+        p.addLast(HeartBeatEncoder()) // 处理 客户端 发送 HeartBeat
+        p.addLast(DataBodyEncoder())  // 处理 客户端 发送 DataBody
+
+        p.addLast(LoginReqEncoder())  // 处理 客户端 发送 LoginReq 转变成 DataBody 由 DataBodyEncoder 处理
 
         p.addLast(ClientHeartBeatHandler())
         p.addLast(ClientDataBodyHandler())
