@@ -26,10 +26,7 @@ class Connector private constructor(
     private val bootstrap = Bootstrap()
 
     @Volatile
-    private var _channel: Channel? = null
-
-    val channel: Channel?
-        get() = _channel
+    private var _ch: Channel? = null
 
     init {
         // init 是主构造函数的一部分
@@ -63,32 +60,39 @@ class Connector private constructor(
                 @Throws(Exception::class)
                 override fun operationComplete(future: ChannelFuture) {
                     if (future.isSuccess) {
-                        _channel = future.channel()
+                        _ch = future.channel()
                         // 服务端断开连接
-                        addCloseDetectListener(_channel!!)
+                        // addCloseFutureListener(_ch!!)
+                        _ch!!.addCloseFutureListener()
                         log.info("connection established")
                     } else {
-                        _channel = null
+                        _ch = null
                         log.error("connection lost in bootstrap.connect")
-                        // bootstrap.connect(serverAddr).addListener(this);
                         connect(1000L)
                     }
-                }
-
-                fun addCloseDetectListener(channel: Channel) {
-                    // if the channel connection is lost, the ChannelFutureListener.operationComplete() will be called
-                    channel.closeFuture().addListener(object : ChannelFutureListener {
-                        @Throws(Exception::class)
-                        override fun operationComplete(future: ChannelFuture) {
-                            _channel = null
-                            log.error("connection lost in detect listener")
-                            connect(1000)
-                        }
-                    })
                 }
             })
         } catch (e: Exception) {
             log.error("do Connect Failed", e)
+        }
+    }
+
+    private fun Channel.addCloseFutureListener() {
+        // if the channel connection is lost, the ChannelFutureListener.operationComplete() will be called
+        this.closeFuture().addListener(object : ChannelFutureListener {
+            @Throws(Exception::class)
+            override fun operationComplete(future: ChannelFuture) {
+                _ch = null
+                log.error("connection lost in detect listener")
+                connect(1000)
+            }
+        })
+    }
+
+    fun writeAndFlush(msg: Any) = _ch?.run {
+        if (this.isActive) {
+            log.info("write msg|{}", msg)
+            this.writeAndFlush(msg)
         }
     }
 
