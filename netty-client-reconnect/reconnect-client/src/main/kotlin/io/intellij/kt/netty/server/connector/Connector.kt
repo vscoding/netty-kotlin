@@ -5,10 +5,12 @@ import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelFutureListener
+import io.netty.channel.ChannelInitializer
+import io.netty.channel.ChannelOption
+import io.netty.channel.EventLoopGroup
+import io.netty.channel.socket.nio.NioSocketChannel
 import java.net.InetSocketAddress
 import java.net.SocketAddress
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 /**
@@ -16,10 +18,9 @@ import java.util.concurrent.TimeUnit
  *
  * @author tech@intellij.io
  */
-class Connector(
+class Connector private constructor(
     private val serverAddr: SocketAddress,
-    private val ses: ScheduledExecutorService,
-    bootstrapInit: (Bootstrap) -> Unit
+    private val worker: EventLoopGroup,
 ) {
     private val log = getLogger(Connector::class.java)
     private val bootstrap = Bootstrap()
@@ -31,38 +32,26 @@ class Connector(
         get() = _channel
 
     init {
-        // 对应 bootstrapInit.accept(bootstrap)
-        bootstrapInit(bootstrap)
+        // init 是主构造函数的一部分
+        bootstrap.group(this.worker)
+            .channel(NioSocketChannel::class.java)
+            .option(ChannelOption.SO_KEEPALIVE, true)
     }
-
-    constructor(host: String, port: Int, bootstrapInit: (Bootstrap) -> Unit) :
-            this(
-                serverAddr = InetSocketAddress(host, port),
-                ses = Executors.newSingleThreadScheduledExecutor(),
-                bootstrapInit = bootstrapInit
-            )
 
     constructor(
-        host: String,
-        port: Int,
-        ses: ScheduledExecutorService,
-        bootstrapInit: (Bootstrap) -> Unit
-    ) : this(
-        serverAddr = InetSocketAddress(host, port),
-        ses = ses,
-        bootstrapInit = bootstrapInit
-    )
-
-    fun connect() {
-        this.doConnect()
+        host: String, port: Int,
+        worker: EventLoopGroup,
+        initializer: ChannelInitializer<Channel>,
+    ) : this(InetSocketAddress(host, port), worker) {
+        bootstrap.handler(initializer)
     }
 
-    fun connect(msDelay: Long) {
+    fun connect(msDelay: Long = 1000L) {
         this.connect(msDelay, TimeUnit.MILLISECONDS)
     }
 
     fun connect(delay: Long, unit: TimeUnit) {
-        ses.schedule({ this.doConnect() }, delay, unit)
+        this.worker.schedule({ this.doConnect() }, delay, unit)
     }
 
     private fun doConnect() {
@@ -82,7 +71,7 @@ class Connector(
                         _channel = null
                         log.error("connection lost in bootstrap.connect")
                         // bootstrap.connect(serverAddr).addListener(this);
-                        connect(1000)
+                        connect(1000L)
                     }
                 }
 

@@ -17,6 +17,7 @@ import java.util.UUID
  */
 class ClientInitializer : ChannelInitializer<Channel>() {
     companion object {
+        private val log = getLogger(ClientInitializer::class.java)
         private val UUID_LENGTH = UUID.randomUUID().toString().length
     }
 
@@ -28,11 +29,27 @@ class ClientInitializer : ChannelInitializer<Channel>() {
         p.addLast(ClientHandler())
 
     }
+
 }
 
 class ClientHandler : SimpleChannelInboundHandler<String>() {
-    private val log = getLogger(ClientHandler::class.java)
+    companion object {
+        private val log = getLogger(ClientHandler::class.java)
+    }
+
+    @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: String) {
         log.info("read  msg|{}", msg)
     }
+
+    @Throws(Exception::class)
+    override fun channelInactive(ctx: ChannelHandlerContext) {
+        log.warn("lost connection, reconnecting...")
+    }
+
+    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+        log.error("exceptionCaught|{}", cause.message)
+        ctx.close()
+    }
+
 }

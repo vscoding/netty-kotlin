@@ -3,11 +3,8 @@ package io.intellij.kt.netty.server
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.server.connector.ClientInitializer
 import io.intellij.kt.netty.server.connector.Connector
-import io.netty.channel.ChannelOption
 import io.netty.channel.nio.NioEventLoopGroup
-import io.netty.channel.socket.nio.NioSocketChannel
 import java.util.UUID
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 /**
@@ -18,19 +15,13 @@ import java.util.concurrent.TimeUnit
 private val log = getLogger("ReconnectClient")
 
 fun main() {
-    val ses = Executors.newSingleThreadScheduledExecutor()
+    val worker = NioEventLoopGroup(1)
 
-    val connector = Connector("127.0.0.1", 8082, { bootstrap ->
-        val worker = NioEventLoopGroup(1)
-        bootstrap.group(worker)
-            .channel(NioSocketChannel::class.java)
-            .option(ChannelOption.SO_KEEPALIVE, true)
-            .handler(ClientInitializer())
-    })
+    val connector = Connector("127.0.0.1", 8082, worker, ClientInitializer())
 
     connector.connect()
 
-    ses.scheduleAtFixedRate({
+    worker.scheduleAtFixedRate({
         connector.channel?.also {
             if (it.isActive) {
                 val uuid: String = UUID.randomUUID().toString()
