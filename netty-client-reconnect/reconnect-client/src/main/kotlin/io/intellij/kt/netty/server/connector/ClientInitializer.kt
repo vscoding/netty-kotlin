@@ -17,7 +17,6 @@ import java.util.UUID
  */
 class ClientInitializer : ChannelInitializer<Channel>() {
     companion object {
-        private val log = getLogger(ClientInitializer::class.java)
         private val UUID_LENGTH = UUID.randomUUID().toString().length
     }
 
@@ -27,7 +26,6 @@ class ClientInitializer : ChannelInitializer<Channel>() {
         p.addLast(FixedLengthFrameDecoder(UUID_LENGTH))
         p.addLast(StringDecoder()).addLast(StringEncoder())
         p.addLast(ClientHandler())
-
     }
 
 }
