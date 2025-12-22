@@ -28,7 +28,8 @@ class ServerInitializer : ChannelInitializer<SocketChannel>() {
         | 1 byte | 4 byte | ... |
         type: 消息类型 1: HeartBeat 2: DataBody
          */
-        p.addLast(DispatchDecoder()) // 接收客户端发送的消息，根据自定义的协议分发
+        p.addLast(DispatchDecoder()) // 消息分发器
+
         p.addLast(HeartBeatEncoder()) // 服务端 编码 HeartBeat 响应
         p.addLast(DataBodyEncoder())  // 服务端 编码 DataBody
 
