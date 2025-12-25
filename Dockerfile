@@ -1,4 +1,4 @@
-FROM gradle:9.2-jdk21 AS builder
+FROM gradle:9.2-jdk25 AS builder
 ARG SUB_PROJECT
 ARG JAR_NAME
 USER root
@@ -6,7 +6,7 @@ WORKDIR /opt/builder
 COPY --chown=gradle:gradle . /opt/builder
 RUN gradle clean :${SUB_PROJECT}:build -x test --no-daemon
 
-FROM azul/zulu-openjdk:21-jre-crac
+FROM azul/zulu-openjdk:25-jre-crac
 ARG SUB_PROJECT
 ARG JAR_NAME
 ENV JAR_NAME=${JAR_NAME}

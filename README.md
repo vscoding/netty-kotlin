@@ -52,5 +52,5 @@ The project is organized into several modules, each serving a specific networkin
 
 ## Prerequisites
 
-* **JDK**: Java 21
-* **Kotlin**: 2.2.x
+* **JDK**: Java 25
+* **Kotlin**: 2.3
