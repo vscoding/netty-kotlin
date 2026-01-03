@@ -1,4 +1,4 @@
-name: Build and Push svcops/netty-socks-server image
+name: Build & Publish netty-socks-server Image
 
 on:
   push:
@@ -6,24 +6,24 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: netty-socks-server-${{ github.ref }}    # 按分支分组
+  group: netty-socks-server-image-${{ github.ref }}
   # 有新触发时取消同组在途运行
   cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_socks_server') }}
 
 jobs:
-  build-netty-socks-server:
-    name: Build and Push svcops/netty-socks-server image
+  publish-image:
     runs-on: ubuntu-latest
-    # 支持手动构建和提交信息中存在关键字 build_ubuntu-ext
+    name: Publish netty-socks-server Docker Image
+    # 支持手动构建和提交信息中存在关键字 build_socks_server
     if: >-
       github.event_name == 'workflow_dispatch' || 
       contains(github.event.head_commit.message, 'build_socks_server')
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Docker Login (DockerHub,ACR)
+      - name: Authenticate to Container Registries
         uses: ./.github/actions/docker-login
         with:
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -32,10 +32,10 @@ jobs:
           aliyun_username: ${{ secrets.ALIYUN_USERNAME }}
           aliyun_password: ${{ secrets.ALIYUN_PASSWORD }}
 
-      - name: Set up Docker Buildx
+      - name: Initialize Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Push svcops/netty-socks-server image
+      - name: Build and publish image
         uses: docker/build-push-action@v5
         with:
           context: .
