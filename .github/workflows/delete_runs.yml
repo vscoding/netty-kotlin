@@ -1,0 +1,38 @@
+name: Delete old workflow runs
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # Weekly, 00:00 Sunday (UTC)
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+    inputs:
+      retain_days:
+        description: "Retain workflow runs for N days"
+        required: false
+        default: "7"
+      keep_minimum_runs:
+        description: "Keep at least N runs"
+        required: false
+        default: "6"
+
+concurrency:
+  group: delete-workflow-runs-${{ github.repository }}
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, 'delete_runs')) }}
+
+jobs:
+  del_runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Delete workflow runs for current repo
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ secrets._GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: ${{ inputs.retain_days || 7 }}
+          keep_minimum_runs: ${{ inputs.keep_minimum_runs || 6 }}
