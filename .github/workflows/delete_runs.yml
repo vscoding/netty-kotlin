@@ -24,6 +24,10 @@ concurrency:
 jobs:
   del_runs:
     runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.message, 'delete_runs')
     permissions:
       actions: write
       contents: read
