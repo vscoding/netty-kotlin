@@ -6,9 +6,15 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: netty-tcp-server-test-image-${{ github.ref }}
-  # 有新触发时取消同组在途运行
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_tcp_server_test') }}
+  group: >-
+    netty-tcp-server-test-image-${{ github.ref }}-${{
+      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_tcp_server_test'))
+        && 'active'
+        || 'inactive'
+    }}
+  # 仅当本次 run 会真正执行构建时，才取消同组在途运行
+  cancel-in-progress: >-
+    ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_tcp_server_test') }}
 
 jobs:
   publish-image:
