@@ -1,6 +1,8 @@
 FROM gradle:9.2-jdk25 AS builder
 ARG SUB_PROJECT
 ARG JAR_NAME
+ARG BUILD_IN
+ENV BUILD_IN=${BUILD_IN}
 USER root
 WORKDIR /opt/builder
 COPY --chown=gradle:gradle . /opt/builder

@@ -1,7 +1,10 @@
 pluginManagement {
+    val buildIn = System.getenv("BUILD_IN") ?: "LOCAL"
     repositories {
+        if (buildIn == "GITHUB_ACTIONS") {
+            mavenCentral()
+        }
         maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-        mavenCentral()
         gradlePluginPortal()
     }
 }
