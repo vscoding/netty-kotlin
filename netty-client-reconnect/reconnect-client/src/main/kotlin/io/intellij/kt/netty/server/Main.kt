@@ -12,18 +12,28 @@ import java.util.concurrent.TimeUnit
  *
  * @author tech@intellij.io
  */
-fun main() {
-    val worker = MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory())
+object ReconnectClient {
 
-    val connector = Connector("127.0.0.1", 8082, worker, ClientInitializer())
-        .apply { connect() }
+    /**
+     * Creates a client; sends time‑varying messages periodically
+     */
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val worker = MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory())
+        val initializer = ::ClientInitializer
 
-    worker.scheduleAtFixedRate(
-        {
-            UUID.randomUUID()
-                .toString()
-                .also(connector::writeAndFlush)
-        },
-        1, 3, TimeUnit.SECONDS
-    )
+        val connector = Connector("127.0.0.1", 8082, worker, initializer).apply {
+            this.connect()
+        }
+
+        worker.scheduleAtFixedRate(
+            {
+                UUID.randomUUID()
+                    .toString()
+                    .also(connector::writeAndFlush)
+            },
+            1, 3, TimeUnit.SECONDS
+        )
+    }
+
 }

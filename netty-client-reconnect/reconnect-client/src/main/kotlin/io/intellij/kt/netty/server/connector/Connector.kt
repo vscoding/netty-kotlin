@@ -22,7 +22,12 @@ class Connector private constructor(
     private val serverAddr: SocketAddress,
     private val worker: EventLoopGroup,
 ) {
-    private val log = getLogger(Connector::class.java)
+
+    companion object {
+        private val log = getLogger(Connector::class.java)
+        private const val RETRY_DELAY = 1000L
+    }
+
     private val bootstrap = Bootstrap()
 
     @Volatile
@@ -38,17 +43,17 @@ class Connector private constructor(
     constructor(
         host: String, port: Int,
         worker: EventLoopGroup,
-        initializer: ChannelInitializer<Channel>,
+        initializer: () -> ChannelInitializer<Channel>,
     ) : this(InetSocketAddress(host, port), worker) {
-        bootstrap.handler(initializer)
+        bootstrap.handler(initializer())
     }
 
-    fun connect(msDelay: Long = 1000L) {
-        this.connect(msDelay, TimeUnit.MILLISECONDS)
+    fun connect(ms: Long = 0L) {
+        this.connect(ms, TimeUnit.MILLISECONDS)
     }
 
     fun connect(delay: Long, unit: TimeUnit) {
-        this.worker.schedule({ this.doConnect() }, delay, unit)
+        this.worker.schedule(this::doConnect, delay, unit)
     }
 
     private fun doConnect() {
@@ -67,8 +72,8 @@ class Connector private constructor(
                         log.info("connection established")
                     } else {
                         _ch = null
-                        log.error("connection lost in bootstrap.connect")
-                        connect(1000L)
+                        log.error("connection lost at bootstrap.doConnect()")
+                        connect(RETRY_DELAY, TimeUnit.MILLISECONDS)
                     }
                 }
             })
@@ -83,17 +88,21 @@ class Connector private constructor(
             @Throws(Exception::class)
             override fun operationComplete(future: ChannelFuture) {
                 _ch = null
-                log.error("connection lost in detect listener")
-                connect(1000)
+                log.error("connection lost at CloseFutureListener")
+                connect(RETRY_DELAY, TimeUnit.MILLISECONDS)
             }
         })
     }
 
-    fun writeAndFlush(msg: Any) = _ch?.run {
-        if (this.isActive) {
+    fun writeAndFlush(msg: Any) = _ch?.also {
+        if (it.isActive) {
             log.info("write msg|{}", msg)
-            this.writeAndFlush(msg)
+            it.writeAndFlush(msg)
+        } else {
+            log.warn("channel is inactive, cannot write msg")
         }
+    } ?: run {
+        log.warn("channel is null, cannot write msg")
     }
 
 }
