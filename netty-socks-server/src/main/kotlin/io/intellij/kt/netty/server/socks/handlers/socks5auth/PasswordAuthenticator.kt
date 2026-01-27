@@ -1,8 +1,8 @@
 package io.intellij.kt.netty.server.socks.handlers.socks5auth
 
 import io.intellij.kt.netty.commons.getLogger
-import io.intellij.kt.netty.server.socks.SocksServer.Environment.SOCKS5_PASSWORD
-import io.intellij.kt.netty.server.socks.SocksServer.Environment.SOCKS5_USERNAME
+import io.intellij.kt.netty.server.socks.Environment.SOCKS5_PASSWORD
+import io.intellij.kt.netty.server.socks.Environment.SOCKS5_USERNAME
 import org.apache.commons.lang3.StringUtils
 
 /**

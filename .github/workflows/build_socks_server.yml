@@ -13,8 +13,7 @@ concurrency:
         || 'inactive'
     }}
   # 仅当本次 run 会真正执行构建时，才取消同组在途运行
-  cancel-in-progress: >-
-    ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_socks_server') }}
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_socks_server') }}
 
 jobs:
   publish-image:
