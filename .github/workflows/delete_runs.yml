@@ -17,15 +17,17 @@ on:
         required: false
         default: "6"
 
+# 仅当本次 run 会真正执行迁移时，才启用并发互斥（否则不需要占用并发组）
 concurrency:
   group: >-
-    delete-workflow-runs-${{ github.repository }}-${{
-      (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, 'delete_runs'))
+    delete-workflow-runs-${{ github.ref }}-${{
+      github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:ops:cleanup:runs')
         && 'active'
         || 'inactive'
     }}
-  # 仅当本次 run 会真正执行删除时，才取消同组在途运行
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, 'delete_runs') }}
+  # 只有“会执行迁移”的 run 才取消旧的 in-progress run
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:ops:cleanup:runs') }}
+
 
 jobs:
   del_runs:
@@ -33,7 +35,7 @@ jobs:
     if: >
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
-      contains(github.event.head_commit.message, 'delete_runs')
+      contains(github.event.head_commit.message, '@ci:ops:cleanup:runs')
     permissions:
       actions: write
       contents: read

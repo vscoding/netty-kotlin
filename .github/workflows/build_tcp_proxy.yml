@@ -8,21 +8,21 @@ on:
 concurrency:
   group: >-
     netty-tcp-proxy-image-${{ github.ref }}-${{
-      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_tcp_proxy'))
+      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:img:build:tcp_proxy'))
         && 'active'
         || 'inactive'
     }}
   # 仅当本次 run 会真正执行构建时，才取消同组在途运行
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'build_tcp_proxy') }}
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:img:build:tcp_proxy') }}
 
 jobs:
   publish-image:
     runs-on: ubuntu-latest
     name: Publish netty-tcp-proxy Docker Image
-    # 支持手动构建和提交信息中存在关键字 build_tcp_proxy
+    # 支持手动构建和提交信息中存在关键字 @ci:img:build:tcp_proxy
     if: >-
       github.event_name == 'workflow_dispatch' || 
-      contains(github.event.head_commit.message, 'build_tcp_proxy')
+      contains(github.event.head_commit.message, '@ci:img:build:tcp_proxy')
 
     steps:
       - name: Checkout repository
