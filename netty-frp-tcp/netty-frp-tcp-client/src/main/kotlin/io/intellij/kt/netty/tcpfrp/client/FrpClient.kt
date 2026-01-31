@@ -21,18 +21,14 @@ import java.util.concurrent.TimeUnit
  */
 class FrpClient private constructor(
     private val config: ClientConfig,
-    private val reconnect: Boolean
+    private val allowReconnect: Boolean
 ) {
 
     companion object {
         private val log = getLogger(FrpClient::class.java)
 
-        fun doStart(config: ClientConfig) {
+        fun start(config: ClientConfig, allowReconnect: Boolean = true) {
             FrpClient(config, false).start()
-        }
-
-        fun startReconnect(config: ClientConfig) {
-            FrpClient(config, true).start()
         }
 
     }
@@ -52,13 +48,13 @@ class FrpClient private constructor(
     }
 
     private fun doStart(count: Int) {
-        val serverHost: String = config.serverHost
-        val serverPort: Int = config.serverPort
-        val connectFuture = b.connect(serverHost, serverPort)
+        val host: String = config.serverHost
+        val port: Int = config.serverPort
+        val connectFuture = b.connect(host, port)
 
         connectFuture.addListener(ChannelFutureListener { future: ChannelFuture ->
             if (future.isSuccess) {
-                log.info("[CONNECT] connect to frp-server success|host={} |port={}", serverHost, serverPort)
+                log.info("[CONNECT] connect to frp-server success|host={} |port={}", host, port)
                 val ch = future.channel()
                 val frpChannel: FrpChannel = FrpChannel.getBy(ch)
                 log.info("Send Auth Request")
@@ -70,7 +66,7 @@ class FrpClient private constructor(
                 })
 
                 val closeFuture = ch.closeFuture()
-                if (reconnect) {
+                if (allowReconnect) {
                     // detect channel close then restart
                     closeFuture.addListener(ChannelFutureListener { detectFuture: ChannelFuture? ->
                         eventLoopGroup.execute(
@@ -78,20 +74,15 @@ class FrpClient private constructor(
                         )
                     })
                 }
-            } else if (reconnect) {
+            } else if (allowReconnect) {
                 eventLoopGroup.schedule(
                     {
-                        log.warn(
-                            "[RECONNECT] reconnect to frp-server <{}:{}> | count={}",
-                            serverHost,
-                            serverPort,
-                            count
-                        )
+                        log.warn("[RECONNECT] reconnect to frp-server <{}:{}> | count={}", host, port, count)
                         this.doStart(count + 1)
                     }, 3, TimeUnit.SECONDS
                 )
             } else {
-                log.error("Connect to frp-server <{}:{}> failed.", serverHost, serverPort)
+                log.error("Connect to frp-server <{}:{}> failed.", host, port)
                 log.error("Exit...")
                 this.stop()
             }
@@ -104,7 +95,7 @@ class FrpClient private constructor(
         } catch (e: InterruptedException) {
             log.error("closeFuture.sync()|errorMsg={}", e.message)
         } finally {
-            if (!reconnect) {
+            if (!allowReconnect) {
                 this.stop()
             }
         }

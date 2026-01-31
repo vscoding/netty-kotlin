@@ -14,7 +14,7 @@ object FrpClientMain {
     @JvmStatic
     fun main(args: Array<String>) {
         loadConfig(System.getProperty(CONFIG_PATH_PROPERTY, DEF_CLIENT_CONFIG))
-            .then(FrpClient::startReconnect)
+            .then(FrpClient::start)
     }
 
 }
