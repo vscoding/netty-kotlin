@@ -1,6 +1,7 @@
 package io.intellij.kt.netty.server.test
 
 import io.intellij.kt.netty.commons.handlers.EchoHandler
+import io.intellij.kt.netty.commons.utils.BytesUtils
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import io.netty.channel.embedded.EmbeddedChannel
@@ -20,7 +21,7 @@ class EchoHandlerTest {
         val msg = "hello world"
 
         // 1. create EmbeddedChannel
-        val channel = EmbeddedChannel(EchoHandler())
+        val channel = EmbeddedChannel(EchoHandler(BytesUtils::printBytes))
 
         val input = msg.toByteArray()
         val inBuf = Unpooled.wrappedBuffer(input)

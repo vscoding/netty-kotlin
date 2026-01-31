@@ -8,8 +8,8 @@ import org.slf4j.Logger
  *
  * @author tech@intellij.io
  */
-object LogBytesUtils {
-    private val log = getLogger(LogBytesUtils::class.java)
+object BytesUtils {
+    private val log = getLogger(BytesUtils::class.java)
 
     fun printString(bytes: ByteArray, logger: Logger = log) {
         val str = String(bytes)

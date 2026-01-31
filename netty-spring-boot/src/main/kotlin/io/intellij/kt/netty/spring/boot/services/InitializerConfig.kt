@@ -3,6 +3,7 @@ package io.intellij.kt.netty.spring.boot.services
 import io.intellij.kt.netty.commons.handlers.ActiveHandler
 import io.intellij.kt.netty.commons.handlers.EchoHandler
 import io.intellij.kt.netty.commons.handlers.LogHandler
+import io.intellij.kt.netty.commons.utils.BytesUtils
 import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.socket.SocketChannel
@@ -36,7 +37,7 @@ class InitializerConfig {
             override fun initChannel(ch: SocketChannel) {
                 ch.pipeline()
                     .addLast(ActiveHandler())
-                    .addLast(EchoHandler())
+                    .addLast(EchoHandler(BytesUtils::printBytes))
             }
         }
     }

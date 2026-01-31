@@ -21,12 +21,12 @@ on:
 concurrency:
   group: >-
     delete-workflow-runs-${{ github.ref }}-${{
-      github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:ops:cleanup:runs')
+      github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs')
         && 'active'
         || 'inactive'
     }}
   # 只有“会执行迁移”的 run 才取消旧的 in-progress run
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:ops:cleanup:runs') }}
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs') }}
 
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
     if: >
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
-      contains(github.event.head_commit.message, '@ci:ops:cleanup:runs')
+      contains(github.event.head_commit.message, '#ci:ops:cleanup:runs')
     permissions:
       actions: write
       contents: read

@@ -4,6 +4,7 @@ import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.commons.handlers.ActiveHandler
 import io.intellij.kt.netty.commons.handlers.EchoHandler
 import io.intellij.kt.netty.commons.handlers.LogHandler
+import io.intellij.kt.netty.commons.utils.BytesUtils
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
@@ -39,7 +40,7 @@ object TcpServer {
                         .addLast(ActiveHandler())
                         .addLast(
                             when (config.type) {
-                                "echo" -> EchoHandler()
+                                "echo" -> EchoHandler(BytesUtils::printBytes)
                                 "log" -> LogHandler()
                                 else -> LogHandler()
                             }

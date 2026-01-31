@@ -1,7 +1,7 @@
 package io.intellij.kt.netty.commons.handlers
 
 import io.intellij.kt.netty.commons.getLogger
-import io.intellij.kt.netty.commons.utils.LogBytesUtils
+import io.intellij.kt.netty.commons.utils.BytesUtils
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
@@ -21,7 +21,7 @@ class LogHandler : SimpleChannelInboundHandler<ByteBuf>() {
         val bytes = ByteArray(len)
         msg.readBytes(bytes)
 
-        LogBytesUtils.printBytes(bytes, log)
+        BytesUtils.printBytes(bytes, log)
     }
 
 }

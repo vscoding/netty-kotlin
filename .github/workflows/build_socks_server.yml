@@ -8,21 +8,21 @@ on:
 concurrency:
   group: >-
     netty-socks-server-image-${{ github.ref }}-${{
-      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:img:build:socks_server'))
+      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '#ci:img:build:socks_server'))
         && 'active'
         || 'inactive'
     }}
   # 仅当本次 run 会真正执行构建时，才取消同组在途运行
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '@ci:img:build:socks_server') }}
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '#ci:img:build:socks_server') }}
 
 jobs:
   publish-image:
     runs-on: ubuntu-latest
     name: Publish netty-socks-server Docker Image
-    # 支持手动构建和提交信息中存在关键字 @ci:img:build:socks_server
+    # 支持手动构建和提交信息中存在关键字 #ci:img:build:socks_server
     if: >-
       github.event_name == 'workflow_dispatch' || 
-      contains(github.event.head_commit.message, '@ci:img:build:socks_server')
+      contains(github.event.head_commit.message, '#ci:img:build:socks_server')
 
     steps:
       - name: Checkout repository
