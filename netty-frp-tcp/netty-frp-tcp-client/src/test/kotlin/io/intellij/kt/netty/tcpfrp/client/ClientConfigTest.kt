@@ -14,7 +14,7 @@ class ClientConfigTest {
     @Test
     fun testGetClientConfig() {
         val clientConfig =
-            ClientConfig.init(ClientConfigTest::class.java.getClassLoader().getResourceAsStream("client-config.json"))
+            ClientConfig.init(ClientConfigTest::class.java.classLoader.getResourceAsStream("client-config.json"))
         System.err.println(clientConfig)
         Assertions.assertTrue(clientConfig.valid)
     }

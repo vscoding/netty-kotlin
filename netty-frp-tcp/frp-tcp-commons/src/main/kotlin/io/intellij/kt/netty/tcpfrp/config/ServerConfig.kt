@@ -64,7 +64,7 @@ data class ServerConfig(
         }
 
         fun loadConfig(path: String): ServerConfig {
-            val serverConfig = init(ServerConfig::class.java.getClassLoader().getResourceAsStream(path))
+            val serverConfig = init(ServerConfig::class.java.classLoader.getResourceAsStream(path))
             if (serverConfig.valid) {
                 log.info("server config|{}", serverConfig)
                 SysConfig.get().logDetails()

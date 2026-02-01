@@ -19,7 +19,6 @@ kotlin {
     jvmToolchain(projectJdkVersion)
 }
 
-
 dependencies {
     api(project(":netty-frp-tcp:frp-tcp-commons"))
 
@@ -28,7 +27,8 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-tasks.test {
+
+tasks.withType<Test> {
     useJUnitPlatform() {
         includeEngines("junit-jupiter")
     }

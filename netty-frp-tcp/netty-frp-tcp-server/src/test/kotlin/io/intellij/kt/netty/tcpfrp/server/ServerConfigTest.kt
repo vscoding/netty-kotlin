@@ -14,7 +14,7 @@ class ServerConfigTest {
     @Test
     fun testGetServerConfig() {
         val config: ServerConfig =
-            ServerConfig.init(ServerConfigTest::class.java.getClassLoader().getResourceAsStream("server-config.json"))
+            ServerConfig.init(ServerConfigTest::class.java.classLoader.getResourceAsStream("server-config.json"))
         System.err.println(config)
         Assertions.assertTrue(config.valid)
     }

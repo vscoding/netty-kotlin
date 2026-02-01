@@ -22,7 +22,7 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform() {
         includeEngines("junit-jupiter")
     }

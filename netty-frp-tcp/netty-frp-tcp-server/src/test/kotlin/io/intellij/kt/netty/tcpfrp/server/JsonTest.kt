@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
  *
  * @author tech@intellij.io
  */
-class DataClassJsonTest {
+class JsonTest {
 
     data class Person(
         val name: String,
@@ -16,7 +16,7 @@ class DataClassJsonTest {
     )
 
     @Test
-    fun `test fastjson2`() {
+    fun `test serialize data class`() {
         println("json = ${JSON.toJSONString(Person("John", 18))}")
     }
 

@@ -12,10 +12,7 @@ import io.intellij.kt.netty.tcpfrp.protocol.TlsContexts
 class SysConfig private constructor() {
     companion object {
         private val log = getLogger(SysConfig::class.java)
-
         const val CONFIG_PATH_PROPERTY: String = "configPath"
-        const val DEF_SERVER_CONFIG: String = "server-config.json"
-        const val DEF_CLIENT_CONFIG: String = "client-config.json"
 
         private val instance: SysConfig = SysConfig()
         fun get(): SysConfig {

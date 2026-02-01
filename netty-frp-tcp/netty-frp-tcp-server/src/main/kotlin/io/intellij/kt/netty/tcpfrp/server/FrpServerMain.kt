@@ -1,7 +1,6 @@
 package io.intellij.kt.netty.tcpfrp.server
 
 import io.intellij.kt.netty.tcpfrp.SysConfig.Companion.CONFIG_PATH_PROPERTY
-import io.intellij.kt.netty.tcpfrp.SysConfig.Companion.DEF_SERVER_CONFIG
 import io.intellij.kt.netty.tcpfrp.config.ServerConfig.Companion.loadConfig
 
 /**
@@ -13,7 +12,7 @@ object FrpServerMain {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        loadConfig(System.getProperty(CONFIG_PATH_PROPERTY, DEF_SERVER_CONFIG))
+        loadConfig(System.getProperty(CONFIG_PATH_PROPERTY, "frps.json"))
             .then(FrpServer::start)
     }
 

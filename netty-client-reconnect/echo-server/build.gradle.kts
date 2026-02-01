@@ -22,8 +22,8 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-tasks.test {
-    useJUnitPlatform(){
+tasks.withType<Test> {
+    useJUnitPlatform() {
         includeEngines("junit-jupiter")
     }
 }

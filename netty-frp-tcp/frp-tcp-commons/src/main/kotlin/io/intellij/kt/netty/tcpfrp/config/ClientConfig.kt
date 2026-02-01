@@ -90,7 +90,7 @@ data class ClientConfig(
         }
 
         fun loadConfig(path: String): ClientConfig {
-            val clientConfig: ClientConfig = init(ClientConfig::class.java.getClassLoader().getResourceAsStream(path))
+            val clientConfig: ClientConfig = init(ClientConfig::class.java.classLoader.getResourceAsStream(path))
             if (clientConfig.valid) {
                 log.info("client config|{}", clientConfig)
                 SysConfig.get().logDetails()
