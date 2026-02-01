@@ -15,19 +15,19 @@ data class ServiceState(
 
     companion object {
         fun success(dispatchId: String): FrpBasicMsg {
-            return FrpBasicMsg.createServiceState(
+            return FrpBasicMsg.buildServiceState(
                 ServiceState(ConnState.SUCCESS.stateName, dispatchId)
             )
         }
 
         fun failure(dispatchId: String): FrpBasicMsg {
-            return FrpBasicMsg.createServiceState(
+            return FrpBasicMsg.buildServiceState(
                 ServiceState(ConnState.FAILURE.stateName, dispatchId)
             )
         }
 
         fun broken(dispatchId: String): FrpBasicMsg {
-            return FrpBasicMsg.createServiceState(
+            return FrpBasicMsg.buildServiceState(
                 ServiceState(ConnState.BROKEN.stateName, dispatchId)
             )
         }

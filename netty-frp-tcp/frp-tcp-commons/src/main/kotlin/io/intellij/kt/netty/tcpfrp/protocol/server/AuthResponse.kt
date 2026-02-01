@@ -13,11 +13,11 @@ data class AuthResponse(
 
     companion object {
         fun success(): FrpBasicMsg {
-            return FrpBasicMsg.createAuthResponse(AuthResponse(true))
+            return FrpBasicMsg.buildAuthResponse(AuthResponse(true))
         }
 
         fun failure(): FrpBasicMsg {
-            return FrpBasicMsg.createAuthResponse(AuthResponse(false))
+            return FrpBasicMsg.buildAuthResponse(AuthResponse(false))
         }
 
     }

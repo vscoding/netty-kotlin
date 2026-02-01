@@ -25,12 +25,11 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, connState: ServiceState) {
         val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
+        when (val serviceState: ConnState = ConnState.getByName(connState.stateName)) {
 
-        val serviceState: ConnState? = ConnState.getByName(connState.stateName)
+            ConnState.UNKNOWN -> throw IllegalStateException("unknown service state")
 
-        requireNotNull(serviceState) { "channelRead0 unknown state : {}" + connState.stateName }
 
-        when (serviceState) {
             ConnState.SUCCESS ->                 // frp-client ---> service 连接成功
                 // 可以获取到 dispatchId
                 frpChannel.write(

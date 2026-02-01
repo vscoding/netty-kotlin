@@ -12,8 +12,8 @@ data class ListeningRequest(
 ) {
 
     companion object {
-        fun create(listeningPorts: List<Int>): FrpBasicMsg {
-            return FrpBasicMsg.createListeningRequest(ListeningRequest(listeningPorts))
+        fun build(listeningPorts: List<Int>): FrpBasicMsg {
+            return FrpBasicMsg.buildListeningRequest(ListeningRequest(listeningPorts))
         }
     }
 

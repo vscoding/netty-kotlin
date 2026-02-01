@@ -44,15 +44,14 @@ class ReceiveUserStateHandler(
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, connState: UserState) {
         val frpChannel = FrpChannel.getBy(ctx.channel())
+        when (val userState = ConnState.getByName(connState.stateName)) {
 
-        val userState = ConnState.getByName(connState.stateName)
-        if (userState == null) {
-            log.error("channelRead0 unknown state : {}", connState.stateName)
-            frpChannel.close()
-            return
-        }
+            ConnState.UNKNOWN -> {
+                log.error("channelRead0 unknown state : {}", connState.stateName)
+                frpChannel.close()
+                return
+            }
 
-        when (userState) {
             // accept connection ：user ---> frp-server:3306
             ConnState.ACCEPT -> {
                 val serviceChannelPromise: Promise<Channel> = ctx.executor().newPromise()

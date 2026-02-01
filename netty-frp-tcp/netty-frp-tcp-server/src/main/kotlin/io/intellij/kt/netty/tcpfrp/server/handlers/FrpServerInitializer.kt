@@ -20,7 +20,9 @@ class FrpServerInitializer(
         val pipeline = ch.pipeline()
 
         if (config.enableSSL) {
-            pipeline.addLast(config.sslContext!!.newHandler(ch.alloc()))
+            pipeline.addLast(
+                config.sslContext!!.newHandler(ch.alloc())
+            )
         }
 
         pipeline.addLast(FrpCodec.serverDecoder())

@@ -114,6 +114,7 @@ subjectAltName = @alt_names
 
 [alt_names]
 DNS.1 = $SERVER_DNS
+IP.1 = 127.0.0.1
 EOF
     openssl x509 -req -sha256 \
       -in $server_folder/server.csr \

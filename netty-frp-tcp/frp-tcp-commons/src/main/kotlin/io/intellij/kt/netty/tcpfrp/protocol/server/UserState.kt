@@ -16,19 +16,19 @@ data class UserState(
 
     companion object {
         fun accept(dispatchId: String, listeningPort: Int): FrpBasicMsg {
-            return FrpBasicMsg.createUserState(
+            return FrpBasicMsg.buildUserState(
                 UserState(ConnState.ACCEPT.stateName, dispatchId, listeningPort)
             )
         }
 
         fun ready(dispatchId: String): FrpBasicMsg {
-            return FrpBasicMsg.createUserState(
+            return FrpBasicMsg.buildUserState(
                 UserState(ConnState.READY.stateName, dispatchId)
             )
         }
 
         fun broken(dispatchId: String): FrpBasicMsg {
-            return FrpBasicMsg.createUserState(
+            return FrpBasicMsg.buildUserState(
                 UserState(ConnState.BROKEN.stateName, dispatchId)
             )
         }

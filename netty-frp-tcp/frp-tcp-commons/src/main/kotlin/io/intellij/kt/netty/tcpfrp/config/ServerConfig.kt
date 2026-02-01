@@ -3,7 +3,7 @@ package io.intellij.kt.netty.tcpfrp.config
 import com.alibaba.fastjson2.JSONPath
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.SysConfig
-import io.intellij.kt.netty.tcpfrp.protocol.SslContextUtils
+import io.intellij.kt.netty.tcpfrp.protocol.TlsContexts
 import io.netty.handler.ssl.SslContext
 import org.apache.commons.io.IOUtils
 import java.io.InputStream
@@ -46,7 +46,7 @@ data class ServerConfig(
 
                 return ServerConfig(
                     true, host, port, authToken,
-                    SysConfig.get().enableSsl, SslContextUtils.buildServer()
+                    SysConfig.get().enableSsl, TlsContexts.buildServer()
                 )
 
             } catch (e: Exception) {

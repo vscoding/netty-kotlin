@@ -41,16 +41,18 @@ enum class ConnState(val stateName: String, val desc: String) {
      *
      * [io.intellij.kt.netty.tcpfrp.protocol.client.ServiceState.Companion.broken]
      */
-    BROKEN("BROKEN", "连接断开");
+    BROKEN("BROKEN", "连接断开"),
+
+    UNKNOWN("UNKNOWN", "未知状态");
 
     companion object {
-        fun getByName(stateName: String): ConnState? {
+        fun getByName(stateName: String): ConnState {
             for (connState in entries) {
                 if (connState.stateName == stateName) {
                     return connState
                 }
             }
-            return null
+            return UNKNOWN
         }
     }
 }

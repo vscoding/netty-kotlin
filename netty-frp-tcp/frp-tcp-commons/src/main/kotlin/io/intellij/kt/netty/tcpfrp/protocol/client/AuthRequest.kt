@@ -9,8 +9,8 @@ import io.intellij.kt.netty.tcpfrp.protocol.FrpBasicMsg
  */
 data class AuthRequest(val token: String) {
     companion object {
-        fun create(token: String): FrpBasicMsg {
-            return FrpBasicMsg.createAuthRequest(AuthRequest(token))
+        fun build(token: String): FrpBasicMsg {
+            return FrpBasicMsg.buildAuthRequest(AuthRequest(token))
         }
     }
 }

@@ -33,7 +33,7 @@ class PingHandler : SimpleChannelInboundHandler<Ping>() {
     override fun channelRead0(ctx: ChannelHandlerContext, ping: Ping) {
         log.info("HeatBeat PING|{}", ping)
         val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
-        frpChannel.write(Pong.create(ping.name))
+        frpChannel.write(Pong.build(ping.name))
     }
 
     @Throws(Exception::class)

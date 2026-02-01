@@ -13,8 +13,8 @@ data class Ping(
     val name: String
 ) {
     companion object {
-        fun create(name: String): FrpBasicMsg {
-            return FrpBasicMsg.createPing(Ping(Date(), name))
+        fun build(name: String): FrpBasicMsg {
+            return FrpBasicMsg.buildPing(Ping(Date(), name))
         }
     }
 }

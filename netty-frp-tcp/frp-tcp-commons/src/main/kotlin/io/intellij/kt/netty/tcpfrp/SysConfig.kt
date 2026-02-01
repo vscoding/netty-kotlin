@@ -1,7 +1,7 @@
 package io.intellij.kt.netty.tcpfrp
 
 import io.intellij.kt.netty.commons.getLogger
-import io.intellij.kt.netty.tcpfrp.protocol.SslContextUtils
+import io.intellij.kt.netty.tcpfrp.protocol.TlsContexts
 
 
 /**
@@ -27,7 +27,7 @@ class SysConfig private constructor() {
     var enableSsl: Boolean = false
 
     init {
-        SslContextUtils.init(this)
+        TlsContexts.init(this)
     }
 
     fun logDetails() {

@@ -29,7 +29,7 @@ class AuthResponseHandler(
             val listeningPorts: List<Int> = configMap.mapValues { (_, v) -> v.remotePort }.values.toList()
             log.info("send listening request, ports: {}", listeningPorts)
             frpChannel.write(
-                ListeningRequest.create(listeningPorts),
+                ListeningRequest.build(listeningPorts),
                 { channelFuture ->
                     if (channelFuture.isSuccess) {
                         val p = ctx.pipeline()

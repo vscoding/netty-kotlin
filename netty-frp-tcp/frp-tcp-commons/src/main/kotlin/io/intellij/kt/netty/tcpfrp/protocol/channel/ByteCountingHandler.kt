@@ -15,26 +15,25 @@ class ByteCountingHandler : ChannelInboundHandlerAdapter() {
         private val log = getLogger(ByteCountingHandler::class.java)
     }
 
-    private var tolal: Long = 0
+    private var total: Long = 0
 
     @Throws(Exception::class)
     override fun channelActive(ctx: ChannelHandlerContext) {
         // must
         ctx.read()
-        super.channelActive(ctx)
     }
 
     @Throws(Exception::class)
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         if (msg is ByteBuf) {
-            tolal += msg.readableBytes().toLong()
+            total += msg.readableBytes().toLong()
         }
         super.channelRead(ctx, msg)
     }
 
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.info("byte counting|id={}|received={}B", DispatchIdUtils.getDispatchId(ctx.channel()), tolal)
+        log.info("byte counting|id={}|received={}B", DispatchIdUtils.getDispatchId(ctx.channel()), total)
         super.channelInactive(ctx)
     }
 }

@@ -28,7 +28,7 @@ class FrpClient private constructor(
         private val log = getLogger(FrpClient::class.java)
 
         fun start(config: ClientConfig, allowReconnect: Boolean = true) {
-            FrpClient(config, false).start()
+            FrpClient(config, allowReconnect).start()
         }
 
     }
@@ -58,7 +58,7 @@ class FrpClient private constructor(
                 val ch = future.channel()
                 val frpChannel: FrpChannel = FrpChannel.getBy(ch)
                 log.info("Send Auth Request")
-                frpChannel.writeAndFlush(AuthRequest.create(config.authToken), { f ->
+                frpChannel.writeAndFlush(AuthRequest.build(config.authToken), { f ->
                     if (f.isSuccess) {
                         // for read
                         f.channel().pipeline().fireChannelActive()
@@ -68,10 +68,8 @@ class FrpClient private constructor(
                 val closeFuture = ch.closeFuture()
                 if (allowReconnect) {
                     // detect channel close then restart
-                    closeFuture.addListener(ChannelFutureListener { detectFuture: ChannelFuture? ->
-                        eventLoopGroup.execute(
-                            { this.doStart(0) }
-                        )
+                    closeFuture.addListener(ChannelFutureListener { detectFuture: ChannelFuture ->
+                        eventLoopGroup.execute { this.doStart(0) }
                     })
                 }
             } else if (allowReconnect) {

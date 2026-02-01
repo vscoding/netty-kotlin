@@ -16,7 +16,13 @@ class FrpClientInitializer(private val clientConfig: ClientConfig) : FrpChannelI
     override fun initChannel0(ch: SocketChannel) {
         val p = ch.pipeline()
         if (clientConfig.enableSSL) {
-            p.addLast(clientConfig.sslContext!!.newHandler(ch.alloc()))
+            p.addLast(
+                clientConfig.sslContext!!.newHandler(
+                    ch.alloc(),
+                    clientConfig.serverHost,
+                    clientConfig.serverPort
+                )
+            )
         }
 
         p.addLast(FrpCodec.clientDecoder())

@@ -46,7 +46,7 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
         if (test.success) {
             val server = MultiPortsNettyServer(listeningPorts, frpChannel)
             if (server.start()) {
-                frpChannel.write(FrpBasicMsg.createListeningResponse(test)).addListener(
+                frpChannel.write(FrpBasicMsg.buildListeningResponse(test)).addListener(
                     ChannelFutureListener { f: ChannelFuture ->
                         if (f.isSuccess) {
                             // remote this
@@ -76,11 +76,11 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
                     test.listeningStatus,
                     "start multi port netty server failed",
                 )
-                frpChannel.write(FrpBasicMsg.createListeningResponse(newRt))
+                frpChannel.write(FrpBasicMsg.buildListeningResponse(newRt))
                     .addListener(ChannelFutureListener.CLOSE)
             }
         } else {
-            frpChannel.write(FrpBasicMsg.createListeningResponse(test))
+            frpChannel.write(FrpBasicMsg.buildListeningResponse(test))
                 .addListener(ChannelFutureListener.CLOSE)
         }
     }

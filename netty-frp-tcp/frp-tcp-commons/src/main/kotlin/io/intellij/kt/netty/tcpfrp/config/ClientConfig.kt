@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSONArray
 import com.alibaba.fastjson2.JSONPath
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.SysConfig
-import io.intellij.kt.netty.tcpfrp.protocol.SslContextUtils
+import io.intellij.kt.netty.tcpfrp.protocol.TlsContexts
 import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningConfig
 import io.netty.handler.ssl.SslContext
 import org.apache.commons.io.IOUtils
@@ -72,7 +72,7 @@ data class ClientConfig(
                         authToken = evalAuthToken,
                         listeningConfigMap = map,
                         enableSSL = SysConfig.get().enableSsl,
-                        sslContext = SslContextUtils.buildClient()
+                        sslContext = TlsContexts.buildClient()
                     )
                 }
             } catch (e: Exception) {
@@ -108,4 +108,5 @@ data class ClientConfig(
     override fun toString(): String {
         return "ClientConfig(valid=$valid, serverHost='$serverHost', serverPort=$serverPort, authToken='$authToken', listeningConfigMap=$listeningConfigMap)"
     }
+
 }

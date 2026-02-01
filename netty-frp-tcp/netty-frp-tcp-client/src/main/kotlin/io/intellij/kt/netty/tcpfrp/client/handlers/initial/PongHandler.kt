@@ -35,7 +35,7 @@ class PongHandler : SimpleChannelInboundHandler<Pong>() {
         ctx.channel().attr(PING_KEY).set(
             ctx.executor().scheduleAtFixedRate(
                 {
-                    frpChannel.writeAndFlush(Ping.create("frp-client"))
+                    frpChannel.writeAndFlush(Ping.build("frp-client"))
                 },
                 1, 5, TimeUnit.SECONDS
             )

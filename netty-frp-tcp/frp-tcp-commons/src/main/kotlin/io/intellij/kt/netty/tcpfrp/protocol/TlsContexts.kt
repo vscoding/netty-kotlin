@@ -3,18 +3,21 @@ package io.intellij.kt.netty.tcpfrp.protocol
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.SysConfig
 import io.netty.handler.ssl.ClientAuth
+import io.netty.handler.ssl.OpenSsl
 import io.netty.handler.ssl.SslContext
 import io.netty.handler.ssl.SslContextBuilder
+import io.netty.handler.ssl.SslProvider
 import java.io.InputStream
 import java.util.Objects
+
 
 /**
  * SslContextUtils
  *
  * @author tech@intellij.io
  */
-object SslContextUtils {
-    private val log = getLogger(SslContextUtils::class.java)
+object TlsContexts {
+    private val log = getLogger(TlsContexts::class.java)
 
     const val SERVER_CERT: String = "ssl/server/server.crt"
     const val SERVER_KEY: String = "ssl/server/server.key"
@@ -39,8 +42,10 @@ object SslContextUtils {
                 cert = get(SERVER_CERT)
                 key = get(SERVER_KEY)
                 caCert = get(CA_CERT)
+                val provider = if (OpenSsl.isAvailable()) SslProvider.OPENSSL else SslProvider.JDK
                 return SslContextBuilder
                     .forServer(cert, key).trustManager(caCert)
+                    .sslProvider(provider)
                     .clientAuth(ClientAuth.REQUIRE)
                     .build()
             } catch (e: Exception) {
@@ -70,8 +75,10 @@ object SslContextUtils {
                 cert = get(CLIENT_CERT)
                 key = get(CLIENT_KEY)
                 caCert = get(CA_CERT)
+                val provider = if (OpenSsl.isAvailable()) SslProvider.OPENSSL else SslProvider.JDK
                 return SslContextBuilder.forClient()
                     .keyManager(cert, key)
+                    .sslProvider(provider)
                     .trustManager(caCert)
                     .build()
             } catch (e: Exception) {
@@ -107,7 +114,7 @@ object SslContextUtils {
     }
 
     private fun get(path: String): InputStream? {
-        return SslContextUtils::class.java.getClassLoader().getResourceAsStream(path)
+        return TlsContexts::class.java.getClassLoader().getResourceAsStream(path)
     }
 
     fun close(vararg inputStreams: InputStream?) {

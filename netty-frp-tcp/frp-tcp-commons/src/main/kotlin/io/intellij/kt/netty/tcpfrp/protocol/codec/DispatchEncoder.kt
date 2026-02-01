@@ -16,7 +16,6 @@ class DispatchEncoder : MessageToByteEncoder<DispatchPacket>() {
 
     @Throws(Exception::class)
     override fun encode(ctx: ChannelHandlerContext?, msg: DispatchPacket, out: ByteBuf) {
-
         // type
         out.writeByte(FrpMsgType.DATA_PACKET.type)
 
