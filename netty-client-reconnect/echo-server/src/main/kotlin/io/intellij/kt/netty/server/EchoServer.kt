@@ -27,7 +27,7 @@ object EchoServer {
         val boss = MultiThreadIoEventLoopGroup(1, ioHandlerFactory)
         val worker = MultiThreadIoEventLoopGroup(4, ioHandlerFactory)
         try {
-            ServerBootstrap().apply {
+            val bootstrap = ServerBootstrap().apply {
                 group(boss, worker)
                 channel(NioServerSocketChannel::class.java)
                 handler(LoggingHandler(LogLevel.DEBUG))
@@ -38,11 +38,12 @@ object EchoServer {
                             .addLast(DirectEchoHandler())
                     }
                 })
-            }.also {
-                val future = it.bind(port).sync()
-                log.info("Echo server started on port: $port")
-                future.channel().closeFuture().sync()
             }
+
+            val future = bootstrap.bind(port).sync()
+            log.info("Echo server started on port: $port")
+            future.channel().closeFuture().sync()
+
         } catch (e: Exception) {
             log.error("Echo server error: {}", e.message)
         } finally {

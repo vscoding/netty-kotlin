@@ -27,11 +27,13 @@ object DispatchServer {
         val workerGroup: EventLoopGroup = MultiThreadIoEventLoopGroup(4, f)
 
         try {
-            val b = ServerBootstrap()
-            b.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel::class.java)
-                .childHandler(ServerInitializer())
-            val channel = b.bind(PORT).channel()
+            val bootstrap = ServerBootstrap().apply {
+                group(bossGroup, workerGroup)
+                channel(NioServerSocketChannel::class.java)
+                childHandler(ServerInitializer())
+            }
+
+            val channel = bootstrap.bind(PORT).channel()
             log.info("server started at port {}", PORT)
             channel.closeFuture().sync()
         } finally {

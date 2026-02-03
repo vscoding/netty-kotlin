@@ -52,18 +52,18 @@ class MultiPortsNettyServer(
 
         try {
             for (port in ports) {
-                val b = ServerBootstrap()
-                b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel::class.java)
-                    .childOption(ChannelOption.AUTO_READ, false)
-                    .childHandler(object : ChannelInitializer<SocketChannel>() {
+                val b = ServerBootstrap().apply {
+                    group(bossGroup, workerGroup)
+                    channel(NioServerSocketChannel::class.java)
+                    childOption(ChannelOption.AUTO_READ, false)
+                    childHandler(object : ChannelInitializer<SocketChannel>() {
                         @Throws(Exception::class)
                         override fun initChannel(ch: SocketChannel) {
                             val pipeline = ch.pipeline()
                             pipeline.addLast(UserChannelHandler(port, frpChannel))
                         }
                     })
-
+                }
                 // 绑定端口并启动服务器
                 val channelFuture = b.bind(port).sync()
 

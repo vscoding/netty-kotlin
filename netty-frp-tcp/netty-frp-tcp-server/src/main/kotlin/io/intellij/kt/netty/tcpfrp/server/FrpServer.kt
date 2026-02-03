@@ -27,13 +27,12 @@ class FrpServer(private val config: ServerConfig) {
         }
     }
 
-    private val b = ServerBootstrap()
+    private val bootstrap = ServerBootstrap()
     val boss = EventLoopGroups.get().getBossGroup()
     val worker = EventLoopGroups.get().getWorkerGroup()
 
     init {
-
-        b.group(boss, worker)
+        bootstrap.group(boss, worker)
             .channel(NioServerSocketChannel::class.java)
             .childOption<Boolean?>(ChannelOption.SO_KEEPALIVE, true)
             .childHandler(FrpServerInitializer(config))
@@ -41,7 +40,7 @@ class FrpServer(private val config: ServerConfig) {
 
     fun start() {
         try {
-            val f: ChannelFuture = b.bind(config.port).sync()
+            val f: ChannelFuture = bootstrap.bind(config.port).sync()
             f.addListener(ChannelFutureListener { cf: ChannelFuture ->
                 if (cf.isSuccess) {
                     log.info("frp server started on port {}", config.port)

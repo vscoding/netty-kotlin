@@ -5,7 +5,6 @@ import io.intellij.kt.netty.server.socks.Environment.PORT
 import io.intellij.kt.netty.server.socks.handlers.socks5auth.Authenticator
 import io.intellij.kt.netty.server.socks.handlers.socks5auth.PasswordAuthenticator
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.channel.ChannelFuture
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.MultiThreadIoEventLoopGroup
 import io.netty.channel.nio.NioIoHandler
@@ -30,22 +29,23 @@ object SocksServer {
 
         val authenticator: Authenticator = PasswordAuthenticator()
 
-        val b = ServerBootstrap()
-        b.group(boss, worker)
-            .channel(NioServerSocketChannel::class.java)
-            .handler(LoggingHandler(LogLevel.INFO))
-            .childHandler(SocksServerInitializer(authenticator))
+        val b = ServerBootstrap().apply {
+            channel(NioServerSocketChannel::class.java)
+            handler(LoggingHandler(LogLevel.INFO))
+            childHandler(SocksServerInitializer(authenticator))
+        }
 
-        runCatching {
-            val sync: ChannelFuture = b.bind(PORT).sync()
+        try {
+            val syncFuture = b.bind(PORT).sync()
             log.info("Socks server started on port {}", PORT)
-            sync.channel().closeFuture().sync()
-        }.onFailure { e ->
+            syncFuture.channel().closeFuture().sync()
+        } catch (e: Exception) {
             log.error("Socks server start failed", e)
-        }.also {
+        } finally {
             boss.shutdownGracefully()
             worker.shutdownGracefully()
         }
+
     }
 
 }
