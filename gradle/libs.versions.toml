@@ -11,10 +11,10 @@ spring-boot-starter-grpc = "3.1.0.RELEASE"
 
 jackson = "3.0.1"
 commons-lang3 = "3.20.0"
-netty-all = "4.2.7.Final"
-logback = "1.5.26"
+netty-all = "4.2.9.Final"
+logback = "1.5.27"
 slf4j = "2.0.17"
-junit-jupiter = "6.0.1"
+junit-jupiter = "6.0.2"
 fastjson2 = "2.0.60"
 commons-io = "2.21.0"
 
@@ -22,7 +22,6 @@ commons-io = "2.21.0"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 
-google-protobuf = { id = "com.google.protobuf", version = "0.9.5" }
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version = "1.1.6" }
 
@@ -42,24 +41,7 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-jupiter" }
 
-grpc-bom = { module = "io.grpc:grpc-bom", version.ref = "grpc" }
-
-protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
-protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
-
-grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
-grpc-services = { module = "io.grpc:grpc-services", version.ref = "grpc" }
-grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
-grpc-netty-shaded = { module = "io.grpc:grpc-netty-shaded", version.ref = "grpc" }
-
-grpc-spring-boot-starter = { module = "net.devh:grpc-spring-boot-starter", version.ref = "spring-boot-starter-grpc" }
-grpc-client-spring-boot-starter = { module = "net.devh:grpc-client-spring-boot-starter", version.ref = "spring-boot-starter-grpc" }
-grpc-server-spring-boot-starter = { module = "net.devh:grpc-server-spring-boot-starter", version.ref = "spring-boot-starter-grpc" }
-
 jackson-core = { module = "tools.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version = "2.20" }
 jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
-
-spring-boot = { module = "org.springframework.boot:spring-boot", version.ref = "spring-boot" }
-spring-boot-starter-logging = { module = "org.springframework.boot:spring-boot-starter-logging", version.ref = "spring-boot" }
