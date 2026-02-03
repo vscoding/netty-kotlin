@@ -17,17 +17,15 @@ on:
         required: false
         default: "6"
 
-# 仅当本次 run 会真正执行迁移时，才启用并发互斥（否则不需要占用并发组）
 concurrency:
   group: >-
-    delete-workflow-runs-${{ github.ref }}-${{
-      github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs')
+    delete-runs-${{ github.repository }}-${{
+      (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs'))
         && 'active'
         || 'inactive'
     }}
-  # 只有“会执行迁移”的 run 才取消旧的 in-progress run
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs') }}
-
+  # 仅当本次 run 会真正执行删除时，才取消同组在途运行
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs') }}
 
 jobs:
   del_runs:
@@ -44,7 +42,7 @@ jobs:
       - name: Delete workflow runs for current repo
         uses: Mattraks/delete-workflow-runs@v2
         with:
-          token: ${{ secrets._GITHUB_TOKEN }}
+          token: ${{ github.token }}
           repository: ${{ github.repository }}
           retain_days: ${{ inputs.retain_days || 7 }}
           keep_minimum_runs: ${{ inputs.keep_minimum_runs || 6 }}
