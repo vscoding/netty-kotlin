@@ -20,12 +20,12 @@ on:
 concurrency:
   group: >-
     delete-runs-${{ github.repository }}-${{
-      (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs'))
+      (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, ':ci:ops:cleanup:runs'))
         && 'active'
         || 'inactive'
     }}
   # 仅当本次 run 会真正执行删除时，才取消同组在途运行
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, '#ci:ops:cleanup:runs') }}
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.event.head_commit.message, ':ci:ops:cleanup:runs') }}
 
 jobs:
   del_runs:
@@ -33,7 +33,7 @@ jobs:
     if: >
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
-      contains(github.event.head_commit.message, '#ci:ops:cleanup:runs')
+      contains(github.event.head_commit.message, ':ci:ops:cleanup:runs')
     permissions:
       actions: write
       contents: read
