@@ -28,9 +28,9 @@ data class DispatchManager(
             channel.attr(DISPATCH_MANAGER_KEY).set(DispatchManager())
         }
 
-        fun getBy(channel: Channel): DispatchManager {
+        fun getFromCh(ch: Channel): DispatchManager {
             val dispatchManager =
-                channel.attr(DISPATCH_MANAGER_KEY).get() ?: throw RuntimeException("DispatchManager is not initialized")
+                ch.attr(DISPATCH_MANAGER_KEY).get() ?: throw RuntimeException("DispatchManager is not initialized")
             return dispatchManager
         }
 

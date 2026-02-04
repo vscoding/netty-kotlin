@@ -13,7 +13,9 @@ import io.netty.util.AttributeKey
  *
  * @author tech@intellij.io
  */
-data class FrpChannel(val ch: Channel) {
+data class FrpChannel(
+    val ch: Channel
+) {
 
     companion object {
         private val log = getLogger(FrpChannel::class.java)
@@ -30,11 +32,6 @@ data class FrpChannel(val ch: Channel) {
         }
 
     }
-
-    fun getBy(): Channel {
-        return ch
-    }
-
 
     fun write(dispatchPacket: DispatchPacket, vararg listeners: ChannelFutureListener): ChannelFuture {
         return this.writeObj(dispatchPacket, *listeners)

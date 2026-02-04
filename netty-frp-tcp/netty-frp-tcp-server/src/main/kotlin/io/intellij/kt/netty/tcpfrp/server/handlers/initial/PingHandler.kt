@@ -45,7 +45,7 @@ class PingHandler : SimpleChannelInboundHandler<Ping>() {
     override fun channelInactive(ctx: ChannelHandlerContext) {
         log.warn("release dispatch channel")
         val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
-        DispatchManager.getBy(frpChannel.getBy()).releaseAll()
+        DispatchManager.getFromCh(frpChannel.ch).releaseAll()
         super.channelInactive(ctx)
 
         log.warn("close frp channel")

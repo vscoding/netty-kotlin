@@ -34,7 +34,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
                 // 可以获取到 dispatchId
                 frpChannel.write(
                     UserState.ready(connState.dispatchId),
-                    Listeners.read(DispatchManager.getBy(frpChannel.getBy()).getChannel(connState.dispatchId)!!),
+                    Listeners.read(DispatchManager.getFromCh(frpChannel.ch).getChannel(connState.dispatchId)!!),
                     Listeners.read(frpChannel)
                 )
 
@@ -42,7 +42,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
                 frpChannel.writeAndFlushEmpty()
                     .addListeners(
                         Listeners.releaseDispatchChannel(
-                            DispatchManager.getBy(frpChannel.getBy()),
+                            DispatchManager.getFromCh(frpChannel.ch),
                             connState.dispatchId,
                             ConnState.FAILURE.desc
                         ),
@@ -53,7 +53,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
                 frpChannel.writeAndFlushEmpty()
                     .addListeners(
                         Listeners.releaseDispatchChannel(
-                            DispatchManager.getBy(frpChannel.getBy()),
+                            DispatchManager.getFromCh(frpChannel.ch),
                             connState.dispatchId,
                             ConnState.BROKEN.desc
                         ),

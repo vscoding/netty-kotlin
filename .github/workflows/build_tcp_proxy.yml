@@ -8,12 +8,15 @@ on:
 concurrency:
   group: >-
     netty-tcp-proxy-image-${{ github.ref }}-${{
-      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, ':ci:img:build:tcp_proxy'))
+      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, ':ci:img:build:tcp_proxy') || contains(github.event.head_commit.message, ':ci:img:build:*'))
         && 'active'
         || 'inactive'
     }}
   # 仅当本次 run 会真正执行构建时，才取消同组在途运行
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, ':ci:img:build:tcp_proxy') }}
+  cancel-in-progress: >-
+    ${{ github.event_name == 'workflow_dispatch' ||
+    contains(github.event.head_commit.message, ':ci:img:build:tcp_proxy') || 
+    contains(github.event.head_commit.message, ':ci:img:build:*')}}
 
 jobs:
   publish-image:
@@ -26,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Authenticate to Container Registries
         uses: ./.github/actions/docker-login
@@ -51,5 +54,6 @@ jobs:
             ${{ secrets.ALIYUN_REGISTRY }}/svcops/netty-tcp-proxy:latest
           build-args: |
             BUILD_IN=GITHUB_ACTIONS
+            JAVA_VERSION=21
             SUB_PROJECT=netty-tcp-proxy
             JAR_NAME=netty-tcp-proxy-1.0-all.jar

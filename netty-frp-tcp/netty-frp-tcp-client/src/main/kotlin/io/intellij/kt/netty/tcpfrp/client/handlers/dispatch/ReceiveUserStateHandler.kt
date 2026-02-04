@@ -47,7 +47,7 @@ class ReceiveUserStateHandler(
         when (val userState = ConnState.getByName(connState.stateName)) {
 
             ConnState.UNKNOWN -> {
-                log.error("channelRead0 unknown state : {}", connState.stateName)
+                log.error("[UNKNOWN] Receive unknown user state")
                 frpChannel.close()
                 return
             }
@@ -57,31 +57,31 @@ class ReceiveUserStateHandler(
                 val serviceChannelPromise: Promise<Channel> = ctx.executor().newPromise()
                 val dispatchId = connState.dispatchId
                 val listeningPort = connState.listeningPort
-                val config = portToConfig[listeningPort]
+                val listeningConfig = portToConfig[listeningPort]
 
-                if (config == null) {
+                if (listeningConfig == null) {
                     log.warn("[ACCEPT] 未找到监听配置 |port={}", listeningPort)
                     frpChannel.writeAndFlush(ServiceState.failure(dispatchId))
                         .addListeners(Listeners.read(frpChannel))
                     return
                 }
 
-                log.info("[ACCEPT] 接收到用户连接 |dispatchId={}|name={}", dispatchId, config.name)
+                log.info("[ACCEPT] 接收到用户连接 |dispatchId={}|name={}", dispatchId, listeningConfig.name)
 
                 serviceChannelPromise.addListener(FutureListener<Channel> { future: Future<Channel> ->
                     val serviceChannel = future.now
                     if (future.isSuccess) {
                         log.info(
                             "[ACCEPT] 接收到用户连接后，服务连接创建成功|dispatchId={}|name={}",
-                            dispatchId, config.name
+                            dispatchId, listeningConfig.name
                         )
                         val servicePipeline = serviceChannel.pipeline()
                         servicePipeline.addLast(
                             ServiceChannelHandler(
-                                serviceName = config.name,
+                                serviceName = listeningConfig.name,
                                 dispatchId,
                                 frpChannel,
-                                DispatchManager.getBy(frpChannel.getBy())
+                                DispatchManager.getFromCh(frpChannel.ch)
                             )
                         )
                         // channelActive and Read
@@ -94,19 +94,19 @@ class ReceiveUserStateHandler(
                 })
 
                 val b = Bootstrap()
-                b.group(frpChannel.getBy().eventLoop())
-                    .channel(frpChannel.getBy()::class.java)
+                b.group(frpChannel.ch.eventLoop())
+                    .channel(frpChannel.ch::class.java)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
                     .option(ChannelOption.AUTO_READ, false)
                     .handler(DirectServiceHandler(serviceChannelPromise))
 
-                b.connect(config.localIp, config.localPort)
+                b.connect(listeningConfig.localIp, listeningConfig.localPort)
                     .addListener(ChannelFutureListener { cf ->
                         if (cf.isSuccess) {
                             frpChannel.writeAndFlush(ServiceState.success(dispatchId))
                                 .addListener(Listeners.read(frpChannel))
                         } else {
-                            log.warn("[ACCEPT] 接收到用户连接后，服务连接创建失败|name={}", config.name)
+                            log.warn("[ACCEPT] 接收到用户连接后，服务连接创建失败|name={}", listeningConfig.name)
                             frpChannel.writeAndFlush(ServiceState.failure(dispatchId))
                                 .addListeners(Listeners.read(frpChannel))
                         }
@@ -115,13 +115,13 @@ class ReceiveUserStateHandler(
 
             ConnState.READY -> {
                 log.info(
-                    "[READY] 接收到用户连接就绪状态，可以读取数据了|dispatchId={}",
+                    "[READY] 接收到用户连接就绪状态，准备读取数据|dispatchId={}",
                     connState.dispatchId
                 )
                 frpChannel.writeAndFlushEmpty()
                     .addListeners(
                         Listeners.read(
-                            DispatchManager.getBy(frpChannel.getBy())
+                            DispatchManager.getFromCh(frpChannel.ch)
                                 .getChannel(connState.dispatchId)!!
                         )
                     )
@@ -133,7 +133,7 @@ class ReceiveUserStateHandler(
                 frpChannel.writeAndFlushEmpty(
                     Listeners.read(frpChannel),
                     Listeners.releaseDispatchChannel(
-                        DispatchManager.getBy(frpChannel.getBy()),
+                        DispatchManager.getFromCh(frpChannel.ch),
                         connState.dispatchId
                     )
                 )

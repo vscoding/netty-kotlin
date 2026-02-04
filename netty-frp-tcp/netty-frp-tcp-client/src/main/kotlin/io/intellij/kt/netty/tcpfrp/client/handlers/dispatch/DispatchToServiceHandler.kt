@@ -17,7 +17,7 @@ class DispatchToServiceHandler : SimpleChannelInboundHandler<DispatchPacket>() {
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: DispatchPacket) {
         // 获取到数据包，e.g. user --- frp-server:3306 的数据包
-        DispatchManager.getBy(ctx.channel()).dispatch(msg, Listeners.read())
+        DispatchManager.getFromCh(ctx.channel()).dispatch(msg, Listeners.read())
     }
 
     @Throws(Exception::class)
@@ -27,7 +27,7 @@ class DispatchToServiceHandler : SimpleChannelInboundHandler<DispatchPacket>() {
 
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        DispatchManager.getBy(ctx.channel()).releaseAll()
+        DispatchManager.getFromCh(ctx.channel()).releaseAll()
     }
 
 }

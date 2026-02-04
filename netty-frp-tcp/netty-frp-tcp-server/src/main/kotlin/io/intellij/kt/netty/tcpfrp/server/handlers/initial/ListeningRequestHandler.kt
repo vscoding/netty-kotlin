@@ -53,10 +53,10 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
                             val p = ctx.pipeline()
                             p.remove(this)
                             log.info("init MultiPortNettyServer")
-                            MultiPortsNettyServer.buildIn(frpChannel.getBy(), server)
+                            MultiPortsNettyServer.buildIn(frpChannel.ch, server)
 
                             log.info("init DispatchManager")
-                            DispatchManager.buildIn(frpChannel.getBy())
+                            DispatchManager.buildIn(frpChannel.ch)
 
                             p.addLast(PingHandler())
                                 .addLast(ReceiveServiceStateHandler())

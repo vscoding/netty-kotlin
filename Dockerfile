@@ -8,7 +8,8 @@ WORKDIR /opt/builder
 COPY --chown=gradle:gradle . /opt/builder
 RUN gradle clean :${SUB_PROJECT}:build -x test --no-daemon
 
-FROM azul/zulu-openjdk:25-jre-crac
+ARG JAVA_VERSION=25
+FROM azul/zulu-openjdk:${JAVA_VERSION}-jre-crac
 ARG SUB_PROJECT
 ARG JAR_NAME
 ENV JAR_NAME=${JAR_NAME}

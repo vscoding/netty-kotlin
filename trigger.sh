@@ -11,6 +11,7 @@ key_word_list=(
   ":ci:img:build:tcp_server_test"
   ":ci:img:build:tcp_proxy"
   ":ci:img:build:socks_server"
+  ":ci:img:build:*"
   ":ci:ops:cleanup:runs"
 )
 

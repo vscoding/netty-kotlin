@@ -33,7 +33,7 @@ class UserChannelHandler(
         // e.g. user ---> frp-server:3306
         val dispatchId: String = DispatchIdUtils.getDispatchId(ctx.channel())
 
-        DispatchManager.getBy(frpChannel.getBy()).addChannel(dispatchId, ctx.channel())
+        DispatchManager.getFromCh(frpChannel.ch).addChannel(dispatchId, ctx.channel())
 
         log.info("[USER] 用户建立了连接 |dispatchId={}|port={}", dispatchId, this.listeningPort)
 

@@ -17,7 +17,7 @@ class DispatchToUserHandler : SimpleChannelInboundHandler<DispatchPacket>() {
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: DispatchPacket) {
         // after UserChannel read0
-        DispatchManager.getBy(ctx.channel()).dispatch(msg, Listeners.read())
+        DispatchManager.getFromCh(ctx.channel()).dispatch(msg, Listeners.read())
     }
 
     @Throws(Exception::class)

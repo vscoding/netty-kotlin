@@ -8,12 +8,15 @@ on:
 concurrency:
   group: >-
     netty-tcp-server-test-image-${{ github.ref }}-${{
-      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, ':ci:img:build:tcp_server_test'))
+      (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, ':ci:img:build:tcp_server_test') || contains(github.event.head_commit.message, ':ci:img:build:*'))
         && 'active'
         || 'inactive'
     }}
   # 仅当本次 run 会真正执行构建时，才取消同组在途运行
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, ':ci:img:build:tcp_server_test') }}
+  cancel-in-progress: >-
+    ${{ github.event_name == 'workflow_dispatch' ||
+    contains(github.event.head_commit.message, ':ci:img:build:tcp_server_test') ||
+    contains(github.event.head_commit.message, ':ci:img:build:*') }}
 
 jobs:
   publish-image:
@@ -22,11 +25,12 @@ jobs:
     # 支持手动构建和提交信息中存在关键字 :ci:img:build:tcp_server_test
     if: >-
       github.event_name == 'workflow_dispatch' || 
-      contains(github.event.head_commit.message, ':ci:img:build:tcp_server_test')
+      contains(github.event.head_commit.message, ':ci:img:build:tcp_server_test') ||
+      contains(github.event.head_commit.message, ':ci:img:build:*')
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Authenticate to Container Registries
         uses: ./.github/actions/docker-login
@@ -51,5 +55,6 @@ jobs:
             ${{ secrets.ALIYUN_REGISTRY }}/svcops/netty-tcp-server-test:latest
           build-args: |
             BUILD_IN=GITHUB_ACTIONS
+            JAVA_VERSION=21
             SUB_PROJECT=netty-tcp-server-test
             JAR_NAME=netty-tcp-server-test-1.0-all.jar
