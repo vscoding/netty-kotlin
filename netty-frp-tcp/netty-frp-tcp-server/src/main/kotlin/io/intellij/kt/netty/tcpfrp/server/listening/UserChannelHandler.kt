@@ -3,9 +3,9 @@ package io.intellij.kt.netty.tcpfrp.server.listening
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.commons.Listeners
 import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchIdUtils
-import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchPacket
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getDispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.server.UserState
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -31,9 +31,10 @@ class UserChannelHandler(
     @Throws(Exception::class)
     override fun channelActive(ctx: ChannelHandlerContext) {
         // e.g. user ---> frp-server:3306
-        val dispatchId: String = DispatchIdUtils.getDispatchId(ctx.channel())
+        val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
 
-        DispatchManager.getFromCh(frpChannel.ch).addChannel(dispatchId, ctx.channel())
+        frpChannel.getDispatchManager()
+            .putChannel(dispatchId, ctx.channel())
 
         log.info("[USER] 用户建立了连接 |dispatchId={}|port={}", dispatchId, this.listeningPort)
 
@@ -51,7 +52,7 @@ class UserChannelHandler(
     @Throws(Exception::class)
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         if (msg is ByteBuf) {
-            val dispatchId: String = DispatchIdUtils.getDispatchId(ctx.channel())
+            val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
             log.debug(
                 "接收到用户的数据 |dispatchId={}|port={}|len={}",
                 dispatchId,
@@ -67,7 +68,7 @@ class UserChannelHandler(
                 },
                 { f ->
                     if (f.isSuccess) {
-                        frpChannel.read()
+                        frpChannel.activeRead()
                     }
                 }
             )
@@ -82,7 +83,7 @@ class UserChannelHandler(
      */
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        val dispatchId: String = DispatchIdUtils.getDispatchId(ctx.channel())
+        val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
         log.warn("[USER] 用户断开了连接 |dispatchId={}", dispatchId)
         frpChannel.writeAndFlush(UserState.broken(dispatchId), Listeners.read(frpChannel))
     }

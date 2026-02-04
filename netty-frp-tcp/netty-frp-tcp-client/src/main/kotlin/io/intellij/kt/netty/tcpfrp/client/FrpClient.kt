@@ -5,6 +5,7 @@ import io.intellij.kt.netty.tcpfrp.client.handlers.FrpClientInitializer
 import io.intellij.kt.netty.tcpfrp.commons.EventLoopGroups
 import io.intellij.kt.netty.tcpfrp.config.ClientConfig
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.client.AuthRequest
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.ChannelFuture
@@ -56,7 +57,7 @@ class FrpClient private constructor(
             if (future.isSuccess) {
                 log.info("[CONNECT] connect to frp-server success|host={} |port={}", host, port)
                 val ch = future.channel()
-                val frpChannel: FrpChannel = FrpChannel.getBy(ch)
+                val frpChannel: FrpChannel = ch.getFrpChannel()
                 log.info("Send Auth Request")
                 frpChannel.writeAndFlush(AuthRequest.build(config.authToken), { f ->
                     if (f.isSuccess) {

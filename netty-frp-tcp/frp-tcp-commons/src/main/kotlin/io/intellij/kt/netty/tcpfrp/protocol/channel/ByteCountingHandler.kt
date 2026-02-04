@@ -21,6 +21,8 @@ class ByteCountingHandler : ChannelInboundHandlerAdapter() {
     override fun channelActive(ctx: ChannelHandlerContext) {
         // must
         ctx.read()
+        // for pipeline.fireChannelActive()
+        super.channelActive(ctx)
     }
 
     @Throws(Exception::class)
@@ -33,7 +35,7 @@ class ByteCountingHandler : ChannelInboundHandlerAdapter() {
 
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.info("byte counting|id={}|received={}B", DispatchIdUtils.getDispatchId(ctx.channel()), total)
+        log.info("byte counting|id={}|received={}B", DispatchIdUtils.generateId(ctx.channel()), total)
         super.channelInactive(ctx)
     }
 }

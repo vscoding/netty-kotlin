@@ -10,7 +10,7 @@ import io.netty.channel.Channel
 object DispatchIdUtils {
     const val ID_LENGTH: Int = 60
 
-    fun getDispatchId(channel: Channel): String {
+    fun generateId(channel: Channel): String {
         return channel.id().asLongText()
     }
 

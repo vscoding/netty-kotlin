@@ -2,8 +2,9 @@ package io.intellij.kt.netty.tcpfrp.server.handlers.initial
 
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.protocol.FrpBasicMsg
-import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.setDispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningRequest
 import io.intellij.kt.netty.tcpfrp.protocol.server.ListeningResponse
 import io.intellij.kt.netty.tcpfrp.server.handlers.dispatch.DispatchToUserHandler
@@ -36,7 +37,7 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, listeningRequest: ListeningRequest) {
-        val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
+        val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
 
         log.info("get listening request: {}", listeningRequest)
         val listeningPorts: List<Int> = listeningRequest.listeningPorts
@@ -56,7 +57,7 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
                             MultiPortsNettyServer.buildIn(frpChannel.ch, server)
 
                             log.info("init DispatchManager")
-                            DispatchManager.buildIn(frpChannel.ch)
+                            frpChannel.setDispatchManager()
 
                             p.addLast(PingHandler())
                                 .addLast(ReceiveServiceStateHandler())

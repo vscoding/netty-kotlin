@@ -32,7 +32,7 @@ class ServiceChannelHandler(
     @Throws(Exception::class)
     override fun channelActive(ctx: ChannelHandlerContext) {
         log.info("[SERVICE] 建立服务端连接 |dispatchId={}|serviceName={}", dispatchId, serviceName)
-        dispatchManager.addChannel(dispatchId, ctx.channel())
+        dispatchManager.putChannel(dispatchId, ctx.channel())
         // BootStrap set AUTO_READ=false
         // 等待frp-server 发送 UserConnState(READY)
     }

@@ -20,30 +20,17 @@ data class DispatchManager(
 
     companion object {
         private val log = getLogger(DispatchManager::class.java)
-
-        val DISPATCH_MANAGER_KEY: AttributeKey<DispatchManager> =
-            AttributeKey.valueOf<DispatchManager>("dispatch_manager")
-
-        fun buildIn(channel: Channel) {
-            channel.attr(DISPATCH_MANAGER_KEY).set(DispatchManager())
-        }
-
-        fun getFromCh(ch: Channel): DispatchManager {
-            val dispatchManager =
-                ch.attr(DISPATCH_MANAGER_KEY).get() ?: throw RuntimeException("DispatchManager is not initialized")
-            return dispatchManager
-        }
-
+        val DISPATCH_MANAGER_KEY: AttributeKey<DispatchManager> = AttributeKey.valueOf("dispatch_manager")
     }
 
-    fun addChannel(dispatchId: String, channel: Channel) {
+    fun putChannel(dispatchId: String, channel: Channel) {
         if (!enableDispatch.get()) {
             throw java.lang.RuntimeException("DispatchManager is disabled")
         }
         idToChannelMap[dispatchId] = channel
     }
 
-    fun getChannel(dispatchId: String?): Channel? {
+    fun getChannelById(dispatchId: String?): Channel? {
         if (!enableDispatch.get()) {
             throw java.lang.RuntimeException("DispatchManager is disabled")
         }
@@ -74,7 +61,7 @@ data class DispatchManager(
     }
 
     fun dispatch(data: DispatchPacket, vararg listeners: ChannelFutureListener) {
-        val channel = getChannel(data.dispatchId)
+        val channel = getChannelById(data.dispatchId)
         if (channel != null && channel.isActive) {
             channel.writeAndFlush(data.packet).addListeners(*listeners)
         } else {
@@ -82,4 +69,13 @@ data class DispatchManager(
         }
     }
 
+}
+
+fun Channel.setDispatchManager() {
+    attr(DispatchManager.DISPATCH_MANAGER_KEY).set(DispatchManager())
+}
+
+fun Channel.getDispatchManager(): DispatchManager {
+    return attr(DispatchManager.DISPATCH_MANAGER_KEY).get()
+        ?: throw RuntimeException("DispatchManager is not initialized")
 }

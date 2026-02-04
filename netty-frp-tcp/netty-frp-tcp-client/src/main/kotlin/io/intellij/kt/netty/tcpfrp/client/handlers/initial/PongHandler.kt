@@ -1,8 +1,9 @@
 package io.intellij.kt.netty.tcpfrp.client.handlers.initial
 
 import io.intellij.kt.netty.commons.getLogger
-import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.setDispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.heartbeat.Ping
 import io.intellij.kt.netty.tcpfrp.protocol.heartbeat.Pong
 import io.netty.channel.ChannelHandlerContext
@@ -28,8 +29,9 @@ class PongHandler : SimpleChannelInboundHandler<Pong>() {
      */
     @Throws(Exception::class)
     override fun channelActive(ctx: ChannelHandlerContext) {
-        val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
-        DispatchManager.buildIn(ctx.channel())
+        val ch = ctx.channel()
+        val frpChannel: FrpChannel = ch.getFrpChannel()
+        ch.setDispatchManager()
 
         // 5s ping
         ctx.channel().attr(PING_KEY).set(
@@ -43,13 +45,13 @@ class PongHandler : SimpleChannelInboundHandler<Pong>() {
 
         log.info("[channelActive]: Pong Handler")
         // must but just once
-        frpChannel.read()
+        frpChannel.activeRead()
     }
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Pong?) {
         log.info("HeatBeat PONG|{}", msg)
-        FrpChannel.getBy(ctx.channel()).read()
+        ctx.channel().getFrpChannel().activeRead()
     }
 
     @Throws(Exception::class)
@@ -58,7 +60,7 @@ class PongHandler : SimpleChannelInboundHandler<Pong>() {
         val scheduledFuture = ctx.channel().attr(PING_KEY).get()
         scheduledFuture.cancel(true)
 
-        FrpChannel.getBy(ctx.channel()).close()
+        ctx.channel().getFrpChannel().close()
 
         super.channelInactive(ctx)
     }

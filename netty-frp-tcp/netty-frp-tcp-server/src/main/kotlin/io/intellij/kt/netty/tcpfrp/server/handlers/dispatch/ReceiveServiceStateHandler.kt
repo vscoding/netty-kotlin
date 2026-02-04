@@ -3,8 +3,9 @@ package io.intellij.kt.netty.tcpfrp.server.handlers.dispatch
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.commons.Listeners
 import io.intellij.kt.netty.tcpfrp.protocol.ConnState
-import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getDispatchManager
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.client.ServiceState
 import io.intellij.kt.netty.tcpfrp.protocol.server.UserState
 import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortsNettyServer
@@ -24,7 +25,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, connState: ServiceState) {
-        val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
+        val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
         when (val serviceState: ConnState = ConnState.getByName(connState.stateName)) {
 
             ConnState.UNKNOWN -> throw IllegalStateException("unknown service state")
@@ -34,7 +35,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
                 // 可以获取到 dispatchId
                 frpChannel.write(
                     UserState.ready(connState.dispatchId),
-                    Listeners.read(DispatchManager.getFromCh(frpChannel.ch).getChannel(connState.dispatchId)!!),
+                    Listeners.read(frpChannel.getDispatchManager().getChannelById(connState.dispatchId)!!),
                     Listeners.read(frpChannel)
                 )
 
@@ -42,7 +43,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
                 frpChannel.writeAndFlushEmpty()
                     .addListeners(
                         Listeners.releaseDispatchChannel(
-                            DispatchManager.getFromCh(frpChannel.ch),
+                            frpChannel.getDispatchManager(),
                             connState.dispatchId,
                             ConnState.FAILURE.desc
                         ),
@@ -53,7 +54,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
                 frpChannel.writeAndFlushEmpty()
                     .addListeners(
                         Listeners.releaseDispatchChannel(
-                            DispatchManager.getFromCh(frpChannel.ch),
+                            frpChannel.getDispatchManager(),
                             connState.dispatchId,
                             ConnState.BROKEN.desc
                         ),
@@ -66,7 +67,7 @@ class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
 
     @Throws(Exception::class)
     override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        FrpChannel.getBy(ctx.channel()).flush()
+        ctx.channel().getFrpChannel().flush()
     }
 
     @Throws(Exception::class)

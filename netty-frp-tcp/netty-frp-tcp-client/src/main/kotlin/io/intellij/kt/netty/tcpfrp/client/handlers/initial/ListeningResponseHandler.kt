@@ -34,13 +34,15 @@ class ListeningResponseHandler(val configMap: Map<String, ListeningConfig>) :
         if (listeningResponse.success) {
             log.info("listening request success")
             ctx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER)
-                .addListener(ChannelFutureListener { channelFuture: ChannelFuture? ->
-                    if (channelFuture!!.isSuccess()) {
+                .addListener(ChannelFutureListener { channelFuture: ChannelFuture ->
+                    if (channelFuture.isSuccess) {
                         val p = ctx.pipeline()
                         p.remove(this)
                         p.addLast(PongHandler())
                             .addLast(ReceiveUserStateHandler(configMap))
                             .addLast(DispatchToServiceHandler())
+
+                        log.info("ListeningResponseHandler channelRead0|fireChannelActive")
                         p.fireChannelActive()
                     } else {
                         ChannelUtils.closeOnFlush(ctx.channel())

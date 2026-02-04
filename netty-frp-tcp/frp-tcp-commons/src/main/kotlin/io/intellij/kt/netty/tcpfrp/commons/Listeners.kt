@@ -26,11 +26,7 @@ object Listeners {
         }
     }
 
-    fun read(ch: Channel): ChannelFutureListener {
-        return read(ch, "")
-    }
-
-    fun read(ch: Channel, failureMessage: String): ChannelFutureListener {
+    fun read(ch: Channel, failureMessage: String = ""): ChannelFutureListener {
         return ChannelFutureListener { f: ChannelFuture ->
             if (f.isSuccess) {
                 if (ch.isActive) {
@@ -44,34 +40,27 @@ object Listeners {
         }
     }
 
-    fun read(frpChannel: FrpChannel): ChannelFutureListener {
-        return read(frpChannel, "")
-    }
 
-    fun read(frpChannel: FrpChannel, failureMessage: String?): ChannelFutureListener {
+    fun read(frpChannel: FrpChannel, failureMessage: String = ""): ChannelFutureListener {
         return ChannelFutureListener { f: ChannelFuture ->
             if (f.isSuccess) {
-                frpChannel.read()
+                frpChannel.activeRead()
             } else {
                 log.error("read failure: {}", failureMessage, f.cause())
             }
         }
     }
 
-    fun releaseDispatchChannel(dispatchManager: DispatchManager, dispatchId: String): ChannelFutureListener {
-        return releaseDispatchChannel(dispatchManager, dispatchId, "")
-    }
-
     fun releaseDispatchChannel(
         dispatchManager: DispatchManager,
         dispatchId: String,
-        failureMessage: String
+        msg: String = ""
     ): ChannelFutureListener {
         return ChannelFutureListener { f: ChannelFuture ->
             if (f.isSuccess) {
-                dispatchManager.release(dispatchId, failureMessage)
+                dispatchManager.release(dispatchId, msg)
             } else {
-                log.error("release failure: {}", failureMessage, f.cause())
+                log.error("release failure: {}", msg, f.cause())
             }
         }
     }

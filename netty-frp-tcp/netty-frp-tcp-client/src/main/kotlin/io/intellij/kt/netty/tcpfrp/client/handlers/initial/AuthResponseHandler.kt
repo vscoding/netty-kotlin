@@ -2,6 +2,7 @@ package io.intellij.kt.netty.tcpfrp.client.handlers.initial
 
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningConfig
 import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningRequest
 import io.intellij.kt.netty.tcpfrp.protocol.server.AuthResponse
@@ -23,7 +24,7 @@ class AuthResponseHandler(
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, authResponse: AuthResponse) {
-        val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
+        val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
         if (authResponse.success) {
             log.info("authenticate success")
             val listeningPorts: List<Int> = configMap.mapValues { (_, v) -> v.remotePort }.values.toList()
@@ -49,6 +50,6 @@ class AuthResponseHandler(
 
     @Throws(Exception::class)
     override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        FrpChannel.getBy(ctx.channel()).flush()
+        ctx.channel().getFrpChannel().flush()
     }
 }

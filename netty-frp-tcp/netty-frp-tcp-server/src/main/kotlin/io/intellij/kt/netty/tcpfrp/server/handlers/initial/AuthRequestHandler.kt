@@ -2,6 +2,7 @@ package io.intellij.kt.netty.tcpfrp.server.handlers.initial
 
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.client.AuthRequest
 import io.intellij.kt.netty.tcpfrp.protocol.server.AuthResponse
 import io.netty.channel.ChannelFutureListener
@@ -23,7 +24,7 @@ class AuthRequestHandler(
 
     @Throws(Exception::class)
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any?) {
-        val frpChannel: FrpChannel = FrpChannel.getBy(ctx.channel())
+        val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
         if (msg is AuthRequest) {
             if (authenticate(msg)) {
                 frpChannel.write(
@@ -49,7 +50,7 @@ class AuthRequestHandler(
 
     @Throws(Exception::class)
     override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        FrpChannel.getBy(ctx.channel()).flush()
+        ctx.channel().getFrpChannel().flush()
     }
 
     private fun authenticate(authRequest: AuthRequest): Boolean {

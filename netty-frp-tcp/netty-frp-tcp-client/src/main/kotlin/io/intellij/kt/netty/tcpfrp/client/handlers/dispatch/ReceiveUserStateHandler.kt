@@ -5,8 +5,8 @@ import io.intellij.kt.netty.tcpfrp.client.service.DirectServiceHandler
 import io.intellij.kt.netty.tcpfrp.client.service.ServiceChannelHandler
 import io.intellij.kt.netty.tcpfrp.commons.Listeners
 import io.intellij.kt.netty.tcpfrp.protocol.ConnState
-import io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchManager
-import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getDispatchManager
+import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningConfig
 import io.intellij.kt.netty.tcpfrp.protocol.client.ServiceState
 import io.intellij.kt.netty.tcpfrp.protocol.server.UserState
@@ -43,7 +43,7 @@ class ReceiveUserStateHandler(
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, connState: UserState) {
-        val frpChannel = FrpChannel.getBy(ctx.channel())
+        val frpChannel = ctx.channel().getFrpChannel()
         when (val userState = ConnState.getByName(connState.stateName)) {
 
             ConnState.UNKNOWN -> {
@@ -81,7 +81,7 @@ class ReceiveUserStateHandler(
                                 serviceName = listeningConfig.name,
                                 dispatchId,
                                 frpChannel,
-                                DispatchManager.getFromCh(frpChannel.ch)
+                                frpChannel.getDispatchManager()
                             )
                         )
                         // channelActive and Read
@@ -121,8 +121,8 @@ class ReceiveUserStateHandler(
                 frpChannel.writeAndFlushEmpty()
                     .addListeners(
                         Listeners.read(
-                            DispatchManager.getFromCh(frpChannel.ch)
-                                .getChannel(connState.dispatchId)!!
+                            frpChannel.getDispatchManager()
+                                .getChannelById(connState.dispatchId)!!
                         )
                     )
             }
@@ -133,7 +133,7 @@ class ReceiveUserStateHandler(
                 frpChannel.writeAndFlushEmpty(
                     Listeners.read(frpChannel),
                     Listeners.releaseDispatchChannel(
-                        DispatchManager.getFromCh(frpChannel.ch),
+                        frpChannel.getDispatchManager(),
                         connState.dispatchId
                     )
                 )
