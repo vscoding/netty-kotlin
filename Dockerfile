@@ -1,4 +1,6 @@
-FROM gradle:9.2-jdk25 AS builder
+ARG JAVA_VERSION=21
+
+FROM gradle:9.2-jdk${JAVA_VERSION} AS builder
 ARG SUB_PROJECT
 ARG JAR_NAME
 ARG BUILD_IN
@@ -8,7 +10,6 @@ WORKDIR /opt/builder
 COPY --chown=gradle:gradle . /opt/builder
 RUN gradle clean :${SUB_PROJECT}:build -x test --no-daemon
 
-ARG JAVA_VERSION=25
 FROM azul/zulu-openjdk:${JAVA_VERSION}-jre-crac
 ARG SUB_PROJECT
 ARG JAR_NAME
