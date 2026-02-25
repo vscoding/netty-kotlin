@@ -17,8 +17,8 @@ import io.netty.util.concurrent.GenericFutureListener
  *
  * @author tech@intellij.io
  */
-object IdleClient {
-    private val log = getLogger(IdleClient::class.java)
+object IdleTestClient {
+    private val log = getLogger(IdleTestClient::class.java)
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -46,7 +46,7 @@ object IdleClient {
                     }
                 })
 
-            val connect = bootstrap.connect("127.0.0.1", IdleServer.PORT)
+            val connect = bootstrap.connect("127.0.0.1", TimeoutsServer.PORT)
             connect.addListener(GenericFutureListener { future: Future<in Void> ->
                 if (future.isSuccess) {
                     log.info("连接服务端成功|channel.remoteAddr={}", connect.channel().remoteAddress())
