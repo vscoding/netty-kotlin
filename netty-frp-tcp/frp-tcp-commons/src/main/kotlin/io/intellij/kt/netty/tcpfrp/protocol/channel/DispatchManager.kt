@@ -71,7 +71,7 @@ data class DispatchManager(
 
 }
 
-fun Channel.setDispatchManager() {
+fun Channel.initDispatchManager() {
     attr(DispatchManager.DISPATCH_MANAGER_KEY).set(DispatchManager())
 }
 

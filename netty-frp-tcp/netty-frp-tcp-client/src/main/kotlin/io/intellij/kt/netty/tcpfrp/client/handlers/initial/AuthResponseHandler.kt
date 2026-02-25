@@ -12,6 +12,9 @@ import io.netty.channel.SimpleChannelInboundHandler
 /**
  * AuthResponseHandler
  *
+ * 处理认证响应，认证成功后发送监听请求，添加 [ListeningResponseHandler] 到 pipeline 中
+ *
+ *
  * @author tech@intellij.io
  */
 class AuthResponseHandler(
@@ -37,6 +40,7 @@ class AuthResponseHandler(
                         p.addLast(ListeningResponseHandler(configMap))
                         p.remove(this)
                         // ReceiveUserStateHandler
+                        // ctx.pipeline().fireChannelActive(); 全链重放
                         p.fireChannelActive()
                     }
                 }

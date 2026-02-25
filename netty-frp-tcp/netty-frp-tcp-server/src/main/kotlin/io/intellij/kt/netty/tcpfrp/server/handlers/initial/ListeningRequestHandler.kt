@@ -4,10 +4,10 @@ import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.protocol.FrpBasicMsg
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
-import io.intellij.kt.netty.tcpfrp.protocol.channel.setDispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningRequest
 import io.intellij.kt.netty.tcpfrp.protocol.server.ListeningResponse
 import io.intellij.kt.netty.tcpfrp.server.handlers.dispatch.DispatchToUserHandler
+import io.intellij.kt.netty.tcpfrp.server.handlers.dispatch.HeartBeatHandler
 import io.intellij.kt.netty.tcpfrp.server.handlers.dispatch.ReceiveServiceStateHandler
 import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortsNettyServer
 import io.intellij.kt.netty.tcpfrp.server.listening.MultiPortsTestUtils
@@ -18,6 +18,11 @@ import io.netty.channel.SimpleChannelInboundHandler
 
 /**
  * ListeningRequestHandler
+ *
+ * 1. 处理监听请求
+ * 1.1 如果本地监听失败，则关闭 channel
+ * 1.2 如果本地监听成功，则添加 [HeartBeatHandler] 到 pipeline 中
+ * 1.3 添加 [ReceiveServiceStateHandler] 和 [DispatchToUserHandler] 到 pipeline 中
  *
  * @author tech@intellij.io
  */
@@ -54,12 +59,9 @@ class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() 
                             val p = ctx.pipeline()
                             p.remove(this)
                             log.info("init MultiPortNettyServer")
-                            MultiPortsNettyServer.buildIn(frpChannel.ch, server)
+                            MultiPortsNettyServer.saveIn(frpChannel.ch, server)
 
-                            log.info("init DispatchManager")
-                            frpChannel.setDispatchManager()
-
-                            p.addLast(PingHandler())
+                            p.addLast(HeartBeatHandler())
                                 .addLast(ReceiveServiceStateHandler())
                                 .addLast(DispatchToUserHandler())
 

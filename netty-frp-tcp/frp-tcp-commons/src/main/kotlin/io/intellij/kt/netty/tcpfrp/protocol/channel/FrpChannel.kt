@@ -22,15 +22,6 @@ data class FrpChannel(
 
         val FRP_CHANNEL_KEY: AttributeKey<FrpChannel> = AttributeKey.valueOf<FrpChannel>("frpChannel")
 
-        // fun buildIn(ch: Channel) {
-        //     val frpChannel = FrpChannel(ch)
-        //     ch.attr(FRP_CHANNEL_KEY).set(frpChannel)
-        // }
-        //
-        // fun getBy(ch: Channel): FrpChannel {
-        //     return ch.attr(FRP_CHANNEL_KEY).get()
-        // }
-
     }
 
     fun write(dispatchPacket: DispatchPacket, vararg listeners: ChannelFutureListener): ChannelFuture {
@@ -96,7 +87,7 @@ data class FrpChannel(
 }
 
 
-fun Channel.setFrpChannel() {
+fun Channel.initFrpChannel() {
     attr(FrpChannel.FRP_CHANNEL_KEY).set(FrpChannel(this))
 }
 
@@ -104,8 +95,8 @@ fun Channel.getFrpChannel(): FrpChannel {
     return attr(FrpChannel.FRP_CHANNEL_KEY).get() ?: throw RuntimeException("FrpChannel is not initialized")
 }
 
-fun FrpChannel.setDispatchManager() {
-    return ch.setDispatchManager()
+fun FrpChannel.initDispatchManager() {
+    return ch.initDispatchManager()
 }
 
 fun FrpChannel.getDispatchManager(): DispatchManager {

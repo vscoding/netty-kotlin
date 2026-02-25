@@ -12,7 +12,7 @@ abstract class FrpChannelInitializer : ChannelInitializer<SocketChannel>() {
 
     @Throws(Exception::class)
     override fun initChannel(ch: SocketChannel) {
-        ch.setFrpChannel()
+        ch.initFrpChannel()
 
         ch.config().isAutoRead = false // 默认不自动读取数据，等到准备好后再启用读取
         ch.pipeline().addLast(ByteCountingHandler())

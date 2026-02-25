@@ -1,33 +1,36 @@
-package io.intellij.kt.netty.tcpfrp.server.handlers.initial
+package io.intellij.kt.netty.tcpfrp.server.handlers.dispatch
 
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.tcpfrp.protocol.channel.FrpChannel
 import io.intellij.kt.netty.tcpfrp.protocol.channel.getDispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.channel.getFrpChannel
-import io.intellij.kt.netty.tcpfrp.protocol.channel.setDispatchManager
+import io.intellij.kt.netty.tcpfrp.protocol.channel.initDispatchManager
 import io.intellij.kt.netty.tcpfrp.protocol.heartbeat.Ping
 import io.intellij.kt.netty.tcpfrp.protocol.heartbeat.Pong
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 
 /**
- * PingHandler
+ * HeartBeatHandler
  *
+ * 1. 初始化 [io.intellij.kt.netty.tcpfrp.protocol.channel.DispatchManager]
+ * 2. 处理心跳
+ * 
  * @author tech@intellij.io
  */
-class PingHandler : SimpleChannelInboundHandler<Ping>() {
+class HeartBeatHandler : SimpleChannelInboundHandler<Ping>() {
 
     companion object {
-        private val log = getLogger(PingHandler::class.java)
+        private val log = getLogger(HeartBeatHandler::class.java)
     }
 
     /**
-     * Triggered from [ListeningRequestHandler]
+     * Triggered from [io.intellij.kt.netty.tcpfrp.server.handlers.initial.ListeningRequestHandler]
      */
     @Throws(Exception::class)
     override fun channelActive(ctx: ChannelHandlerContext) {
         log.info("[channelActive]: Ping Handler")
-        ctx.channel().setDispatchManager()
+        ctx.channel().initDispatchManager()
         ctx.channel().getFrpChannel().activeRead()
     }
 

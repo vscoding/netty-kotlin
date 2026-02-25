@@ -66,13 +66,12 @@ class ServiceChannelHandler(
     /**
      * 服务连接断开
      *
-     *
      * 1. 通知 frp-server，服务连接断开
      * 2. 关闭服务的 channel
      */
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.warn("[SERVICE] 丢失服务端连接 |dispatchId={}|serviceName{}", dispatchId, serviceName)
+        log.warn("[SERVICE] 丢失服务端连接 |dispatchId={}|serviceName={}", dispatchId, serviceName)
         // frp-client -x-> mysql:3306
         frpChannel.writeAndFlush(ServiceState.broken(dispatchId), Listeners.read(frpChannel))
         ctx.close()

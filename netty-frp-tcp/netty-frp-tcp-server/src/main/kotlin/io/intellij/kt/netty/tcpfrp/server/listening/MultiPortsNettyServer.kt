@@ -26,9 +26,9 @@ class MultiPortsNettyServer(
     companion object {
         private val log = getLogger(MultiPortsNettyServer::class.java)
 
-        private var MULTI_PORTS_NETTY_SERVER_KEY = AttributeKey.valueOf<MultiPortsNettyServer>("multiPortsNettyServer")
+        private val MULTI_PORTS_NETTY_SERVER_KEY = AttributeKey.valueOf<MultiPortsNettyServer>("multiPortsNettyServer")
 
-        fun buildIn(ch: Channel, server: MultiPortsNettyServer) {
+        fun saveIn(ch: Channel, server: MultiPortsNettyServer) {
             ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).set(server)
         }
 
@@ -79,7 +79,6 @@ class MultiPortsNettyServer(
             return false
         }
     }
-
 
     fun stop() {
         log.warn("Multi Port Server Stop Begin ...")

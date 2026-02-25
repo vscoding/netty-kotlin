@@ -3,6 +3,7 @@ package io.intellij.kt.netty.tcpfrp.client.handlers.initial
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.commons.utils.ChannelUtils
 import io.intellij.kt.netty.tcpfrp.client.handlers.dispatch.DispatchToServiceHandler
+import io.intellij.kt.netty.tcpfrp.client.handlers.dispatch.HeartBeatHandler
 import io.intellij.kt.netty.tcpfrp.client.handlers.dispatch.ReceiveUserStateHandler
 import io.intellij.kt.netty.tcpfrp.protocol.client.ListeningConfig
 import io.intellij.kt.netty.tcpfrp.protocol.server.ListeningResponse
@@ -14,6 +15,9 @@ import io.netty.channel.SimpleChannelInboundHandler
 
 /**
  * ListeningResponseHandler
+ *
+ * 1. 处理监听响应，添加 [HeartBeatHandler] 到 pipeline 中
+ * 2. 添加 [ReceiveUserStateHandler] 和 [DispatchToServiceHandler] 到 pipeline 中
  *
  * @author tech@intellij.io
  */
@@ -38,7 +42,7 @@ class ListeningResponseHandler(val configMap: Map<String, ListeningConfig>) :
                     if (channelFuture.isSuccess) {
                         val p = ctx.pipeline()
                         p.remove(this)
-                        p.addLast(PongHandler())
+                        p.addLast(HeartBeatHandler())
                             .addLast(ReceiveUserStateHandler(configMap))
                             .addLast(DispatchToServiceHandler())
 
@@ -54,4 +58,5 @@ class ListeningResponseHandler(val configMap: Map<String, ListeningConfig>) :
             ctx.close()
         }
     }
+
 }

@@ -12,6 +12,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter
 /**
  * AuthRequestHandler
  *
+ * 1. 处理认证请求，认证成功后添加 [ListeningRequestHandler] 到 pipeline 中
+ * 2. 认证失败后关闭 channel
+ *
  * @author tech@intellij.io
  */
 class AuthRequestHandler(
