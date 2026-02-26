@@ -32,4 +32,5 @@ class TestMsgDecoder : ByteToMessageDecoder() {
             out.add(TestMsg(false, json))
         }
     }
+
 }

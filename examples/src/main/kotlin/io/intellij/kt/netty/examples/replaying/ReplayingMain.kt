@@ -30,7 +30,7 @@ object ReplayingMain {
 
         val buf = Unpooled.buffer()
         buf.writeInt(msgLength) // Writes the length of the message as an integer.
-        buf.writeBytes(bytes) //   Writes the specified byte array into this buffer.
+        buf.writeBytes(bytes) // Writes the specified byte array into this buffer.
 
         // 将构造的数据写入通道
         channel.writeInbound(buf)
