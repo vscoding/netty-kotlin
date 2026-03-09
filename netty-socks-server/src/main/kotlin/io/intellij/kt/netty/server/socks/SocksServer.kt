@@ -30,6 +30,7 @@ object SocksServer {
         val authenticator: Authenticator = PasswordAuthenticator()
 
         val b = ServerBootstrap().apply {
+            group(boss, worker)
             channel(NioServerSocketChannel::class.java)
             handler(LoggingHandler(LogLevel.INFO))
             childHandler(SocksServerInitializer(authenticator))
