@@ -2,6 +2,8 @@ package io.intellij.kt.netty.server.socks.handlers.connect
 
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.commons.utils.ChannelUtils.closeOnFlush
+import io.intellij.kt.netty.commons.utils.ConnInfo
+import io.intellij.kt.netty.commons.utils.CtxUtils
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFuture
@@ -35,17 +37,23 @@ class Socks5ServerConnectHandler : SimpleChannelInboundHandler<Socks5CommandRequ
         val inboundChannel = ctx.channel()
         val promise = ctx.executor().newPromise<Channel>()
         promise.addListener(FutureListener { future: Future<Channel> ->
-            val outboundChannel = future.getNow()
+            val outboundChannel = future.getNow() // outboundChannel is the channel connected to the target server
             if (future.isSuccess) {
+                // send SUCCESS, then add RelayHandler to both channels
                 val responseFuture = ctx.channel().writeAndFlush(
                     DefaultSocks5CommandResponse(
                         Socks5CommandStatus.SUCCESS, request.dstAddrType(), request.dstAddr(), request.dstPort()
                     )
                 )
-                responseFuture.addListener(ChannelFutureListener { channelFuture: ChannelFuture? ->
+                responseFuture.addListener(ChannelFutureListener {
+                    // 按实例删除 删除具体对象
                     ctx.pipeline().remove(this@Socks5ServerConnectHandler)
-                    outboundChannel.pipeline().addLast(RelayHandler(inboundChannel))
-                    ctx.pipeline().addLast(RelayHandler(outboundChannel))
+                    outboundChannel.pipeline().addLast(RelayHandler(inboundChannel, Direction.OUTBOUND))
+                    ctx.pipeline().addLast(RelayHandler(outboundChannel, Direction.INBOUND))
+
+                    ctx.channel().attr(INBOUND_CONN_INFO).set(CtxUtils.getRemoteAddress(ctx))
+                    outboundChannel.attr(OUTBOUND_CONN_INFO).set(ConnInfo(request.dstAddr(), request.dstPort()))
+
                 })
             } else {
                 ctx.channel()

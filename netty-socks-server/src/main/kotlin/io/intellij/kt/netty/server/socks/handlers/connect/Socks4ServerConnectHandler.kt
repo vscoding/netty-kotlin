@@ -2,6 +2,8 @@ package io.intellij.kt.netty.server.socks.handlers.connect
 
 import io.intellij.kt.netty.commons.getLogger
 import io.intellij.kt.netty.commons.utils.ChannelUtils.closeOnFlush
+import io.intellij.kt.netty.commons.utils.ConnInfo
+import io.intellij.kt.netty.commons.utils.CtxUtils
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.channel.ChannelFuture
@@ -35,13 +37,17 @@ class Socks4ServerConnectHandler : SimpleChannelInboundHandler<Socks4CommandRequ
         promise.addListener(FutureListener { future: Future<Channel> ->
             val outboundChannel = future.getNow()
             if (future.isSuccess) {
+                // send SUCCESS, then add RelayHandler to both channels
                 val responseFuture = ctx.channel().writeAndFlush(
                     DefaultSocks4CommandResponse(Socks4CommandStatus.SUCCESS)
                 )
                 responseFuture.addListener(ChannelFutureListener { channelFuture: ChannelFuture? ->
                     ctx.pipeline().remove(this@Socks4ServerConnectHandler)
-                    outboundChannel.pipeline().addLast(RelayHandler(inboundChannel))
-                    ctx.pipeline().addLast(RelayHandler(outboundChannel))
+                    outboundChannel.pipeline().addLast(RelayHandler(inboundChannel, Direction.OUTBOUND))
+                    ctx.pipeline().addLast(RelayHandler(outboundChannel, Direction.INBOUND))
+
+                    ctx.channel().attr(INBOUND_CONN_INFO).set(CtxUtils.getRemoteAddress(ctx))
+                    outboundChannel.attr(OUTBOUND_CONN_INFO).set(ConnInfo(request.dstAddr(), request.dstPort()))
                 })
             } else {
                 ctx.channel().writeAndFlush(DefaultSocks4CommandResponse(Socks4CommandStatus.REJECTED_OR_FAILED))

@@ -23,7 +23,6 @@ object Environment {
     val SOCKS5_USERNAME: String = System.getenv("SOCKS5_USERNAME") ?: ""
     val SOCKS5_PASSWORD: String = System.getenv("SOCKS5_PASSWORD") ?: ""
 
-
     private var _PORT: Int = 1080
 
     init {
