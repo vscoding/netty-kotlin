@@ -14,24 +14,24 @@ import io.netty.channel.SimpleChannelInboundHandler
  */
 class ClientDataBodyHandler : SimpleChannelInboundHandler<DataBody>() {
 
-    companion object {
-        private val log = getLogger(ClientDataBodyHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ClientDataBodyHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: DataBody) {
-        if (msg.dataType == 3) {
-            val response =
-                JSON.parseObject(msg.json, Response::class.java) ?: throw RuntimeException("Response is null")
-            ctx.fireChannelRead(response)
-        } else {
-            throw RuntimeException("Unknown data type")
-        }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: DataBody) {
+    if (msg.dataType == 3) {
+      val response =
+        JSON.parseObject(msg.json, Response::class.java) ?: throw RuntimeException("Response is null")
+      ctx.fireChannelRead(response)
+    } else {
+      throw RuntimeException("Unknown data type")
     }
+  }
 
-    @Throws(Exception::class)
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        log.error("DataBodyHandler error|{}", cause.message)
-        ctx.close()
-    }
+  @Throws(Exception::class)
+  override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+    log.error("DataBodyHandler error|{}", cause.message)
+    ctx.close()
+  }
 }

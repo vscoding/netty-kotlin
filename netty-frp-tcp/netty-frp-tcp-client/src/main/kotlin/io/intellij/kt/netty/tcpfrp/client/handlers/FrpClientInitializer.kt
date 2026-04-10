@@ -13,24 +13,24 @@ import io.netty.channel.socket.SocketChannel
  */
 class FrpClientInitializer(private val clientConfig: ClientConfig) : FrpChannelInitializer() {
 
-    override fun initChannel0(ch: SocketChannel) {
-        val p = ch.pipeline()
-        if (clientConfig.enableSSL) {
-            p.addLast(
-                clientConfig.sslContext!!.newHandler(
-                    ch.alloc(),
-                    clientConfig.serverHost,
-                    clientConfig.serverPort
-                )
-            )
-        }
-
-        p.addLast(FrpCodec.clientDecoder())
-            .addLast(FrpCodec.basicMsgEncoder())
-            .addLast(FrpCodec.dispatchEncoder())
-
-        p.addLast(AuthResponseHandler(clientConfig.listeningConfigMap))
-
+  override fun initChannel0(ch: SocketChannel) {
+    val p = ch.pipeline()
+    if (clientConfig.enableSSL) {
+      p.addLast(
+        clientConfig.sslContext!!.newHandler(
+          ch.alloc(),
+          clientConfig.serverHost,
+          clientConfig.serverPort,
+        ),
+      )
     }
+
+    p.addLast(FrpCodec.clientDecoder())
+      .addLast(FrpCodec.basicMsgEncoder())
+      .addLast(FrpCodec.dispatchEncoder())
+
+    p.addLast(AuthResponseHandler(clientConfig.listeningConfigMap))
+
+  }
 
 }

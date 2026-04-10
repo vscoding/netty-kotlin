@@ -11,42 +11,42 @@ import io.netty.channel.nio.NioIoHandler
  */
 class EventLoopGroups private constructor() {
 
-    companion object {
-        private val instance = EventLoopGroups()
-        fun get(): EventLoopGroups {
-            return instance
-        }
+  companion object {
+    private val instance = EventLoopGroups()
+    fun get(): EventLoopGroups {
+      return instance
     }
+  }
 
-    private var bossGroup: EventLoopGroup?
-    private var workerGroup: EventLoopGroup?
+  private var bossGroup: EventLoopGroup?
+  private var workerGroup: EventLoopGroup?
 
-    private val factory = NioIoHandler.newFactory()
+  private val factory = NioIoHandler.newFactory()
 
-    init {
-        this.bossGroup = null
-        this.workerGroup = null
+  init {
+    this.bossGroup = null
+    this.workerGroup = null
+  }
+
+  fun getBossGroup(): EventLoopGroup {
+    if (this.bossGroup == null) {
+      this.bossGroup = MultiThreadIoEventLoopGroup(1, factory)
     }
+    return this.bossGroup!!
+  }
 
-    fun getBossGroup(): EventLoopGroup {
-        if (this.bossGroup == null) {
-            this.bossGroup = MultiThreadIoEventLoopGroup(1, factory)
-        }
-        return this.bossGroup!!
+  fun getWorkerGroup(): EventLoopGroup {
+    if (this.workerGroup == null) {
+      this.workerGroup = MultiThreadIoEventLoopGroup(factory)
     }
+    return this.workerGroup!!
+  }
 
-    fun getWorkerGroup(): EventLoopGroup {
-        if (this.workerGroup == null) {
-            this.workerGroup = MultiThreadIoEventLoopGroup(factory)
-        }
-        return this.workerGroup!!
+  fun getWorkerGroup(nThreads: Int): EventLoopGroup {
+    if (this.workerGroup == null) {
+      this.workerGroup = MultiThreadIoEventLoopGroup(nThreads, factory)
     }
-
-    fun getWorkerGroup(nThreads: Int): EventLoopGroup {
-        if (this.workerGroup == null) {
-            this.workerGroup = MultiThreadIoEventLoopGroup(nThreads, factory)
-        }
-        return this.workerGroup!!
-    }
+    return this.workerGroup!!
+  }
 
 }

@@ -14,15 +14,15 @@ import io.netty.channel.SimpleChannelInboundHandler
  */
 class DispatchToUserHandler : SimpleChannelInboundHandler<DispatchPacket>() {
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: DispatchPacket) {
-        // after UserChannel read0
-        ctx.channel().getDispatchManager().dispatch(msg, Listeners.read())
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: DispatchPacket) {
+    // after UserChannel read0
+    ctx.channel().getDispatchManager().dispatch(msg, Listeners.read())
+  }
 
-    @Throws(Exception::class)
-    override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        ctx.channel().getFrpChannel().activeRead()
-    }
+  @Throws(Exception::class)
+  override fun channelReadComplete(ctx: ChannelHandlerContext) {
+    ctx.channel().getFrpChannel().activeRead()
+  }
 
 }

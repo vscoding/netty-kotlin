@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.kotlin.jvm)
 }
 
 group = "io.intellij.kt.netty.server"
@@ -8,54 +8,56 @@ version = "1.0"
 val projectJdkVersion = libs.versions.java.get().toInt()
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(projectJdkVersion)
-    }
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(projectJdkVersion)
+  }
 }
 
 kotlin {
-    jvmToolchain(projectJdkVersion)
+  jvmToolchain(projectJdkVersion)
 }
 
 dependencies {
-    implementation(project(":commons-dependencies"))
+  implementation(project(":commons-dependencies"))
 
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testRuntimeOnly(libs.junit.platform.launcher)
+  testImplementation(libs.junit.jupiter.api)
+  testRuntimeOnly(libs.junit.jupiter.engine)
+  testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {
-    useJUnitPlatform() {
-        includeEngines("junit-jupiter")
-    }
+  useJUnitPlatform() {
+    includeEngines("junit-jupiter")
+  }
 }
 
 tasks.register<Jar>("fatJar") {
-    group = "build"
+  group = "build"
 
-    archiveClassifier.set("all")
+  archiveClassifier.set("all")
 
-    from(sourceSets.main.get().output)
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get()
-            .filter { it.name.endsWith("jar") }
-            .map { zipTree(it) }
-    })
+  from(sourceSets.main.get().output)
+  dependsOn(configurations.runtimeClasspath)
+  from(
+    {
+      configurations.runtimeClasspath.get()
+        .filter { it.name.endsWith("jar") }
+        .map { zipTree(it) }
+    },
+  )
 
-    // 排除所有签名相关文件，避免 JVM 校验证书导致 SecurityException
-    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+  // 排除所有签名相关文件，避免 JVM 校验证书导致 SecurityException
+  exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
 
-    manifest {
-        // attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServerKt"
-        attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServer"
-    }
+  manifest {
+    // attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServerKt"
+    attributes["Main-Class"] = "io.intellij.kt.netty.server.socks.SocksServer"
+  }
 
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.build {
-    dependsOn(tasks.named("fatJar"))
+  dependsOn(tasks.named("fatJar"))
 }
 

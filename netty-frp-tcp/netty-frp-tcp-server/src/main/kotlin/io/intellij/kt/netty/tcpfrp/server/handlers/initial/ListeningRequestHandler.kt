@@ -28,68 +28,68 @@ import io.netty.channel.SimpleChannelInboundHandler
  */
 class ListeningRequestHandler : SimpleChannelInboundHandler<ListeningRequest>() {
 
-    companion object {
-        private val log = getLogger(ListeningRequestHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ListeningRequestHandler::class.java)
+  }
 
-    /**
-     * Triggered from [AuthRequestHandler]
-     */
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        ctx.read()
-    }
+  /**
+   * Triggered from [AuthRequestHandler]
+   */
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    ctx.read()
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, listeningRequest: ListeningRequest) {
-        val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, listeningRequest: ListeningRequest) {
+    val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
 
-        log.info("get listening request: {}", listeningRequest)
-        val listeningPorts: List<Int> = listeningRequest.listeningPorts
-        // 测试可以监听
-        val test: ListeningResponse = MultiPortsTestUtils.test(listeningPorts)
+    log.info("get listening request: {}", listeningRequest)
+    val listeningPorts: List<Int> = listeningRequest.listeningPorts
+    // 测试可以监听
+    val test: ListeningResponse = MultiPortsTestUtils.test(listeningPorts)
 
-        if (test.success) {
-            val server = MultiPortsNettyServer(listeningPorts, frpChannel)
-            if (server.start()) {
-                frpChannel.write(FrpBasicMsg.buildListeningResponse(test)).addListener(
-                    ChannelFutureListener { f: ChannelFuture ->
-                        if (f.isSuccess) {
-                            // remote this
-                            val p = ctx.pipeline()
-                            p.remove(this)
-                            log.info("init MultiPortNettyServer")
-                            MultiPortsNettyServer.saveIn(frpChannel.ch, server)
+    if (test.success) {
+      val server = MultiPortsNettyServer(listeningPorts, frpChannel)
+      if (server.start()) {
+        frpChannel.write(FrpBasicMsg.buildListeningResponse(test)).addListener(
+          ChannelFutureListener { f: ChannelFuture ->
+            if (f.isSuccess) {
+              // remote this
+              val p = ctx.pipeline()
+              p.remove(this)
+              log.info("init MultiPortNettyServer")
+              MultiPortsNettyServer.saveIn(frpChannel.ch, server)
 
-                            p.addLast(HeartBeatHandler())
-                                .addLast(ReceiveServiceStateHandler())
-                                .addLast(DispatchToUserHandler())
+              p.addLast(HeartBeatHandler())
+                .addLast(ReceiveServiceStateHandler())
+                .addLast(DispatchToUserHandler())
 
-                            log.info("ListeningRequestHandler channelRead0|fireChannelActive")
-                            p.fireChannelActive()
-                        } else {
-                            frpChannel.close()
-                        }
-                    }
-                )
+              log.info("ListeningRequestHandler channelRead0|fireChannelActive")
+              p.fireChannelActive()
             } else {
-                log.error("start multi port netty server failed")
-                val newRt = ListeningResponse(
-                    false,
-                    test.listeningStatus,
-                    "start multi port netty server failed",
-                )
-                frpChannel.write(FrpBasicMsg.buildListeningResponse(newRt))
-                    .addListener(ChannelFutureListener.CLOSE)
+              frpChannel.close()
             }
-        } else {
-            frpChannel.write(FrpBasicMsg.buildListeningResponse(test))
-                .addListener(ChannelFutureListener.CLOSE)
-        }
+          },
+        )
+      } else {
+        log.error("start multi port netty server failed")
+        val newRt = ListeningResponse(
+          false,
+          test.listeningStatus,
+          "start multi port netty server failed",
+        )
+        frpChannel.write(FrpBasicMsg.buildListeningResponse(newRt))
+          .addListener(ChannelFutureListener.CLOSE)
+      }
+    } else {
+      frpChannel.write(FrpBasicMsg.buildListeningResponse(test))
+        .addListener(ChannelFutureListener.CLOSE)
     }
+  }
 
-    @Throws(Exception::class)
-    override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        ctx.flush()
-    }
+  @Throws(Exception::class)
+  override fun channelReadComplete(ctx: ChannelHandlerContext) {
+    ctx.flush()
+  }
 }

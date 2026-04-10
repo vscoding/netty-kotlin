@@ -11,14 +11,14 @@ import io.netty.channel.SimpleChannelInboundHandler
  * @author tech@intellij.io
  */
 class EchoHandler(
-    val byteArrayConsumer: (ByteArray) -> Unit
+  val byteArrayConsumer: (ByteArray) -> Unit,
 ) : SimpleChannelInboundHandler<ByteBuf>() {
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: ByteBuf) {
-        val bytes = ByteArray(msg.readableBytes())
-        msg.readBytes(bytes)
-        byteArrayConsumer(bytes)
-        ctx.writeAndFlush(Unpooled.wrappedBuffer(bytes))
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: ByteBuf) {
+    val bytes = ByteArray(msg.readableBytes())
+    msg.readBytes(bytes)
+    byteArrayConsumer(bytes)
+    ctx.writeAndFlush(Unpooled.wrappedBuffer(bytes))
+  }
 
 }

@@ -9,12 +9,12 @@ import java.util.Date
  * @author tech@intellij.io
  */
 data class Ping(
-    val time: Date,
-    val name: String
+  val time: Date,
+  val name: String,
 ) {
-    companion object {
-        fun build(name: String): FrpBasicMsg {
-            return FrpBasicMsg.buildPing(Ping(Date(), name))
-        }
+  companion object {
+    fun build(name: String): FrpBasicMsg {
+      return FrpBasicMsg.buildPing(Ping(Date(), name))
     }
+  }
 }

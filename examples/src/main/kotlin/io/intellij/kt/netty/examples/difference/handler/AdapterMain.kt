@@ -15,65 +15,67 @@ import io.netty.channel.embedded.EmbeddedChannel
  * @author tech@intellij.io
  */
 object AdapterMain {
-    private val log = getLogger("AdapterHandler")
+  private val log = getLogger("AdapterHandler")
 
-    @JvmStatic
-    fun main(args: Array<String>) {
+  @JvmStatic
+  fun main(args: Array<String>) {
 
-        val channel = EmbeddedChannel(object : ChannelInboundHandlerAdapter() {
-            @Throws(Exception::class)
-            override fun channelActive(ctx: ChannelHandlerContext) {
-                log.info("channel active")
-            }
+    val channel = EmbeddedChannel(
+      object : ChannelInboundHandlerAdapter() {
+        @Throws(Exception::class)
+        override fun channelActive(ctx: ChannelHandlerContext) {
+          log.info("channel active")
+        }
 
-            @Throws(Exception::class)
-            override fun channelInactive(ctx: ChannelHandlerContext) {
-                log.info("channel inactive")
-            }
+        @Throws(Exception::class)
+        override fun channelInactive(ctx: ChannelHandlerContext) {
+          log.info("channel inactive")
+        }
 
-            @Throws(Exception::class)
-            override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-                if (msg is ByteBuf) {
-                    val i = msg.readableBytes()
-                    val bytes = ByteArray(i)
+        @Throws(Exception::class)
+        override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
+          if (msg is ByteBuf) {
+            val i = msg.readableBytes()
+            val bytes = ByteArray(i)
 
-                    // 使用 getBytes 不推进 readerIndex，避免影响 buf 的写指针布局
-                    msg.getBytes(msg.readerIndex(), bytes)
+            // 使用 getBytes 不推进 readerIndex，避免影响 buf 的写指针布局
+            msg.getBytes(msg.readerIndex(), bytes)
 
-                    log.info("当前的 ByteBuf 引用计数: {}", msg.refCnt())
-                    log.info("channel read: {}", String(bytes))
+            log.info("当前的 ByteBuf 引用计数: {}", msg.refCnt())
+            log.info("channel read: {}", String(bytes))
 
-                    // 直接复用 msg
-                    ctx.write(msg)
-                }
-            }
+            // 直接复用 msg
+            ctx.write(msg)
+          }
+        }
 
-            @Throws(Exception::class)
-            override fun channelReadComplete(ctx: ChannelHandlerContext) {
-                ctx.flush()
-            }
+        @Throws(Exception::class)
+        override fun channelReadComplete(ctx: ChannelHandlerContext) {
+          ctx.flush()
+        }
 
-            @Throws(Exception::class)
-            override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-                log.error("exception caught: {}", cause.message)
-            }
-        })
+        @Throws(Exception::class)
+        override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+          log.error("exception caught: {}", cause.message)
+        }
+      },
+    )
 
 
-        val content = "Hello, Netty Adapter Handler!"
-        val buf = Unpooled.wrappedBuffer(content.toByteArray())
+    val content = "Hello, Netty Adapter Handler!"
+    val buf = Unpooled.wrappedBuffer(content.toByteArray())
 
-        channel.writeInbound(buf)
-        channel.finish()
+    channel.writeInbound(buf)
+    channel.finish()
 
-        val rtBuf = channel.readOutbound<ByteBuf>()
-        val len = rtBuf.readableBytes()
-        val bytes = ByteArray(len)
-        rtBuf.readBytes(bytes)
+    val rtBuf = channel.readOutbound<ByteBuf>()
+    val len = rtBuf.readableBytes()
+    val bytes = ByteArray(len)
+    rtBuf.readBytes(bytes)
 
-        log.info("read msg: {}", bytes.toString(Charsets.UTF_8))
+    log.info("read msg: {}", bytes.toString(Charsets.UTF_8))
 
-        channel.close()
-    }
+    channel.close()
+  }
 
 }

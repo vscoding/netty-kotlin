@@ -1,15 +1,15 @@
 pluginManagement {
-    val buildIn = System.getenv("BUILD_IN") ?: "LOCAL"
-    repositories {
-        if (buildIn == "GITHUB_ACTIONS") {
-            gradlePluginPortal()
-        }
-        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+  val buildIn = System.getenv("BUILD_IN") ?: "LOCAL"
+  repositories {
+    if (buildIn == "GITHUB_ACTIONS") {
+      gradlePluginPortal()
     }
+    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+  }
 }
 
 plugins {
-    id("com.gradle.develocity") version ("4.4.0")
+  id("com.gradle.develocity") version ("4.4.0")
 }
 
 rootProject.name = "netty-kotlin"

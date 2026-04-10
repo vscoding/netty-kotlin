@@ -14,32 +14,32 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
  * @author tech@intellij.io
  */
 object DispatchServer {
-    private val log = getLogger(DispatchServer::class.java)
+  private val log = getLogger(DispatchServer::class.java)
 
-    const val PORT: Int = 7000
+  const val PORT: Int = 7000
 
-    @Throws(InterruptedException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
+  @Throws(InterruptedException::class)
+  @JvmStatic
+  fun main(args: Array<String>) {
 
-        val f = NioIoHandler.newFactory()
-        val bossGroup: EventLoopGroup = MultiThreadIoEventLoopGroup(1, f)
-        val workerGroup: EventLoopGroup = MultiThreadIoEventLoopGroup(4, f)
+    val f = NioIoHandler.newFactory()
+    val bossGroup: EventLoopGroup = MultiThreadIoEventLoopGroup(1, f)
+    val workerGroup: EventLoopGroup = MultiThreadIoEventLoopGroup(4, f)
 
-        try {
-            val bootstrap = ServerBootstrap().apply {
-                group(bossGroup, workerGroup)
-                channel(NioServerSocketChannel::class.java)
-                childHandler(ServerInitializer())
-            }
+    try {
+      val bootstrap = ServerBootstrap().apply {
+        group(bossGroup, workerGroup)
+        channel(NioServerSocketChannel::class.java)
+        childHandler(ServerInitializer())
+      }
 
-            val channel = bootstrap.bind(PORT).channel()
-            log.info("server started at port {}", PORT)
-            channel.closeFuture().sync()
-        } finally {
-            bossGroup.shutdownGracefully()
-            workerGroup.shutdownGracefully()
-        }
+      val channel = bootstrap.bind(PORT).channel()
+      log.info("server started at port {}", PORT)
+      channel.closeFuture().sync()
+    } finally {
+      bossGroup.shutdownGracefully()
+      workerGroup.shutdownGracefully()
     }
+  }
 
 }

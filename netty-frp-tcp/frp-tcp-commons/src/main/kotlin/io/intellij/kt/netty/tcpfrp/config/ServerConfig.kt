@@ -15,70 +15,70 @@ import java.util.Objects
  * @author tech@intellij.io
  */
 data class ServerConfig(
-    val valid: Boolean,
-    val host: String = "",
-    val port: Int = 0,
-    val authToken: String = "",
-    val enableSSL: Boolean = false,
-    val sslContext: SslContext? = null
+  val valid: Boolean,
+  val host: String = "",
+  val port: Int = 0,
+  val authToken: String = "",
+  val enableSSL: Boolean = false,
+  val sslContext: SslContext? = null,
 ) {
 
-    companion object {
-        private val log = getLogger(ServerConfig::class.java)
+  companion object {
+    private val log = getLogger(ServerConfig::class.java)
 
-        private val INVALID_CONFIG: ServerConfig = ServerConfig(false)
+    private val INVALID_CONFIG: ServerConfig = ServerConfig(false)
 
-        fun init(inputStream: InputStream?): ServerConfig {
-            try {
-                if (inputStream == null) {
-                    return INVALID_CONFIG
-                }
-
-                val json = IOUtils.readLines(inputStream, "UTF-8").joinToString(separator = "")
-
-                val host = JSONPath.eval(json, "$.server.host") as String?
-                val port = JSONPath.eval(json, "$.server.port") as Int?
-                val authToken = JSONPath.eval(json, "$.server.auth.token") as String?
-
-                if (host == null || port == null || authToken == null) {
-                    return INVALID_CONFIG
-                }
-
-                return ServerConfig(
-                    true, host, port, authToken,
-                    SysConfig.get().enableSsl, TlsContexts.buildServer()
-                )
-
-            } catch (e: Exception) {
-                log.error(e.message)
-                return INVALID_CONFIG
-            } finally {
-                if (Objects.nonNull(inputStream)) {
-                    try {
-                        inputStream!!.close()
-                    } catch (e: Exception) {
-                        log.error(e.message)
-                    }
-                }
-            }
+    fun init(inputStream: InputStream?): ServerConfig {
+      try {
+        if (inputStream == null) {
+          return INVALID_CONFIG
         }
 
-        fun loadConfig(path: String): ServerConfig {
-            val serverConfig = init(ServerConfig::class.java.classLoader.getResourceAsStream(path))
-            if (serverConfig.valid) {
-                log.info("server config|{}", serverConfig)
-                SysConfig.get().logDetails()
-            }
-            return serverConfig
+        val json = IOUtils.readLines(inputStream, "UTF-8").joinToString(separator = "")
+
+        val host = JSONPath.eval(json, "$.server.host") as String?
+        val port = JSONPath.eval(json, "$.server.port") as Int?
+        val authToken = JSONPath.eval(json, "$.server.auth.token") as String?
+
+        if (host == null || port == null || authToken == null) {
+          return INVALID_CONFIG
         }
 
+        return ServerConfig(
+          true, host, port, authToken,
+          SysConfig.get().enableSsl, TlsContexts.buildServer(),
+        )
+
+      } catch (e: Exception) {
+        log.error(e.message)
+        return INVALID_CONFIG
+      } finally {
+        if (Objects.nonNull(inputStream)) {
+          try {
+            inputStream!!.close()
+          } catch (e: Exception) {
+            log.error(e.message)
+          }
+        }
+      }
     }
 
-    fun then(consumer: (ServerConfig) -> Unit) {
-        if (this.valid) {
-            consumer(this)
-        } else {
-            log.error("server config is invalid")
-        }
+    fun loadConfig(path: String): ServerConfig {
+      val serverConfig = init(ServerConfig::class.java.classLoader.getResourceAsStream(path))
+      if (serverConfig.valid) {
+        log.info("server config|{}", serverConfig)
+        SysConfig.get().logDetails()
+      }
+      return serverConfig
     }
+
+  }
+
+  fun then(consumer: (ServerConfig) -> Unit) {
+    if (this.valid) {
+      consumer(this)
+    } else {
+      log.error("server config is invalid")
+    }
+  }
 }

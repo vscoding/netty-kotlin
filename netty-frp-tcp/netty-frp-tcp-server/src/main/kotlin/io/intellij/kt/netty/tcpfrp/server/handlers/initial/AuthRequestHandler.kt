@@ -18,51 +18,52 @@ import io.netty.channel.ChannelInboundHandlerAdapter
  * @author tech@intellij.io
  */
 class AuthRequestHandler(
-    val configToken: String
+  val configToken: String,
 ) : ChannelInboundHandlerAdapter() {
 
-    companion object {
-        private val log = getLogger(AuthRequestHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(AuthRequestHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead(ctx: ChannelHandlerContext, msg: Any?) {
-        val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
-        if (msg is AuthRequest) {
-            if (authenticate(msg)) {
-                frpChannel.write(
-                    AuthResponse.success(),
-                    { channelFuture ->
-                        if (channelFuture.isSuccess) {
-                            val p = ctx.pipeline()
-                            p.addLast(ListeningRequestHandler())
-                            p.remove(this)
-                            p.fireChannelActive()
-                        } else {
-                            frpChannel.close()
-                        }
-                    })
+  @Throws(Exception::class)
+  override fun channelRead(ctx: ChannelHandlerContext, msg: Any?) {
+    val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
+    if (msg is AuthRequest) {
+      if (authenticate(msg)) {
+        frpChannel.write(
+          AuthResponse.success(),
+          { channelFuture ->
+            if (channelFuture.isSuccess) {
+              val p = ctx.pipeline()
+              p.addLast(ListeningRequestHandler())
+              p.remove(this)
+              p.fireChannelActive()
             } else {
-                frpChannel.write(AuthResponse.failure(), ChannelFutureListener.CLOSE)
+              frpChannel.close()
             }
-        } else {
-            // 第一个消息不是认证消息，关闭连接
-            frpChannel.close()
-        }
+          },
+        )
+      } else {
+        frpChannel.write(AuthResponse.failure(), ChannelFutureListener.CLOSE)
+      }
+    } else {
+      // 第一个消息不是认证消息，关闭连接
+      frpChannel.close()
     }
+  }
 
-    @Throws(Exception::class)
-    override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        ctx.channel().getFrpChannel().flush()
-    }
+  @Throws(Exception::class)
+  override fun channelReadComplete(ctx: ChannelHandlerContext) {
+    ctx.channel().getFrpChannel().flush()
+  }
 
-    private fun authenticate(authRequest: AuthRequest): Boolean {
-        val authResult = authRequest.token.equals(configToken)
-        if (authResult) {
-            log.info("authenticate client success")
-        } else {
-            log.error("authenticate client failed")
-        }
-        return authResult
+  private fun authenticate(authRequest: AuthRequest): Boolean {
+    val authResult = authRequest.token.equals(configToken)
+    if (authResult) {
+      log.info("authenticate client success")
+    } else {
+      log.error("authenticate client failed")
     }
+    return authResult
+  }
 }

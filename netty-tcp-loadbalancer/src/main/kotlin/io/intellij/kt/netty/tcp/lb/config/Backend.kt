@@ -6,9 +6,9 @@ package io.intellij.kt.netty.tcp.lb.config
  * @author tech@intellij.io
  */
 data class Backend(
-    val name: String,
-    val host: String,
-    val port: Int
+  val name: String,
+  val host: String,
+  val port: Int,
 ) {
-    override fun toString(): String = "name='$name', host='$host', port=$port"
+  override fun toString(): String = "name='$name', host='$host', port=$port"
 }

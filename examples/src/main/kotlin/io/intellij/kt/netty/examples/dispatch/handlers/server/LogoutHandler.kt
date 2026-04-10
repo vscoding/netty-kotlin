@@ -12,17 +12,17 @@ import io.netty.channel.SimpleChannelInboundHandler
  * @author tech@intellij.io
  */
 class LogoutHandler : SimpleChannelInboundHandler<LogoutReq>() {
-    companion object {
-        private val log = getLogger(LogoutHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(LogoutHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: LogoutReq?) {
-        val username =
-            ctx.channel().attr(Attributes.USERNAME).get() ?: throw RuntimeException("logout username is null")
-        log.info("logout|attrLoginUsername={}|{}", username, msg)
-        log.info("logout business logic ...")
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: LogoutReq?) {
+    val username =
+      ctx.channel().attr(Attributes.USERNAME).get() ?: throw RuntimeException("logout username is null")
+    log.info("logout|attrLoginUsername={}|{}", username, msg)
+    log.info("logout business logic ...")
 
-        ctx.writeAndFlush(Response.create(200, "logout success"))
-    }
+    ctx.writeAndFlush(Response.create(200, "logout success"))
+  }
 }

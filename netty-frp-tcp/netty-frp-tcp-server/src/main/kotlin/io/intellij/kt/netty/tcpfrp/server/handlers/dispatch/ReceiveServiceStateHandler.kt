@@ -19,61 +19,61 @@ import io.netty.channel.SimpleChannelInboundHandler
  */
 class ReceiveServiceStateHandler : SimpleChannelInboundHandler<ServiceState>() {
 
-    companion object {
-        private val log = getLogger(ReceiveServiceStateHandler::class.java)
+  companion object {
+    private val log = getLogger(ReceiveServiceStateHandler::class.java)
+  }
+
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, connState: ServiceState) {
+    val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
+    when (val serviceState: ConnState = ConnState.getByName(connState.stateName)) {
+
+      ConnState.UNKNOWN -> throw IllegalStateException("unknown service state")
+
+
+      ConnState.SUCCESS ->                 // frp-client ---> service 连接成功
+        // 可以获取到 dispatchId
+        frpChannel.write(
+          UserState.ready(connState.dispatchId),
+          Listeners.read(frpChannel.getDispatchManager().getChannelById(connState.dispatchId)!!),
+          Listeners.read(frpChannel),
+        )
+
+      ConnState.FAILURE ->                 // frp-client ---> service 连接断开
+        frpChannel.writeAndFlushEmpty()
+          .addListeners(
+            Listeners.releaseDispatchChannel(
+              frpChannel.getDispatchManager(),
+              connState.dispatchId,
+              ConnState.FAILURE.desc,
+            ),
+            Listeners.read(frpChannel),
+          )
+
+      ConnState.BROKEN ->                 // service ---> frp-client 连接断开
+        frpChannel.writeAndFlushEmpty()
+          .addListeners(
+            Listeners.releaseDispatchChannel(
+              frpChannel.getDispatchManager(),
+              connState.dispatchId,
+              ConnState.BROKEN.desc,
+            ),
+            Listeners.read(frpChannel),
+          )
+
+      else -> log.error("ServiceConnStateHandler channelRead0 unknown state {}", serviceState)
     }
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, connState: ServiceState) {
-        val frpChannel: FrpChannel = ctx.channel().getFrpChannel()
-        when (val serviceState: ConnState = ConnState.getByName(connState.stateName)) {
+  @Throws(Exception::class)
+  override fun channelReadComplete(ctx: ChannelHandlerContext) {
+    ctx.channel().getFrpChannel().flush()
+  }
 
-            ConnState.UNKNOWN -> throw IllegalStateException("unknown service state")
-
-
-            ConnState.SUCCESS ->                 // frp-client ---> service 连接成功
-                // 可以获取到 dispatchId
-                frpChannel.write(
-                    UserState.ready(connState.dispatchId),
-                    Listeners.read(frpChannel.getDispatchManager().getChannelById(connState.dispatchId)!!),
-                    Listeners.read(frpChannel)
-                )
-
-            ConnState.FAILURE ->                 // frp-client ---> service 连接断开
-                frpChannel.writeAndFlushEmpty()
-                    .addListeners(
-                        Listeners.releaseDispatchChannel(
-                            frpChannel.getDispatchManager(),
-                            connState.dispatchId,
-                            ConnState.FAILURE.desc
-                        ),
-                        Listeners.read(frpChannel)
-                    )
-
-            ConnState.BROKEN ->                 // service ---> frp-client 连接断开
-                frpChannel.writeAndFlushEmpty()
-                    .addListeners(
-                        Listeners.releaseDispatchChannel(
-                            frpChannel.getDispatchManager(),
-                            connState.dispatchId,
-                            ConnState.BROKEN.desc
-                        ),
-                        Listeners.read(frpChannel)
-                    )
-
-            else -> log.error("ServiceConnStateHandler channelRead0 unknown state {}", serviceState)
-        }
-    }
-
-    @Throws(Exception::class)
-    override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        ctx.channel().getFrpChannel().flush()
-    }
-
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.warn("stop multi port server")
-        MultiPortsNettyServer.stopIn(ctx.channel())
-    }
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    log.warn("stop multi port server")
+    MultiPortsNettyServer.stopIn(ctx.channel())
+  }
 
 }

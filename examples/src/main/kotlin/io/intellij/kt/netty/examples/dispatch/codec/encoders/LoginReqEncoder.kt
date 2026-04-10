@@ -11,9 +11,9 @@ import io.netty.handler.codec.MessageToMessageEncoder
  */
 class LoginReqEncoder : MessageToMessageEncoder<LoginReq>() {
 
-    @Throws(Exception::class)
-    override fun encode(channelHandlerContext: ChannelHandlerContext, loginReq: LoginReq, list: MutableList<Any>) {
-        list.add(loginReq.toDataBody())
-    }
+  @Throws(Exception::class)
+  override fun encode(channelHandlerContext: ChannelHandlerContext, loginReq: LoginReq, list: MutableList<Any>) {
+    list.add(loginReq.toDataBody())
+  }
 
 }

@@ -8,10 +8,10 @@ import io.netty.channel.Channel
  * @author tech@intellij.io
  */
 object DispatchIdUtils {
-    const val ID_LENGTH: Int = 60
+  const val ID_LENGTH: Int = 60
 
-    fun generateId(channel: Channel): String {
-        return channel.id().asLongText()
-    }
+  fun generateId(channel: Channel): String {
+    return channel.id().asLongText()
+  }
 
 }

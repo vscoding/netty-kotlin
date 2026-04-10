@@ -12,13 +12,13 @@ import io.netty.util.concurrent.Promise
  */
 class DirectServiceHandler(val promise: Promise<Channel>) : ChannelInboundHandlerAdapter() {
 
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        ctx.pipeline().remove(this)
-        promise.setSuccess(ctx.channel())
-    }
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    ctx.pipeline().remove(this)
+    promise.setSuccess(ctx.channel())
+  }
 
-    override fun exceptionCaught(ctx: ChannelHandlerContext?, throwable: Throwable) {
-        promise.setFailure(throwable)
-    }
+  override fun exceptionCaught(ctx: ChannelHandlerContext?, throwable: Throwable) {
+    promise.setFailure(throwable)
+  }
 
 }

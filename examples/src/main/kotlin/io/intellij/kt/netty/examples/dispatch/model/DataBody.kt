@@ -6,15 +6,15 @@ package io.intellij.kt.netty.examples.dispatch.model
  * @author tech@intellij.io
  */
 data class DataBody(
-    val dataType: Int,
-    val json: String
+  val dataType: Int,
+  val json: String,
 )
 
 enum class DataType(
-    val code: Int,
-    val desc: String
+  val code: Int,
+  val desc: String,
 ) {
-    LOGIN(1, "login"),
-    LOGOUT(2, "logout"),
-    RESPONSE(3, "response");
+  LOGIN(1, "login"),
+  LOGOUT(2, "logout"),
+  RESPONSE(3, "response");
 }

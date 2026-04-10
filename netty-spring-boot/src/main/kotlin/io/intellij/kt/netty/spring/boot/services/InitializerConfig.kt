@@ -18,27 +18,27 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class InitializerConfig {
 
-    @Bean(name = ["log"])
-    fun logChannelHandler(): ChannelHandler {
-        return object : ChannelInitializer<SocketChannel>() {
-            @Throws(Exception::class)
-            override fun initChannel(ch: SocketChannel) {
-                ch.pipeline()
-                    .addLast(ActiveHandler())
-                    .addLast(LogHandler())
-            }
-        }
+  @Bean(name = ["log"])
+  fun logChannelHandler(): ChannelHandler {
+    return object : ChannelInitializer<SocketChannel>() {
+      @Throws(Exception::class)
+      override fun initChannel(ch: SocketChannel) {
+        ch.pipeline()
+          .addLast(ActiveHandler())
+          .addLast(LogHandler())
+      }
     }
+  }
 
-    @Bean(name = ["echo"])
-    fun echoChannelHandler(): ChannelHandler {
-        return object : ChannelInitializer<SocketChannel>() {
-            @Throws(Exception::class)
-            override fun initChannel(ch: SocketChannel) {
-                ch.pipeline()
-                    .addLast(ActiveHandler())
-                    .addLast(EchoHandler(BytesUtils::printBytes))
-            }
-        }
+  @Bean(name = ["echo"])
+  fun echoChannelHandler(): ChannelHandler {
+    return object : ChannelInitializer<SocketChannel>() {
+      @Throws(Exception::class)
+      override fun initChannel(ch: SocketChannel) {
+        ch.pipeline()
+          .addLast(ActiveHandler())
+          .addLast(EchoHandler(BytesUtils::printBytes))
+      }
     }
+  }
 }

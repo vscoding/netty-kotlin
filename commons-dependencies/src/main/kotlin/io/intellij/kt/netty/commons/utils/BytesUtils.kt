@@ -9,31 +9,31 @@ import org.slf4j.Logger
  * @author tech@intellij.io
  */
 object BytesUtils {
-    private val log = getLogger(BytesUtils::class.java)
+  private val log = getLogger(BytesUtils::class.java)
 
-    fun printString(bytes: ByteArray, logger: Logger = log) {
-        val str = String(bytes)
-        logger.info("Bytes as String: $str")
-    }
+  fun printString(bytes: ByteArray, logger: Logger = log) {
+    val str = String(bytes)
+    logger.info("Bytes as String: $str")
+  }
 
-    fun printHex(bytes: ByteArray, logger: Logger = log) {
-        val hex = bytes.joinToString(" ") { "%02X".format(it) }
-        logger.info("Bytes as Hex: $hex")
-    }
+  fun printHex(bytes: ByteArray, logger: Logger = log) {
+    val hex = bytes.joinToString(" ") { "%02X".format(it) }
+    logger.info("Bytes as Hex: $hex")
+  }
 
-    fun printAscii(bytes: ByteArray, logger: Logger = log) {
-        val ascii = bytes.map {
-            if (it in 32..126) it.toInt().toChar() else '.'
-        }.joinToString("")
-        logger.info("Bytes as ASCII: $ascii")
-    }
+  fun printAscii(bytes: ByteArray, logger: Logger = log) {
+    val ascii = bytes.map {
+      if (it in 32..126) it.toInt().toChar() else '.'
+    }.joinToString("")
+    logger.info("Bytes as ASCII: $ascii")
+  }
 
-    fun printBytes(bytes: ByteArray, logger: Logger = log) {
-        val count = bytes.size
-        logger.info("Bytes count: $count")
-        printHex(bytes, logger)
-        printString(bytes, logger)
-        printAscii(bytes, logger)
-    }
+  fun printBytes(bytes: ByteArray, logger: Logger = log) {
+    val count = bytes.size
+    logger.info("Bytes count: $count")
+    printHex(bytes, logger)
+    printString(bytes, logger)
+    printAscii(bytes, logger)
+  }
 
 }

@@ -10,38 +10,38 @@ import java.net.InetSocketAddress
  * @author tech@intellij.io
  */
 object CtxUtils {
-    private val log = getLogger(CtxUtils::class.java)
+  private val log = getLogger(CtxUtils::class.java)
 
-    fun getRemoteAddress(ctx: ChannelHandlerContext): ConnInfo {
-        try {
-            return (ctx.channel().remoteAddress() as InetSocketAddress).let {
-                ConnInfo.of(
-                    it.address.hostAddress,
-                    it.port
-                )
-            }
-        } catch (e: Exception) {
-            log.error(e.message)
-            return ConnInfo.unknown()
-        }
+  fun getRemoteAddress(ctx: ChannelHandlerContext): ConnInfo {
+    try {
+      return (ctx.channel().remoteAddress() as InetSocketAddress).let {
+        ConnInfo.of(
+          it.address.hostAddress,
+          it.port,
+        )
+      }
+    } catch (e: Exception) {
+      log.error(e.message)
+      return ConnInfo.unknown()
     }
+  }
 
-    fun getLocalAddress(ctx: ChannelHandlerContext): ConnInfo {
-        try {
-            return (ctx.channel().localAddress() as InetSocketAddress).let {
-                ConnInfo.of(
-                    it.address.hostAddress,
-                    it.port
-                )
-            }
-        } catch (e: Exception) {
-            log.error(e.message)
-            return ConnInfo.unknown()
-        }
+  fun getLocalAddress(ctx: ChannelHandlerContext): ConnInfo {
+    try {
+      return (ctx.channel().localAddress() as InetSocketAddress).let {
+        ConnInfo.of(
+          it.address.hostAddress,
+          it.port,
+        )
+      }
+    } catch (e: Exception) {
+      log.error(e.message)
+      return ConnInfo.unknown()
     }
+  }
 
-    fun getChannelId(ctx: ChannelHandlerContext): String {
-        return ctx.channel().id().asLongText()
-    }
+  fun getChannelId(ctx: ChannelHandlerContext): String {
+    return ctx.channel().id().asLongText()
+  }
 
 }

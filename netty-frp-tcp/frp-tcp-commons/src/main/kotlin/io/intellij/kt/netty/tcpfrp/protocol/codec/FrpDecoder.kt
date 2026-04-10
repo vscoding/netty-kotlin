@@ -25,117 +25,117 @@ import io.netty.handler.codec.ReplayingDecoder
  * FrpDecoder
  */
 class FrpDecoder(
-    private val mode: Mode
+  private val mode: Mode,
 ) : ReplayingDecoder<FrpBasicMsg.State>(READ_TYPE) {
 
-    // 指定客户端或者服务端
-    enum class Mode { SERVER, CLIENT }
+  // 指定客户端或者服务端
+  enum class Mode { SERVER, CLIENT }
 
-    private var type: FrpMsgType? = null
-    private var length: Int = 0
+  private var type: FrpMsgType? = null
+  private var length: Int = 0
 
-    override fun decode(ctx: ChannelHandlerContext, inByteBuf: ByteBuf, out: MutableList<Any>) {
-        // 用循环模拟 Java switch 的“可能贯穿”行为，每个分支完成后根据需要 checkpoint 并 return/continue
-        while (true) {
-            when (state()) {
-                READ_TYPE -> {
-                    val t = FrpMsgType.getByType(inByteBuf.readByte().toInt())
-                        ?: throw IllegalStateException("无效的消息类型")
-                    type = t
-                    if (t == FrpMsgType.DATA_PACKET) {
-                        checkpoint(READ_DISPATCH_PACKET)
-                        continue
-                    }
-                    checkpoint(READ_LENGTH)
-                    // 不 return，落入下一状态（与 Java 的 fall-through 等价）
-                }
-
-                READ_LENGTH -> {
-                    length = inByteBuf.readInt()
-                    if (length <= 0) {
-                        throw IllegalStateException("无效的消息长度")
-                    }
-                    checkpoint(READ_BASIC_MSG)
-                    // 继续落入下一状态
-                }
-
-                READ_BASIC_MSG -> {
-                    val content = ByteArray(length)
-                    inByteBuf.readBytes(content)
-                    val json = String(content)
-
-                    when (mode) {
-                        Mode.SERVER -> {
-                            when (type) {
-                                FrpMsgType.AUTH_REQUEST ->
-                                    out.add(jsonToObj(json, AuthRequest::class.java, "auth request parse error"))
-
-                                FrpMsgType.LISTENING_REQUEST ->
-                                    out.add(
-                                        jsonToObj(
-                                            json,
-                                            ListeningRequest::class.java,
-                                            "listening request parse error"
-                                        )
-                                    )
-
-                                FrpMsgType.SERVICE_STATE ->
-                                    out.add(jsonToObj(json, ServiceState::class.java, "service state parse error"))
-
-                                FrpMsgType.PING ->
-                                    out.add(jsonToObj(json, Ping::class.java, "ping parse error"))
-
-                                else -> throw IllegalStateException("无效的消息类型: $type")
-                            }
-                        }
-
-                        Mode.CLIENT -> {
-                            when (type) {
-                                FrpMsgType.AUTH_RESPONSE ->
-                                    out.add(jsonToObj(json, AuthResponse::class.java, "auth response parse error"))
-
-                                FrpMsgType.LISTENING_RESPONSE ->
-                                    out.add(
-                                        jsonToObj(
-                                            json,
-                                            ListeningResponse::class.java,
-                                            "listening response parse error"
-                                        )
-                                    )
-
-                                FrpMsgType.USER_STATE ->
-                                    out.add(jsonToObj(json, UserState::class.java, "user state parse error"))
-
-                                FrpMsgType.PONG ->
-                                    out.add(jsonToObj(json, Pong::class.java, "pong parse error"))
-
-                                else -> throw IllegalStateException("无效的消息类型: $type")
-                            }
-                        }
-                    }
-
-                    checkpoint(READ_TYPE) // 准备读取下一条消息
-                    return
-                }
-
-                READ_DISPATCH_PACKET -> {
-                    val dispatchIdBytes = ByteArray(DispatchIdUtils.ID_LENGTH)
-                    inByteBuf.readBytes(dispatchIdBytes)
-                    val dispatchId = String(dispatchIdBytes)
-                    val packetLen = inByteBuf.readInt()
-                    if (packetLen <= 0) {
-                        throw IllegalStateException("无效的DispatchPacket消息长度")
-                    }
-                    out.add(DispatchPacket.createAndRetain(dispatchId, inByteBuf.readSlice(packetLen)))
-                    checkpoint(READ_TYPE) // 准备读取下一条消息
-                    return
-                }
-            }
+  override fun decode(ctx: ChannelHandlerContext, inByteBuf: ByteBuf, out: MutableList<Any>) {
+    // 用循环模拟 Java switch 的“可能贯穿”行为，每个分支完成后根据需要 checkpoint 并 return/continue
+    while (true) {
+      when (state()) {
+        READ_TYPE -> {
+          val t = FrpMsgType.getByType(inByteBuf.readByte().toInt())
+            ?: throw IllegalStateException("无效的消息类型")
+          type = t
+          if (t == FrpMsgType.DATA_PACKET) {
+            checkpoint(READ_DISPATCH_PACKET)
+            continue
+          }
+          checkpoint(READ_LENGTH)
+          // 不 return，落入下一状态（与 Java 的 fall-through 等价）
         }
-    }
 
-    private fun <T> jsonToObj(json: String, clazz: Class<T>, err: String): T {
-        return JSON.parseObject(json, clazz) ?: throw IllegalStateException(err)
+        READ_LENGTH -> {
+          length = inByteBuf.readInt()
+          if (length <= 0) {
+            throw IllegalStateException("无效的消息长度")
+          }
+          checkpoint(READ_BASIC_MSG)
+          // 继续落入下一状态
+        }
+
+        READ_BASIC_MSG -> {
+          val content = ByteArray(length)
+          inByteBuf.readBytes(content)
+          val json = String(content)
+
+          when (mode) {
+            Mode.SERVER -> {
+              when (type) {
+                FrpMsgType.AUTH_REQUEST ->
+                  out.add(jsonToObj(json, AuthRequest::class.java, "auth request parse error"))
+
+                FrpMsgType.LISTENING_REQUEST ->
+                  out.add(
+                    jsonToObj(
+                      json,
+                      ListeningRequest::class.java,
+                      "listening request parse error",
+                    ),
+                  )
+
+                FrpMsgType.SERVICE_STATE ->
+                  out.add(jsonToObj(json, ServiceState::class.java, "service state parse error"))
+
+                FrpMsgType.PING ->
+                  out.add(jsonToObj(json, Ping::class.java, "ping parse error"))
+
+                else -> throw IllegalStateException("无效的消息类型: $type")
+              }
+            }
+
+            Mode.CLIENT -> {
+              when (type) {
+                FrpMsgType.AUTH_RESPONSE ->
+                  out.add(jsonToObj(json, AuthResponse::class.java, "auth response parse error"))
+
+                FrpMsgType.LISTENING_RESPONSE ->
+                  out.add(
+                    jsonToObj(
+                      json,
+                      ListeningResponse::class.java,
+                      "listening response parse error",
+                    ),
+                  )
+
+                FrpMsgType.USER_STATE ->
+                  out.add(jsonToObj(json, UserState::class.java, "user state parse error"))
+
+                FrpMsgType.PONG ->
+                  out.add(jsonToObj(json, Pong::class.java, "pong parse error"))
+
+                else -> throw IllegalStateException("无效的消息类型: $type")
+              }
+            }
+          }
+
+          checkpoint(READ_TYPE) // 准备读取下一条消息
+          return
+        }
+
+        READ_DISPATCH_PACKET -> {
+          val dispatchIdBytes = ByteArray(DispatchIdUtils.ID_LENGTH)
+          inByteBuf.readBytes(dispatchIdBytes)
+          val dispatchId = String(dispatchIdBytes)
+          val packetLen = inByteBuf.readInt()
+          if (packetLen <= 0) {
+            throw IllegalStateException("无效的DispatchPacket消息长度")
+          }
+          out.add(DispatchPacket.createAndRetain(dispatchId, inByteBuf.readSlice(packetLen)))
+          checkpoint(READ_TYPE) // 准备读取下一条消息
+          return
+        }
+      }
     }
+  }
+
+  private fun <T> jsonToObj(json: String, clazz: Class<T>, err: String): T {
+    return JSON.parseObject(json, clazz) ?: throw IllegalStateException(err)
+  }
 
 }

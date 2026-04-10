@@ -12,24 +12,24 @@ import io.netty.channel.socket.SocketChannel
  * @author tech@intellij.io
  */
 class FrpServerInitializer(
-    val config: ServerConfig
+  val config: ServerConfig,
 ) : FrpChannelInitializer() {
 
-    @Throws(Exception::class)
-    override fun initChannel0(ch: SocketChannel) {
-        val pipeline = ch.pipeline()
+  @Throws(Exception::class)
+  override fun initChannel0(ch: SocketChannel) {
+    val pipeline = ch.pipeline()
 
-        if (config.enableSSL) {
-            pipeline.addLast(
-                config.sslContext!!.newHandler(ch.alloc())
-            )
-        }
-
-        pipeline.addLast(FrpCodec.serverDecoder())
-            .addLast(FrpCodec.basicMsgEncoder())
-            .addLast(FrpCodec.dispatchEncoder())
-
-
-        pipeline.addLast(AuthRequestHandler(config.authToken))
+    if (config.enableSSL) {
+      pipeline.addLast(
+        config.sslContext!!.newHandler(ch.alloc()),
+      )
     }
+
+    pipeline.addLast(FrpCodec.serverDecoder())
+      .addLast(FrpCodec.basicMsgEncoder())
+      .addLast(FrpCodec.dispatchEncoder())
+
+
+    pipeline.addLast(AuthRequestHandler(config.authToken))
+  }
 }

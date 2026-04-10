@@ -19,76 +19,78 @@ import java.util.concurrent.ConcurrentHashMap
  * @author tech@intellij.io
  */
 class MultiPortsNettyServer(
-    val ports: List<Int>,
-    val frpChannel: FrpChannel
+  val ports: List<Int>,
+  val frpChannel: FrpChannel,
 ) {
 
-    companion object {
-        private val log = getLogger(MultiPortsNettyServer::class.java)
+  companion object {
+    private val log = getLogger(MultiPortsNettyServer::class.java)
 
-        private val MULTI_PORTS_NETTY_SERVER_KEY = AttributeKey.valueOf<MultiPortsNettyServer>("multiPortsNettyServer")
+    private val MULTI_PORTS_NETTY_SERVER_KEY = AttributeKey.valueOf<MultiPortsNettyServer>("multiPortsNettyServer")
 
-        fun saveIn(ch: Channel, server: MultiPortsNettyServer) {
-            ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).set(server)
-        }
-
-        fun stopIn(ch: Channel) {
-            val server = ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).get()
-            if (server != null) {
-                server.stop()
-                ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).set(null)
-            }
-        }
-
+    fun saveIn(ch: Channel, server: MultiPortsNettyServer) {
+      ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).set(server)
     }
 
-    // port -> serverChannel
-    private val serverChannelMap = ConcurrentHashMap<Int, Channel>()
-
-    fun start(): Boolean {
-        val container: EventLoopGroups = EventLoopGroups.get()
-        val bossGroup: EventLoopGroup = container.getBossGroup()
-        val workerGroup: EventLoopGroup = container.getWorkerGroup()
-
-        try {
-            for (port in ports) {
-                val b = ServerBootstrap().apply {
-                    group(bossGroup, workerGroup)
-                    channel(NioServerSocketChannel::class.java)
-                    childOption(ChannelOption.AUTO_READ, false)
-                    childHandler(object : ChannelInitializer<SocketChannel>() {
-                        @Throws(Exception::class)
-                        override fun initChannel(ch: SocketChannel) {
-                            val pipeline = ch.pipeline()
-                            pipeline.addLast(UserChannelHandler(port, frpChannel))
-                        }
-                    })
-                }
-                // 绑定端口并启动服务器
-                val channelFuture = b.bind(port).sync()
-
-                serverChannelMap[port] = channelFuture.channel()
-
-                log.info("frp-server listening on port {}", port)
-            }
-
-            return true
-        } catch (e: Exception) {
-            log.error("", e)
-            this.stop()
-            return false
-        }
+    fun stopIn(ch: Channel) {
+      val server = ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).get()
+      if (server != null) {
+        server.stop()
+        ch.attr(MULTI_PORTS_NETTY_SERVER_KEY).set(null)
+      }
     }
 
-    fun stop() {
-        log.warn("Multi Port Server Stop Begin ...")
-        serverChannelMap.forEach { (port: Int, channel: Channel) ->
-            log.warn("stopped and release listening port {}", port)
-            if (channel.isActive) {
-                channel.close()
-            }
+  }
+
+  // port -> serverChannel
+  private val serverChannelMap = ConcurrentHashMap<Int, Channel>()
+
+  fun start(): Boolean {
+    val container: EventLoopGroups = EventLoopGroups.get()
+    val bossGroup: EventLoopGroup = container.getBossGroup()
+    val workerGroup: EventLoopGroup = container.getWorkerGroup()
+
+    try {
+      for (port in ports) {
+        val b = ServerBootstrap().apply {
+          group(bossGroup, workerGroup)
+          channel(NioServerSocketChannel::class.java)
+          childOption(ChannelOption.AUTO_READ, false)
+          childHandler(
+            object : ChannelInitializer<SocketChannel>() {
+              @Throws(Exception::class)
+              override fun initChannel(ch: SocketChannel) {
+                val pipeline = ch.pipeline()
+                pipeline.addLast(UserChannelHandler(port, frpChannel))
+              }
+            },
+          )
         }
-        log.warn("Multi Port Server Stop End   ...")
+        // 绑定端口并启动服务器
+        val channelFuture = b.bind(port).sync()
+
+        serverChannelMap[port] = channelFuture.channel()
+
+        log.info("frp-server listening on port {}", port)
+      }
+
+      return true
+    } catch (e: Exception) {
+      log.error("", e)
+      this.stop()
+      return false
     }
+  }
+
+  fun stop() {
+    log.warn("Multi Port Server Stop Begin ...")
+    serverChannelMap.forEach { (port: Int, channel: Channel) ->
+      log.warn("stopped and release listening port {}", port)
+      if (channel.isActive) {
+        channel.close()
+      }
+    }
+    log.warn("Multi Port Server Stop End   ...")
+  }
 
 }

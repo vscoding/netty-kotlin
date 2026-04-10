@@ -8,11 +8,11 @@ import io.intellij.kt.netty.commons.getLogger
  * @author tech@intellij.io
  */
 object PromiseMain {
-    private val log = getLogger(PromiseMain::class.java)
+  private val log = getLogger(PromiseMain::class.java)
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        log.info("PromiseMain")
-    }
+  @JvmStatic
+  fun main(args: Array<String>) {
+    log.info("PromiseMain")
+  }
 
 }

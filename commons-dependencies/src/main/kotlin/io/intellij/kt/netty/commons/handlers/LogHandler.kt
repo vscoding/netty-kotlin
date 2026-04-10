@@ -12,16 +12,16 @@ import io.netty.channel.SimpleChannelInboundHandler
  * @author tech@intellij.io
  */
 class LogHandler : SimpleChannelInboundHandler<ByteBuf>() {
-    companion object {
-        private val log = getLogger(LogHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(LogHandler::class.java)
+  }
 
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: ByteBuf) {
-        val len = msg.readableBytes()
-        val bytes = ByteArray(len)
-        msg.readBytes(bytes)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: ByteBuf) {
+    val len = msg.readableBytes()
+    val bytes = ByteArray(len)
+    msg.readBytes(bytes)
 
-        BytesUtils.printBytes(bytes, log)
-    }
+    BytesUtils.printBytes(bytes, log)
+  }
 
 }

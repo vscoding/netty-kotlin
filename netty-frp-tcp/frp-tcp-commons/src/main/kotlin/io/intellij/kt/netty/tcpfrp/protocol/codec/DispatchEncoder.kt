@@ -14,20 +14,20 @@ import java.nio.charset.StandardCharsets
  */
 class DispatchEncoder : MessageToByteEncoder<DispatchPacket>() {
 
-    @Throws(Exception::class)
-    override fun encode(ctx: ChannelHandlerContext?, msg: DispatchPacket, out: ByteBuf) {
-        // type
-        out.writeByte(FrpMsgType.DATA_PACKET.type)
+  @Throws(Exception::class)
+  override fun encode(ctx: ChannelHandlerContext?, msg: DispatchPacket, out: ByteBuf) {
+    // type
+    out.writeByte(FrpMsgType.DATA_PACKET.type)
 
-        // dispatchId
-        out.writeBytes(msg.dispatchId.toByteArray(StandardCharsets.UTF_8))
+    // dispatchId
+    out.writeBytes(msg.dispatchId.toByteArray(StandardCharsets.UTF_8))
 
-        // len
-        val length: Int = msg.packet.readableBytes()
-        out.writeInt(length)
+    // len
+    val length: Int = msg.packet.readableBytes()
+    out.writeInt(length)
 
-        // data
-        val packet: ByteBuf = msg.packet
-        out.writeBytes(packet)
-    }
+    // data
+    val packet: ByteBuf = msg.packet
+    out.writeBytes(packet)
+  }
 }

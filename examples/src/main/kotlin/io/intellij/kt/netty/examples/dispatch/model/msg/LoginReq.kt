@@ -10,14 +10,14 @@ import io.intellij.kt.netty.examples.dispatch.model.DataType
  * @author tech@intellij.io
  */
 data class LoginReq(
-    val username: String,
-    val password: String,
+  val username: String,
+  val password: String,
 ) {
 
-    fun toDataBody(): DataBody = DataBody(DataType.LOGIN.code, JSON.toJSONString(this))
+  fun toDataBody(): DataBody = DataBody(DataType.LOGIN.code, JSON.toJSONString(this))
 
-    companion object {
-        fun create(username: String, password: String): DataBody = LoginReq(username, password).toDataBody()
-    }
+  companion object {
+    fun create(username: String, password: String): DataBody = LoginReq(username, password).toDataBody()
+  }
 
 }

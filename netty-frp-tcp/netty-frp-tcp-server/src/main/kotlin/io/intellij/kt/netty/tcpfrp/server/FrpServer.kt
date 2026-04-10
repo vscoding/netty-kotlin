@@ -17,44 +17,46 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
  */
 class FrpServer(private val config: ServerConfig) {
 
-    companion object {
-        private val log = getLogger(FrpServer::class.java)
+  companion object {
+    private val log = getLogger(FrpServer::class.java)
 
-        @JvmStatic
-        fun start(config: ServerConfig) {
-            val server = FrpServer(config)
-            server.start()
-        }
+    @JvmStatic
+    fun start(config: ServerConfig) {
+      val server = FrpServer(config)
+      server.start()
     }
+  }
 
-    private val bootstrap = ServerBootstrap()
-    val boss = EventLoopGroups.get().getBossGroup()
-    val worker = EventLoopGroups.get().getWorkerGroup()
+  private val bootstrap = ServerBootstrap()
+  val boss = EventLoopGroups.get().getBossGroup()
+  val worker = EventLoopGroups.get().getWorkerGroup()
 
-    init {
-        bootstrap.group(boss, worker)
-            .channel(NioServerSocketChannel::class.java)
-            .childOption<Boolean?>(ChannelOption.SO_KEEPALIVE, true)
-            .childHandler(FrpServerInitializer(config))
+  init {
+    bootstrap.group(boss, worker)
+      .channel(NioServerSocketChannel::class.java)
+      .childOption<Boolean?>(ChannelOption.SO_KEEPALIVE, true)
+      .childHandler(FrpServerInitializer(config))
+  }
+
+  fun start() {
+    try {
+      val f: ChannelFuture = bootstrap.bind(config.port).sync()
+      f.addListener(
+        ChannelFutureListener { cf: ChannelFuture ->
+          if (cf.isSuccess) {
+            log.info("frp server started on port {}", config.port)
+          } else {
+            log.error("frp server start failed", cf.cause())
+          }
+        },
+      )
+      f.channel().closeFuture().sync()
+    } catch (e: InterruptedException) {
+      log.error("frp server start failed", e)
+    } finally {
+      boss.shutdownGracefully()
+      worker.shutdownGracefully()
     }
-
-    fun start() {
-        try {
-            val f: ChannelFuture = bootstrap.bind(config.port).sync()
-            f.addListener(ChannelFutureListener { cf: ChannelFuture ->
-                if (cf.isSuccess) {
-                    log.info("frp server started on port {}", config.port)
-                } else {
-                    log.error("frp server start failed", cf.cause())
-                }
-            })
-            f.channel().closeFuture().sync()
-        } catch (e: InterruptedException) {
-            log.error("frp server start failed", e)
-        } finally {
-            boss.shutdownGracefully()
-            worker.shutdownGracefully()
-        }
-    }
+  }
 
 }

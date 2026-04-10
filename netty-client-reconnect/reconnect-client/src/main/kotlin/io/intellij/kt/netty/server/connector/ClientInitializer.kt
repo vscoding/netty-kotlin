@@ -16,38 +16,38 @@ import java.util.UUID
  * @author tech@intellij.io
  */
 class ClientInitializer : ChannelInitializer<Channel>() {
-    companion object {
-        private val UUID_LENGTH = UUID.randomUUID().toString().length
-    }
+  companion object {
+    private val UUID_LENGTH = UUID.randomUUID().toString().length
+  }
 
-    @Throws(Exception::class)
-    override fun initChannel(ch: Channel) {
-        val p = ch.pipeline()
-        p.addLast(FixedLengthFrameDecoder(UUID_LENGTH))
-        p.addLast(StringDecoder()).addLast(StringEncoder())
-        p.addLast(ClientHandler())
-    }
+  @Throws(Exception::class)
+  override fun initChannel(ch: Channel) {
+    val p = ch.pipeline()
+    p.addLast(FixedLengthFrameDecoder(UUID_LENGTH))
+    p.addLast(StringDecoder()).addLast(StringEncoder())
+    p.addLast(ClientHandler())
+  }
 
 }
 
 class ClientHandler : SimpleChannelInboundHandler<String>() {
-    companion object {
-        private val log = getLogger(ClientHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ClientHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: String) {
-        log.info("read  msg|{}", msg)
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: String) {
+    log.info("read  msg|{}", msg)
+  }
 
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.warn("lost connection, reconnecting...")
-    }
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    log.warn("lost connection, reconnecting...")
+  }
 
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        log.error("exceptionCaught|{}", cause.message)
-        ctx.close()
-    }
+  override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+    log.error("exceptionCaught|{}", cause.message)
+    ctx.close()
+  }
 
 }

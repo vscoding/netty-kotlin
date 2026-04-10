@@ -18,55 +18,55 @@ import io.netty.util.AttributeKey
  * @author tech@intellij.io
  */
 class FrontendInboundHandler(
-    val strategy: LbStrategy,
-    val backends: Map<String, Backend>
+  val strategy: LbStrategy,
+  val backends: Map<String, Backend>,
 ) : ChannelInboundHandlerAdapter() {
 
-    companion object {
-        private val log = getLogger(FrontendInboundHandler::class.java)
-        val OUTBOUND_CHANNEL_KEY: AttributeKey<Channel> = AttributeKey.newInstance<Channel>("outboundChannel")
-    }
+  companion object {
+    private val log = getLogger(FrontendInboundHandler::class.java)
+    val OUTBOUND_CHANNEL_KEY: AttributeKey<Channel> = AttributeKey.newInstance<Channel>("outboundChannel")
+  }
 
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        val inboundChannel = ctx.channel()
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    val inboundChannel = ctx.channel()
 
-        val chooser: BackendSelector = BackendSelector.get(strategy, backends)
-        val loop = ClientConnector(chooser, inboundChannel)
-        loop.connect()
-    }
+    val chooser: BackendSelector = BackendSelector.get(strategy, backends)
+    val loop = ClientConnector(chooser, inboundChannel)
+    loop.connect()
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        val inbound = ctx.channel()
-        val outbound = inbound.attr(OUTBOUND_CHANNEL_KEY).get()
-        if (outbound.isActive) {
-            outbound.writeAndFlush(msg).addListener(
-                ChannelFutureListener { future: ChannelFuture ->
-                    if (future.isSuccess) {
-                        // was able to flush outbound data, start to read the next chunk
-                        // 切入点
-                        inbound.read()
-                    } else {
-                        future.channel().close()
-                    }
-                }
-            )
-        }
+  @Throws(Exception::class)
+  override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
+    val inbound = ctx.channel()
+    val outbound = inbound.attr(OUTBOUND_CHANNEL_KEY).get()
+    if (outbound.isActive) {
+      outbound.writeAndFlush(msg).addListener(
+        ChannelFutureListener { future: ChannelFuture ->
+          if (future.isSuccess) {
+            // was able to flush outbound data, start to read the next chunk
+            // 切入点
+            inbound.read()
+          } else {
+            future.channel().close()
+          }
+        },
+      )
     }
+  }
 
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        // client closes the connection
-        val outboundChannel = ctx.channel().attr<Channel?>(OUTBOUND_CHANNEL_KEY).get()
-        ChannelUtils.closeOnFlush(outboundChannel)
-    }
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    // client closes the connection
+    val outboundChannel = ctx.channel().attr<Channel?>(OUTBOUND_CHANNEL_KEY).get()
+    ChannelUtils.closeOnFlush(outboundChannel)
+  }
 
-    @Throws(Exception::class)
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
-        log.error("FrontendHandler error", cause)
-        ChannelUtils.closeOnFlush(ctx.channel())
-    }
+  @Throws(Exception::class)
+  override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
+    log.error("FrontendHandler error", cause)
+    ChannelUtils.closeOnFlush(ctx.channel())
+  }
 
 
 }

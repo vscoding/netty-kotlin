@@ -10,10 +10,10 @@ import jakarta.validation.constraints.NotNull
  * @author tech@intellij.io
  */
 data class NettyServerConf(
-    @field:NotNull
-    @field:Min(1024)
-    @field:Max(65535)
-    val port: Int,
+  @field:NotNull
+  @field:Min(1024)
+  @field:Max(65535)
+  val port: Int,
 
-    var handlerKey: String? = null
+  var handlerKey: String? = null,
 )

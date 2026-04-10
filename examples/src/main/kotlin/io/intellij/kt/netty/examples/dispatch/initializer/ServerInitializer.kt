@@ -18,28 +18,28 @@ import io.netty.channel.socket.SocketChannel
  */
 class ServerInitializer : ChannelInitializer<SocketChannel>() {
 
-    @Throws(Exception::class)
-    override fun initChannel(ch: SocketChannel) {
-        val p = ch.pipeline()
-        p.addLast(ByteCountingHandler())
+  @Throws(Exception::class)
+  override fun initChannel(ch: SocketChannel) {
+    val p = ch.pipeline()
+    p.addLast(ByteCountingHandler())
 
-        /*
-        | type  | length  | body |
-        | 1 byte | 4 byte | ... |
-        type: 消息类型 1: HeartBeat 2: DataBody
-         */
-        p.addLast(DispatchDecoder()) // 消息分发器
+    /*
+    | type  | length  | body |
+    | 1 byte | 4 byte | ... |
+    type: 消息类型 1: HeartBeat 2: DataBody
+     */
+    p.addLast(DispatchDecoder()) // 消息分发器
 
-        p.addLast(HeartBeatEncoder()) // 服务端 编码 HeartBeat 响应
-        p.addLast(DataBodyEncoder())  // 服务端 编码 DataBody
+    p.addLast(HeartBeatEncoder()) // 服务端 编码 HeartBeat 响应
+    p.addLast(DataBodyEncoder())  // 服务端 编码 DataBody
 
 
-        p.addLast(ServerHeartBeatHandler())
-        p.addLast(ServerDataBodyHandler())
+    p.addLast(ServerHeartBeatHandler())
+    p.addLast(ServerDataBodyHandler())
 
-        p.addLast(LoginHandler()) // 回写消息需要 发送 DataBody
-        p.addLast(LogoutHandler()) // 回写消息需要 发送 DataBody
+    p.addLast(LoginHandler()) // 回写消息需要 发送 DataBody
+    p.addLast(LogoutHandler()) // 回写消息需要 发送 DataBody
 
-    }
+  }
 
 }

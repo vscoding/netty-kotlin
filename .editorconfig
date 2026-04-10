@@ -1,0 +1,26 @@
+# Kotlin source files and Kotlin script files.
+[*.{kt,kts}]
+# Use JetBrains' official Kotlin code style as the baseline.
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+
+# Indent with 4 spaces.
+indent_size = 2
+
+# Keep lines reasonably short. IDE formatters will use this as a wrapping hint.
+max_line_length = 120
+
+# Use a 4-space continuation indent for wrapped expressions and parameter lists.
+ij_kotlin_continuation_indent_size = 4
+
+# Keep at most 2 consecutive blank lines in code and declarations.
+ij_kotlin_keep_blank_lines_in_code = 2
+ij_kotlin_keep_blank_lines_in_declarations = 2
+
+# Allow trailing commas in declarations and call sites.
+# This makes multi-line diffs smaller and matches modern Kotlin style.
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+
+# Avoid star imports to keep imports explicit and stable.
+ij_kotlin_name_count_to_use_star_import = 999
+ij_kotlin_name_count_to_use_star_import_for_members = 999

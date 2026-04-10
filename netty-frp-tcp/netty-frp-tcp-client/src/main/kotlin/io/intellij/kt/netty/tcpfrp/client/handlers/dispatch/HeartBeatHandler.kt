@@ -22,50 +22,50 @@ import java.util.concurrent.TimeUnit
  */
 class HeartBeatHandler : SimpleChannelInboundHandler<Pong>() {
 
-    companion object {
-        private val log = getLogger(HeartBeatHandler::class.java)
-        private val PING_TASK_FUTURE = AttributeKey.valueOf<ScheduledFuture<*>>("ping")
-    }
+  companion object {
+    private val log = getLogger(HeartBeatHandler::class.java)
+    private val PING_TASK_FUTURE = AttributeKey.valueOf<ScheduledFuture<*>>("ping")
+  }
 
-    /**
-     * Triggered from [io.intellij.kt.netty.tcpfrp.client.handlers.initial.ListeningResponseHandler]
-     */
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        val ch = ctx.channel()
-        val frpChannel: FrpChannel = ch.getFrpChannel()
+  /**
+   * Triggered from [io.intellij.kt.netty.tcpfrp.client.handlers.initial.ListeningResponseHandler]
+   */
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    val ch = ctx.channel()
+    val frpChannel: FrpChannel = ch.getFrpChannel()
 
-        frpChannel.initDispatchManager()
+    frpChannel.initDispatchManager()
 
-        log.info("[channelActive]: Pong Handler. Start scheduled ping ...")
-        // 5s ping
-        ctx.channel().attr(PING_TASK_FUTURE).set(
-            ctx.executor().scheduleAtFixedRate(
-                {
-                    frpChannel.writeAndFlush(Ping.build("frp-client"))
-                },
-                1, 5, TimeUnit.SECONDS
-            )
-        )
-        // must but just once
-        frpChannel.activeRead()
-    }
+    log.info("[channelActive]: Pong Handler. Start scheduled ping ...")
+    // 5s ping
+    ctx.channel().attr(PING_TASK_FUTURE).set(
+      ctx.executor().scheduleAtFixedRate(
+        {
+          frpChannel.writeAndFlush(Ping.build("frp-client"))
+        },
+        1, 5, TimeUnit.SECONDS,
+      ),
+    )
+    // must but just once
+    frpChannel.activeRead()
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: Pong?) {
-        log.info("HeatBeat PONG|{}", msg)
-        ctx.channel().getFrpChannel().activeRead()
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: Pong?) {
+    log.info("HeatBeat PONG|{}", msg)
+    ctx.channel().getFrpChannel().activeRead()
+  }
 
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.warn("stop scheduled ping ...")
-        val scheduledFuture = ctx.channel().attr(PING_TASK_FUTURE).get()
-        scheduledFuture.cancel(true)
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    log.warn("stop scheduled ping ...")
+    val scheduledFuture = ctx.channel().attr(PING_TASK_FUTURE).get()
+    scheduledFuture.cancel(true)
 
-        ctx.channel().getFrpChannel().close()
+    ctx.channel().getFrpChannel().close()
 
-        super.channelInactive(ctx)
-    }
+    super.channelInactive(ctx)
+  }
 
 }

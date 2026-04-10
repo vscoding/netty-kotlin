@@ -11,13 +11,13 @@ import io.netty.channel.socket.SocketChannel
  * @author tech@intellij.io
  */
 class LoadBalancerInitializer(
-    val strategy: LbStrategy,
-    val backends: Map<String, Backend>
+  val strategy: LbStrategy,
+  val backends: Map<String, Backend>,
 ) : ChannelInitializer<SocketChannel>() {
 
-    @Throws(Exception::class)
-    override fun initChannel(ch: SocketChannel) {
-        ch.pipeline().addLast(FrontendInboundHandler(strategy, backends))
-    }
+  @Throws(Exception::class)
+  override fun initChannel(ch: SocketChannel) {
+    ch.pipeline().addLast(FrontendInboundHandler(strategy, backends))
+  }
 
 }

@@ -17,81 +17,81 @@ import io.netty.channel.ChannelInboundHandlerAdapter
  * @author tech@intellij.io
  */
 class UserChannelHandler(
-    private val listeningPort: Int,
-    private val frpChannel: FrpChannel
+  private val listeningPort: Int,
+  private val frpChannel: FrpChannel,
 ) : ChannelInboundHandlerAdapter() {
 
-    companion object {
-        private val log = getLogger(UserChannelHandler::class.java)
+  companion object {
+    private val log = getLogger(UserChannelHandler::class.java)
+  }
+
+  /**
+   * 用户连接成功
+   */
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    // e.g. user ---> frp-server:3306
+    val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
+
+    frpChannel.getDispatchManager()
+      .putChannel(dispatchId, ctx.channel())
+
+    log.info("[USER] 用户建立了连接 |dispatchId={}|port={}", dispatchId, this.listeningPort)
+
+    // 等待frp-client 发送 ServiceConnState(SUCCESS),然后READ
+    // AUTO_READ = false
+    frpChannel.writeAndFlush(UserState.accept(dispatchId, this.listeningPort))
+      .addListeners(Listeners.read(frpChannel))
+  }
+
+  /**
+   * 用户发送数据
+   *
+   * after [io.intellij.kt.netty.tcpfrp.commons.Listeners.read]
+   */
+  @Throws(Exception::class)
+  override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
+    if (msg is ByteBuf) {
+      val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
+      log.debug(
+        "接收到用户的数据 |dispatchId={}|port={}|len={}",
+        dispatchId,
+        this.listeningPort,
+        msg.readableBytes(),
+      )
+      frpChannel.writeAndFlush(
+        DispatchPacket.create(dispatchId, msg),
+        { f ->
+          if (f.isSuccess) {
+            ctx.read()
+          }
+        },
+        { f ->
+          if (f.isSuccess) {
+            frpChannel.activeRead()
+          }
+        },
+      )
+      return
     }
+    log.warn("unknown msg type|{}", msg.javaClass)
+    throw RuntimeException("unknown msg type")
+  }
 
-    /**
-     * 用户连接成功
-     */
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        // e.g. user ---> frp-server:3306
-        val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
+  /**
+   * 用户断开连接
+   */
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
+    log.warn("[USER] 用户断开了连接 |dispatchId={}", dispatchId)
+    frpChannel.writeAndFlush(UserState.broken(dispatchId), Listeners.read(frpChannel))
+  }
 
-        frpChannel.getDispatchManager()
-            .putChannel(dispatchId, ctx.channel())
-
-        log.info("[USER] 用户建立了连接 |dispatchId={}|port={}", dispatchId, this.listeningPort)
-
-        // 等待frp-client 发送 ServiceConnState(SUCCESS),然后READ
-        // AUTO_READ = false
-        frpChannel.writeAndFlush(UserState.accept(dispatchId, this.listeningPort))
-            .addListeners(Listeners.read(frpChannel))
-    }
-
-    /**
-     * 用户发送数据
-     *
-     * after [io.intellij.kt.netty.tcpfrp.commons.Listeners.read]
-     */
-    @Throws(Exception::class)
-    override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        if (msg is ByteBuf) {
-            val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
-            log.debug(
-                "接收到用户的数据 |dispatchId={}|port={}|len={}",
-                dispatchId,
-                this.listeningPort,
-                msg.readableBytes()
-            )
-            frpChannel.writeAndFlush(
-                DispatchPacket.create(dispatchId, msg),
-                { f ->
-                    if (f.isSuccess) {
-                        ctx.read()
-                    }
-                },
-                { f ->
-                    if (f.isSuccess) {
-                        frpChannel.activeRead()
-                    }
-                }
-            )
-            return
-        }
-        log.warn("unknown msg type|{}", msg.javaClass)
-        throw RuntimeException("unknown msg type")
-    }
-
-    /**
-     * 用户断开连接
-     */
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        val dispatchId: String = DispatchIdUtils.generateId(ctx.channel())
-        log.warn("[USER] 用户断开了连接 |dispatchId={}", dispatchId)
-        frpChannel.writeAndFlush(UserState.broken(dispatchId), Listeners.read(frpChannel))
-    }
-
-    @Throws(Exception::class)
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        log.error("exception caught|{}", cause.message, cause)
-        ctx.close()
-    }
+  @Throws(Exception::class)
+  override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+    log.error("exception caught|{}", cause.message, cause)
+    ctx.close()
+  }
 
 }

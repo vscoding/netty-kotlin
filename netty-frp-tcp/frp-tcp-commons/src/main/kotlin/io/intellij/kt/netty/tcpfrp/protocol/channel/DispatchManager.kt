@@ -14,68 +14,68 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @author tech@intellij.io
  */
 data class DispatchManager(
-    private val idToChannelMap: MutableMap<String, Channel> = ConcurrentHashMap(),
-    val enableDispatch: AtomicBoolean = AtomicBoolean(true)
+  private val idToChannelMap: MutableMap<String, Channel> = ConcurrentHashMap(),
+  val enableDispatch: AtomicBoolean = AtomicBoolean(true),
 ) {
 
-    companion object {
-        private val log = getLogger(DispatchManager::class.java)
-        val DISPATCH_MANAGER_KEY: AttributeKey<DispatchManager> = AttributeKey.valueOf("dispatch_manager")
-    }
+  companion object {
+    private val log = getLogger(DispatchManager::class.java)
+    val DISPATCH_MANAGER_KEY: AttributeKey<DispatchManager> = AttributeKey.valueOf("dispatch_manager")
+  }
 
-    fun putChannel(dispatchId: String, channel: Channel) {
-        if (!enableDispatch.get()) {
-            throw java.lang.RuntimeException("DispatchManager is disabled")
-        }
-        idToChannelMap[dispatchId] = channel
+  fun putChannel(dispatchId: String, channel: Channel) {
+    if (!enableDispatch.get()) {
+      throw java.lang.RuntimeException("DispatchManager is disabled")
     }
+    idToChannelMap[dispatchId] = channel
+  }
 
-    fun getChannelById(dispatchId: String?): Channel? {
-        if (!enableDispatch.get()) {
-            throw java.lang.RuntimeException("DispatchManager is disabled")
-        }
-        return idToChannelMap[dispatchId]
+  fun getChannelById(dispatchId: String?): Channel? {
+    if (!enableDispatch.get()) {
+      throw java.lang.RuntimeException("DispatchManager is disabled")
     }
+    return idToChannelMap[dispatchId]
+  }
 
-    fun release(dispatchId: String) {
-        if (!enableDispatch.get()) {
-            throw java.lang.RuntimeException("DispatchManager is disabled")
-        }
-        log.warn("[Release] release channel|dispatchId={}", dispatchId)
-        ChannelUtils.close(idToChannelMap.remove(dispatchId))
+  fun release(dispatchId: String) {
+    if (!enableDispatch.get()) {
+      throw java.lang.RuntimeException("DispatchManager is disabled")
     }
+    log.warn("[Release] release channel|dispatchId={}", dispatchId)
+    ChannelUtils.close(idToChannelMap.remove(dispatchId))
+  }
 
-    fun release(dispatchId: String, reason: String) {
-        if (!enableDispatch.get()) {
-            throw java.lang.RuntimeException("DispatchManager is disabled")
-        }
-        log.warn("[Release] release channel|dispatchId={}|reason={}", dispatchId, reason)
-        ChannelUtils.close(idToChannelMap.remove(dispatchId))
+  fun release(dispatchId: String, reason: String) {
+    if (!enableDispatch.get()) {
+      throw java.lang.RuntimeException("DispatchManager is disabled")
     }
+    log.warn("[Release] release channel|dispatchId={}|reason={}", dispatchId, reason)
+    ChannelUtils.close(idToChannelMap.remove(dispatchId))
+  }
 
-    fun releaseAll() {
-        enableDispatch.set(false)
-        log.warn("[Release] release all dispatch channels")
-        idToChannelMap.values.forEach(ChannelUtils::close)
-        idToChannelMap.clear()
-    }
+  fun releaseAll() {
+    enableDispatch.set(false)
+    log.warn("[Release] release all dispatch channels")
+    idToChannelMap.values.forEach(ChannelUtils::close)
+    idToChannelMap.clear()
+  }
 
-    fun dispatch(data: DispatchPacket, vararg listeners: ChannelFutureListener) {
-        val channel = getChannelById(data.dispatchId)
-        if (channel != null && channel.isActive) {
-            channel.writeAndFlush(data.packet).addListeners(*listeners)
-        } else {
-            log.error("DispatchManager dispatch failed|dispatchId={}|channel={}", data.dispatchId, channel)
-        }
+  fun dispatch(data: DispatchPacket, vararg listeners: ChannelFutureListener) {
+    val channel = getChannelById(data.dispatchId)
+    if (channel != null && channel.isActive) {
+      channel.writeAndFlush(data.packet).addListeners(*listeners)
+    } else {
+      log.error("DispatchManager dispatch failed|dispatchId={}|channel={}", data.dispatchId, channel)
     }
+  }
 
 }
 
 fun Channel.initDispatchManager() {
-    attr(DispatchManager.DISPATCH_MANAGER_KEY).set(DispatchManager())
+  attr(DispatchManager.DISPATCH_MANAGER_KEY).set(DispatchManager())
 }
 
 fun Channel.getDispatchManager(): DispatchManager {
-    return attr(DispatchManager.DISPATCH_MANAGER_KEY).get()
-        ?: throw RuntimeException("DispatchManager is not initialized")
+  return attr(DispatchManager.DISPATCH_MANAGER_KEY).get()
+    ?: throw RuntimeException("DispatchManager is not initialized")
 }

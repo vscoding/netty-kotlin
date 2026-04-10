@@ -12,12 +12,12 @@ import io.netty.handler.codec.socksx.SocksPortUnificationServerHandler
  * @author tech@intellij.io
  */
 class SocksServerInitializer(
-    val authenticator: Authenticator
+  val authenticator: Authenticator,
 ) : ChannelInitializer<SocketChannel>() {
-    @Throws(Exception::class)
-    override fun initChannel(ch: SocketChannel) {
-        val p = ch.pipeline()
-        p.addLast(SocksPortUnificationServerHandler())
-        p.addLast(SocksServerHandler.getInstance(authenticator))
-    }
+  @Throws(Exception::class)
+  override fun initChannel(ch: SocketChannel) {
+    val p = ch.pipeline()
+    p.addLast(SocksPortUnificationServerHandler())
+    p.addLast(SocksServerHandler.getInstance(authenticator))
+  }
 }

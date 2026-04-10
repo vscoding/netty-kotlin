@@ -30,81 +30,81 @@ import kotlin.concurrent.Volatile
  */
 @ChannelHandler.Sharable
 class SocksServerHandler private constructor(val authenticator: Authenticator) :
-    SimpleChannelInboundHandler<SocksMessage>() {
+  SimpleChannelInboundHandler<SocksMessage>() {
 
-    companion object {
-        private val log = getLogger(SocksServerHandler::class.java)
+  companion object {
+    private val log = getLogger(SocksServerHandler::class.java)
 
-        @Volatile
-        private var INSTANCE: SocksServerHandler? = null
+    @Volatile
+    private var INSTANCE: SocksServerHandler? = null
 
-        fun getInstance(authenticator: Authenticator): SocksServerHandler? {
-            if (INSTANCE == null) {
-                synchronized(SocksServerHandler::class.java) {
-                    if (INSTANCE == null) {
-                        INSTANCE = SocksServerHandler(authenticator)
-                    }
-                }
-            }
-            return INSTANCE
+    fun getInstance(authenticator: Authenticator): SocksServerHandler? {
+      if (INSTANCE == null) {
+        synchronized(SocksServerHandler::class.java) {
+          if (INSTANCE == null) {
+            INSTANCE = SocksServerHandler(authenticator)
+          }
         }
+      }
+      return INSTANCE
     }
+  }
 
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, socksRequest: SocksMessage) {
-        when (socksRequest.version()) {
-            SocksVersion.SOCKS4a -> {
-                val socksV4CmdRequest = socksRequest as Socks4CommandRequest
-                if (socksV4CmdRequest.type() === Socks4CommandType.CONNECT) {
-                    ctx.pipeline().remove(this)
-                    ctx.pipeline().addLast(Socks4ServerConnectHandler())
-                    ctx.fireChannelRead(socksV4CmdRequest)
-                } else {
-                    log.error("Unsupported SOCKS4 command type: {}", socksV4CmdRequest.type())
-                    ctx.close()
-                }
-            }
-
-            SocksVersion.SOCKS5 -> if (socksRequest is Socks5InitialRequest) {
-                if (authenticator.isAuthConfigured()) {
-                    val pipeline = ctx.pipeline()
-                    pipeline.addFirst(Socks5PasswordAuthRequestDecoder())
-                    pipeline.addLast(AuthenticateHandler(authenticator))
-                    ctx.write(DefaultSocks5InitialResponse(Socks5AuthMethod.PASSWORD))
-                } else {
-                    ctx.pipeline().addFirst(Socks5CommandRequestDecoder())
-                    ctx.write(DefaultSocks5InitialResponse(Socks5AuthMethod.NO_AUTH))
-                }
-            } else if (socksRequest is Socks5PasswordAuthRequest) {
-                // AuthenticateHandler
-                ctx.fireChannelRead(socksRequest)
-            } else if (socksRequest is Socks5CommandRequest) {
-                if (socksRequest.type() === Socks5CommandType.CONNECT) {
-                    // 理解链表的特性
-                    ctx.pipeline().addLast(Socks5ServerConnectHandler())
-                    ctx.pipeline().remove(this)
-                    ctx.fireChannelRead(socksRequest)
-                } else {
-                    log.error("Unsupported SOCKS5 command type: {}", socksRequest.type())
-                    ctx.close()
-                }
-            }
-
-            SocksVersion.UNKNOWN -> {
-                log.error("unknown socks version")
-                ctx.close()
-            }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, socksRequest: SocksMessage) {
+    when (socksRequest.version()) {
+      SocksVersion.SOCKS4a -> {
+        val socksV4CmdRequest = socksRequest as Socks4CommandRequest
+        if (socksV4CmdRequest.type() === Socks4CommandType.CONNECT) {
+          ctx.pipeline().remove(this)
+          ctx.pipeline().addLast(Socks4ServerConnectHandler())
+          ctx.fireChannelRead(socksV4CmdRequest)
+        } else {
+          log.error("Unsupported SOCKS4 command type: {}", socksV4CmdRequest.type())
+          ctx.close()
         }
-    }
+      }
 
-    override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        ctx.flush()
-    }
+      SocksVersion.SOCKS5 -> if (socksRequest is Socks5InitialRequest) {
+        if (authenticator.isAuthConfigured()) {
+          val pipeline = ctx.pipeline()
+          pipeline.addFirst(Socks5PasswordAuthRequestDecoder())
+          pipeline.addLast(AuthenticateHandler(authenticator))
+          ctx.write(DefaultSocks5InitialResponse(Socks5AuthMethod.PASSWORD))
+        } else {
+          ctx.pipeline().addFirst(Socks5CommandRequestDecoder())
+          ctx.write(DefaultSocks5InitialResponse(Socks5AuthMethod.NO_AUTH))
+        }
+      } else if (socksRequest is Socks5PasswordAuthRequest) {
+        // AuthenticateHandler
+        ctx.fireChannelRead(socksRequest)
+      } else if (socksRequest is Socks5CommandRequest) {
+        if (socksRequest.type() === Socks5CommandType.CONNECT) {
+          // 理解链表的特性
+          ctx.pipeline().addLast(Socks5ServerConnectHandler())
+          ctx.pipeline().remove(this)
+          ctx.fireChannelRead(socksRequest)
+        } else {
+          log.error("Unsupported SOCKS5 command type: {}", socksRequest.type())
+          ctx.close()
+        }
+      }
 
-    override fun exceptionCaught(ctx: ChannelHandlerContext, throwable: Throwable?) {
-        log.error("Exception caught in SocksServerHandler", throwable)
-        closeOnFlush(ctx.channel())
+      SocksVersion.UNKNOWN -> {
+        log.error("unknown socks version")
+        ctx.close()
+      }
     }
+  }
+
+  override fun channelReadComplete(ctx: ChannelHandlerContext) {
+    ctx.flush()
+  }
+
+  override fun exceptionCaught(ctx: ChannelHandlerContext, throwable: Throwable?) {
+    log.error("Exception caught in SocksServerHandler", throwable)
+    closeOnFlush(ctx.channel())
+  }
 
 }

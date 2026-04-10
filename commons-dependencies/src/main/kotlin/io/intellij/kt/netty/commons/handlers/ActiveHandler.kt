@@ -11,19 +11,19 @@ import io.netty.channel.ChannelInboundHandlerAdapter
  * @author tech@intellij.io
  */
 class ActiveHandler : ChannelInboundHandlerAdapter() {
-    companion object {
-        private val log = getLogger(ActiveHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ActiveHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        log.info("Receive client connect|{}", CtxUtils.getRemoteAddress(ctx))
-    }
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    log.info("Receive client connect|{}", CtxUtils.getRemoteAddress(ctx))
+  }
 
-    override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        // Pass to the next handler
-        ctx.pipeline().remove(this)
-        ctx.fireChannelRead(msg)
-    }
+  override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
+    // Pass to the next handler
+    ctx.pipeline().remove(this)
+    ctx.fireChannelRead(msg)
+  }
 
 }

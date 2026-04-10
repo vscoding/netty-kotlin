@@ -8,16 +8,16 @@ import io.netty.buffer.ByteBuf
  * @author tech@intellij.io
  */
 data class DispatchPacket(
-    val dispatchId: String,
-    val packet: ByteBuf
+  val dispatchId: String,
+  val packet: ByteBuf,
 ) {
-    companion object {
-        fun create(dispatchId: String, packet: ByteBuf): DispatchPacket {
-            return DispatchPacket(dispatchId, packet)
-        }
-
-        fun createAndRetain(dispatchId: String, packet: ByteBuf): DispatchPacket {
-            return DispatchPacket(dispatchId, packet.retain())
-        }
+  companion object {
+    fun create(dispatchId: String, packet: ByteBuf): DispatchPacket {
+      return DispatchPacket(dispatchId, packet)
     }
+
+    fun createAndRetain(dispatchId: String, packet: ByteBuf): DispatchPacket {
+      return DispatchPacket(dispatchId, packet.retain())
+    }
+  }
 }

@@ -26,60 +26,66 @@ import io.netty.util.concurrent.FutureListener
  * @author tech@intellij.io
  */
 class Socks5ServerConnectHandler : SimpleChannelInboundHandler<Socks5CommandRequest>() {
-    companion object {
-        private val log = getLogger(Socks5ServerConnectHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(Socks5ServerConnectHandler::class.java)
+  }
 
-    private val b = Bootstrap()
+  private val b = Bootstrap()
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, request: Socks5CommandRequest) {
-        val inboundChannel = ctx.channel()
-        val promise = ctx.executor().newPromise<Channel>()
-        promise.addListener(FutureListener { future: Future<Channel> ->
-            val outboundChannel = future.getNow() // outboundChannel is the channel connected to the target server
-            if (future.isSuccess) {
-                // send SUCCESS, then add RelayHandler to both channels
-                val responseFuture = ctx.channel().writeAndFlush(
-                    DefaultSocks5CommandResponse(
-                        Socks5CommandStatus.SUCCESS, request.dstAddrType(), request.dstAddr(), request.dstPort()
-                    )
-                )
-                responseFuture.addListener(ChannelFutureListener {
-                    // 按实例删除 删除具体对象
-                    ctx.pipeline().remove(this@Socks5ServerConnectHandler)
-                    outboundChannel.pipeline().addLast(RelayHandler(inboundChannel, Direction.OUTBOUND))
-                    ctx.pipeline().addLast(RelayHandler(outboundChannel, Direction.INBOUND))
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, request: Socks5CommandRequest) {
+    val inboundChannel = ctx.channel()
+    val promise = ctx.executor().newPromise<Channel>()
+    promise.addListener(
+      FutureListener { future: Future<Channel> ->
+        val outboundChannel = future.getNow() // outboundChannel is the channel connected to the target server
+        if (future.isSuccess) {
+          // send SUCCESS, then add RelayHandler to both channels
+          val responseFuture = ctx.channel().writeAndFlush(
+            DefaultSocks5CommandResponse(
+              Socks5CommandStatus.SUCCESS, request.dstAddrType(), request.dstAddr(), request.dstPort(),
+            ),
+          )
+          responseFuture.addListener(
+            ChannelFutureListener {
+              // 按实例删除 删除具体对象
+              ctx.pipeline().remove(this@Socks5ServerConnectHandler)
+              outboundChannel.pipeline().addLast(RelayHandler(inboundChannel, Direction.OUTBOUND))
+              ctx.pipeline().addLast(RelayHandler(outboundChannel, Direction.INBOUND))
 
-                    ctx.channel().attr(INBOUND_CONN_INFO).set(CtxUtils.getRemoteAddress(ctx))
-                    outboundChannel.attr(OUTBOUND_CONN_INFO).set(ConnInfo(request.dstAddr(), request.dstPort()))
+              ctx.channel().attr(INBOUND_CONN_INFO).set(CtxUtils.getRemoteAddress(ctx))
+              outboundChannel.attr(OUTBOUND_CONN_INFO).set(ConnInfo(request.dstAddr(), request.dstPort()))
 
-                })
-            } else {
-                ctx.channel()
-                    .writeAndFlush(DefaultSocks5CommandResponse(Socks5CommandStatus.FAILURE, request.dstAddrType()))
-                closeOnFlush(inboundChannel)
-            }
-        })
+            },
+          )
+        } else {
+          ctx.channel()
+            .writeAndFlush(DefaultSocks5CommandResponse(Socks5CommandStatus.FAILURE, request.dstAddrType()))
+          closeOnFlush(inboundChannel)
+        }
+      },
+    )
 
-        b.group(inboundChannel.eventLoop())
-            .channel(NioSocketChannel::class.java)
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
-            .option(ChannelOption.SO_KEEPALIVE, true)
-            .handler(DirectClientHandler(promise))
+    b.group(inboundChannel.eventLoop())
+      .channel(NioSocketChannel::class.java)
+      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
+      .option(ChannelOption.SO_KEEPALIVE, true)
+      .handler(DirectClientHandler(promise))
 
-        b.connect(request.dstAddr(), request.dstPort()).addListener(ChannelFutureListener { future: ChannelFuture ->
-            if (future.isSuccess) {
-                log.info("connect to {}:{} success", request.dstAddr(), request.dstPort())
-            } else {
-                // Close the connection if the connection attempt has failed.
-                log.error("connect to {}:{} failed", request.dstAddr(), request.dstPort())
-                ctx.channel().writeAndFlush(
-                    DefaultSocks4CommandResponse(Socks4CommandStatus.REJECTED_OR_FAILED)
-                )
-                closeOnFlush(inboundChannel)
-            }
-        })
-    }
+    b.connect(request.dstAddr(), request.dstPort()).addListener(
+      ChannelFutureListener { future: ChannelFuture ->
+        if (future.isSuccess) {
+          log.info("connect to {}:{} success", request.dstAddr(), request.dstPort())
+        } else {
+          // Close the connection if the connection attempt has failed.
+          log.error("connect to {}:{} failed", request.dstAddr(), request.dstPort())
+          ctx.channel().writeAndFlush(
+            DefaultSocks4CommandResponse(Socks4CommandStatus.REJECTED_OR_FAILED),
+          )
+          closeOnFlush(inboundChannel)
+        }
+      },
+    )
+  }
 
 }

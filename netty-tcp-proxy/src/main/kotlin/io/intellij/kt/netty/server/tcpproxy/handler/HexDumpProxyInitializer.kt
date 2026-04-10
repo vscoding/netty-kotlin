@@ -11,14 +11,14 @@ import io.netty.handler.logging.LoggingHandler
  * @author tech@intellij.io
  */
 class HexDumpProxyInitializer(
-    val remoteHost: String,
-    val remotePort: Int
+  val remoteHost: String,
+  val remotePort: Int,
 ) : ChannelInitializer<SocketChannel>() {
 
-    @Throws(Exception::class)
-    override fun initChannel(ch: SocketChannel) {
-        val p = ch.pipeline()
-        p.addLast(LoggingHandler(LogLevel.INFO))
-            .addLast(HexDumpProxyFrontendHandler(remoteHost, remotePort))
-    }
+  @Throws(Exception::class)
+  override fun initChannel(ch: SocketChannel) {
+    val p = ch.pipeline()
+    p.addLast(LoggingHandler(LogLevel.INFO))
+      .addLast(HexDumpProxyFrontendHandler(remoteHost, remotePort))
+  }
 }

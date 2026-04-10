@@ -18,42 +18,42 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/netty")
 class NettyServerApi(
-    private val nettyServerService: NettyServerService
+  private val nettyServerService: NettyServerService,
 ) {
 
-    companion object {
-        private val log = getLogger(NettyServerApi::class.java)
-    }
+  companion object {
+    private val log = getLogger(NettyServerApi::class.java)
+  }
 
-    @PostMapping("/server/start")
-    fun startServer(@RequestBody @Validated conf: NettyServerConf): ServerRunRes {
-        log.info("Starting Netty Server")
-        return nettyServerService.start(conf)
-    }
+  @PostMapping("/server/start")
+  fun startServer(@RequestBody @Validated conf: NettyServerConf): ServerRunRes {
+    log.info("Starting Netty Server")
+    return nettyServerService.start(conf)
+  }
 
-    @PostMapping("/server/status")
-    fun isServerRunning(@RequestBody @Validated conf: NettyServerConf): Map<String, Any> {
-        log.info("Checking if Netty Server is running")
-        if (nettyServerService.isRunning(conf.port)) {
-            log.info("Netty Server is running")
-            return mapOf<String, Any>(
-                "code" to 200,
-                "port" to conf.port,
-                "msg" to "Netty Server is running"
-            )
-        } else {
-            log.info("Netty Server is not running")
-            return mapOf<String, Any>(
-                "code" to 500,
-                "port" to conf.port,
-                "msg" to "Netty Server is not running"
-            )
-        }
+  @PostMapping("/server/status")
+  fun isServerRunning(@RequestBody @Validated conf: NettyServerConf): Map<String, Any> {
+    log.info("Checking if Netty Server is running")
+    if (nettyServerService.isRunning(conf.port)) {
+      log.info("Netty Server is running")
+      return mapOf<String, Any>(
+        "code" to 200,
+        "port" to conf.port,
+        "msg" to "Netty Server is running",
+      )
+    } else {
+      log.info("Netty Server is not running")
+      return mapOf<String, Any>(
+        "code" to 500,
+        "port" to conf.port,
+        "msg" to "Netty Server is not running",
+      )
     }
+  }
 
-    @PostMapping("/server/stop")
-    fun stopServer(@RequestBody @Validated conf: NettyServerConf) {
-        log.warn("Stopping Netty Server")
-        nettyServerService.stop(conf.port)
-    }
+  @PostMapping("/server/stop")
+  fun stopServer(@RequestBody @Validated conf: NettyServerConf) {
+    log.warn("Stopping Netty Server")
+    nettyServerService.stop(conf.port)
+  }
 }

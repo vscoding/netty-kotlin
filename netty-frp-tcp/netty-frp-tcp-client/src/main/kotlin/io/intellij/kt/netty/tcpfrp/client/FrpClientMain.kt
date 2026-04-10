@@ -10,10 +10,10 @@ import io.intellij.kt.netty.tcpfrp.config.ClientConfig.Companion.loadConfig
  */
 object FrpClientMain {
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        loadConfig(System.getProperty(CONFIG_PATH_PROPERTY, "frpc.json"))
-            .then(FrpClient::start)
-    }
+  @JvmStatic
+  fun main(args: Array<String>) {
+    loadConfig(System.getProperty(CONFIG_PATH_PROPERTY, "frpc.json"))
+      .then(FrpClient::start)
+  }
 
 }

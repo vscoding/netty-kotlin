@@ -12,5 +12,5 @@ import org.springframework.boot.runApplication
 class NettySpringBootApplication
 
 fun main(args: Array<String>) {
-    runApplication<NettySpringBootApplication>(*args)
+  runApplication<NettySpringBootApplication>(*args)
 }

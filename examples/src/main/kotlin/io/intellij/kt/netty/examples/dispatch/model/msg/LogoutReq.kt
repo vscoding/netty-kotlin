@@ -10,12 +10,12 @@ import io.intellij.kt.netty.examples.dispatch.model.DataType
  * @author tech@intellij.io
  */
 data class LogoutReq(
-    val username: String
+  val username: String,
 ) {
 
-    companion object {
-        fun create(username: String): DataBody {
-            return DataBody(DataType.LOGOUT.code, JSON.toJSONString(LogoutReq(username)))
-        }
+  companion object {
+    fun create(username: String): DataBody {
+      return DataBody(DataType.LOGOUT.code, JSON.toJSONString(LogoutReq(username)))
     }
+  }
 }

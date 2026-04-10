@@ -6,6 +6,6 @@ package io.intellij.kt.netty.spring.boot.entities
  * @author tech@intellij.io
  */
 data class ServerRunRes(
-    val status: Boolean,
-    val msg: String = ""
+  val status: Boolean,
+  val msg: String = "",
 )

@@ -16,15 +16,15 @@ import io.netty.handler.codec.MessageToByteEncoder
 @ChannelHandler.Sharable
 class DataBodyEncoder : MessageToByteEncoder<DataBody>() {
 
-    @Throws(Exception::class)
-    override fun encode(channelHandlerContext: ChannelHandlerContext, dataBody: DataBody, byteBuf: ByteBuf) {
-        byteBuf.writeInt(ProtocolMsgType.DATA.type)
+  @Throws(Exception::class)
+  override fun encode(channelHandlerContext: ChannelHandlerContext, dataBody: DataBody, byteBuf: ByteBuf) {
+    byteBuf.writeInt(ProtocolMsgType.DATA.type)
 
-        val jsonString = JSON.toJSONString(dataBody)
-        val bytes = jsonString.toByteArray()
+    val jsonString = JSON.toJSONString(dataBody)
+    val bytes = jsonString.toByteArray()
 
-        byteBuf.writeInt(bytes.size)
-        byteBuf.writeBytes(bytes)
-    }
+    byteBuf.writeInt(bytes.size)
+    byteBuf.writeBytes(bytes)
+  }
 
 }

@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test
  */
 class JsonTest {
 
-    data class Person(
-        val name: String,
-        val age: Int
-    )
+  data class Person(
+    val name: String,
+    val age: Int,
+  )
 
-    @Test
-    fun `test serialize data class`() {
-        println("json = ${JSON.toJSONString(Person("John", 18))}")
-    }
+  @Test
+  fun `test serialize data class`() {
+    println("json = ${JSON.toJSONString(Person("John", 18))}")
+  }
 
 }

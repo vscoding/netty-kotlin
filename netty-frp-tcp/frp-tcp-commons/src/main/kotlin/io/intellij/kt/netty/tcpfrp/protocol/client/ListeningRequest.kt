@@ -8,13 +8,13 @@ import io.intellij.kt.netty.tcpfrp.protocol.FrpBasicMsg
  * @author tech@intellij.io
  */
 data class ListeningRequest(
-    val listeningPorts: List<Int>
+  val listeningPorts: List<Int>,
 ) {
 
-    companion object {
-        fun build(listeningPorts: List<Int>): FrpBasicMsg {
-            return FrpBasicMsg.buildListeningRequest(ListeningRequest(listeningPorts))
-        }
+  companion object {
+    fun build(listeningPorts: List<Int>): FrpBasicMsg {
+      return FrpBasicMsg.buildListeningRequest(ListeningRequest(listeningPorts))
     }
+  }
 
 }

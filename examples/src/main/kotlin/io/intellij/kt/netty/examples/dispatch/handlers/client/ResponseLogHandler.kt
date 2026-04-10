@@ -12,12 +12,12 @@ import io.netty.channel.SimpleChannelInboundHandler
  */
 class ResponseLogHandler : SimpleChannelInboundHandler<Response>() {
 
-    companion object {
-        private val log = getLogger(ResponseLogHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ResponseLogHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: Response) {
-        log.info("response|{}", msg)
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: Response) {
+    log.info("response|{}", msg)
+  }
 }

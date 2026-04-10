@@ -14,16 +14,16 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class EventLoopGroupConfig {
 
-    private val factory = NioIoHandler.newFactory()
+  private val factory = NioIoHandler.newFactory()
 
-    @Bean
-    fun bossGroup(): EventLoopGroup {
-        return MultiThreadIoEventLoopGroup(1, factory)
-    }
+  @Bean
+  fun bossGroup(): EventLoopGroup {
+    return MultiThreadIoEventLoopGroup(1, factory)
+  }
 
-    @Bean
-    fun workerGroup(): EventLoopGroup {
-        return MultiThreadIoEventLoopGroup(factory)
-    }
+  @Bean
+  fun workerGroup(): EventLoopGroup {
+    return MultiThreadIoEventLoopGroup(factory)
+  }
 
 }

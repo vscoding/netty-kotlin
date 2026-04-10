@@ -18,35 +18,35 @@ import io.netty.handler.logging.LoggingHandler
  * @author tech@intellij.io
  */
 object SocksServer {
-    private val log = getLogger(SocksServer::class.java)
+  private val log = getLogger(SocksServer::class.java)
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val factory = NioIoHandler.newFactory()
-        val boss: EventLoopGroup = MultiThreadIoEventLoopGroup(1, factory)
-        val worker: EventLoopGroup = MultiThreadIoEventLoopGroup(factory)
+  @Throws(Exception::class)
+  @JvmStatic
+  fun main(args: Array<String>) {
+    val factory = NioIoHandler.newFactory()
+    val boss: EventLoopGroup = MultiThreadIoEventLoopGroup(1, factory)
+    val worker: EventLoopGroup = MultiThreadIoEventLoopGroup(factory)
 
-        val authenticator: Authenticator = PasswordAuthenticator()
+    val authenticator: Authenticator = PasswordAuthenticator()
 
-        val b = ServerBootstrap().apply {
-            group(boss, worker)
-            channel(NioServerSocketChannel::class.java)
-            handler(LoggingHandler(LogLevel.INFO))
-            childHandler(SocksServerInitializer(authenticator))
-        }
-
-        try {
-            val syncFuture = b.bind(PORT).sync()
-            log.info("Socks server started on port {}", PORT)
-            syncFuture.channel().closeFuture().sync()
-        } catch (e: Exception) {
-            log.error("Socks server start failed", e)
-        } finally {
-            boss.shutdownGracefully()
-            worker.shutdownGracefully()
-        }
-
+    val b = ServerBootstrap().apply {
+      group(boss, worker)
+      channel(NioServerSocketChannel::class.java)
+      handler(LoggingHandler(LogLevel.INFO))
+      childHandler(SocksServerInitializer(authenticator))
     }
+
+    try {
+      val syncFuture = b.bind(PORT).sync()
+      log.info("Socks server started on port {}", PORT)
+      syncFuture.channel().closeFuture().sync()
+    } catch (e: Exception) {
+      log.error("Socks server start failed", e)
+    } finally {
+      boss.shutdownGracefully()
+      worker.shutdownGracefully()
+    }
+
+  }
 
 }

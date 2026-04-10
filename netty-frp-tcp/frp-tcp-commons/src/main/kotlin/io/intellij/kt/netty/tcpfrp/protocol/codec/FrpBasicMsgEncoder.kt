@@ -14,19 +14,19 @@ import io.netty.handler.codec.MessageToByteEncoder
  */
 class FrpBasicMsgEncoder : MessageToByteEncoder<FrpBasicMsg>() {
 
-    @Throws(Exception::class)
-    override fun encode(ctx: ChannelHandlerContext, basicMsg: FrpBasicMsg, out: ByteBuf) {
-        val msgType: FrpMsgType = basicMsg.msgType
+  @Throws(Exception::class)
+  override fun encode(ctx: ChannelHandlerContext, basicMsg: FrpBasicMsg, out: ByteBuf) {
+    val msgType: FrpMsgType = basicMsg.msgType
 
-        out.writeByte(msgType.type)
+    out.writeByte(msgType.type)
 
-        val msgBody: Any = basicMsg.msgBody
+    val msgBody: Any = basicMsg.msgBody
 
-        val json: String = JSON.toJSONString(msgBody)
-        val bytes = json.toByteArray()
+    val json: String = JSON.toJSONString(msgBody)
+    val bytes = json.toByteArray()
 
-        out.writeInt(bytes.size)
-        out.writeBytes(bytes)
-    }
+    out.writeInt(bytes.size)
+    out.writeBytes(bytes)
+  }
 
 }

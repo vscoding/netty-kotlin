@@ -16,47 +16,47 @@ import io.netty.handler.codec.ByteToMessageDecoder
  */
 class DispatchDecoder : ByteToMessageDecoder() {
 
-    companion object {
-        private val log = getLogger(DispatchDecoder::class.java)
+  companion object {
+    private val log = getLogger(DispatchDecoder::class.java)
+  }
+
+  @Throws(Exception::class)
+  override fun decode(ctx: ChannelHandlerContext?, inBuf: ByteBuf, out: MutableList<Any>) {
+    inBuf.markReaderIndex()
+    if (inBuf.readableBytes() < 4) {
+      inBuf.resetReaderIndex()
+      return
+    }
+    val type = inBuf.readInt()
+    val msgType = ProtocolMsgType.get(type) ?: throw RuntimeException("Illegal protocol type")
+
+    if (inBuf.readableBytes() < 4) {
+      inBuf.resetReaderIndex()
+      return
     }
 
-    @Throws(Exception::class)
-    override fun decode(ctx: ChannelHandlerContext?, inBuf: ByteBuf, out: MutableList<Any>) {
-        inBuf.markReaderIndex()
-        if (inBuf.readableBytes() < 4) {
-            inBuf.resetReaderIndex()
-            return
-        }
-        val type = inBuf.readInt()
-        val msgType = ProtocolMsgType.get(type) ?: throw RuntimeException("Illegal protocol type")
+    val len = inBuf.readInt()
+    if (inBuf.readableBytes() < len) {
+      inBuf.resetReaderIndex()
+      return
+    }
+    val bytes = ByteArray(len)
+    inBuf.readBytes(bytes)
+    val msgJson = String(bytes)
 
-        if (inBuf.readableBytes() < 4) {
-            inBuf.resetReaderIndex()
-            return
-        }
-
-        val len = inBuf.readInt()
-        if (inBuf.readableBytes() < len) {
-            inBuf.resetReaderIndex()
-            return
-        }
-        val bytes = ByteArray(len)
-        inBuf.readBytes(bytes)
-        val msgJson = String(bytes)
-
-        if (ProtocolMsgType.HEARTBEAT === msgType) {
-            out.add(JSON.parseObject(msgJson, HeartBeat::class.java))
-        }
-
-        if (ProtocolMsgType.DATA === msgType) {
-            out.add(JSON.parseObject(msgJson, DataBody::class.java))
-        }
+    if (ProtocolMsgType.HEARTBEAT === msgType) {
+      out.add(JSON.parseObject(msgJson, HeartBeat::class.java))
     }
 
-    @Throws(Exception::class)
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
-        log.error("DispatchDecoder error", cause)
-        ctx.close()
+    if (ProtocolMsgType.DATA === msgType) {
+      out.add(JSON.parseObject(msgJson, DataBody::class.java))
     }
+  }
+
+  @Throws(Exception::class)
+  override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
+    log.error("DispatchDecoder error", cause)
+    ctx.close()
+  }
 
 }

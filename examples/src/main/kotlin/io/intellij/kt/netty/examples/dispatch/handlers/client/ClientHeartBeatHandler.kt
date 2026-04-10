@@ -11,12 +11,12 @@ import io.netty.channel.SimpleChannelInboundHandler
  * @author tech@intellij.io
  */
 class ClientHeartBeatHandler : SimpleChannelInboundHandler<HeartBeat>() {
-    companion object {
-        private val log = getLogger(ClientHeartBeatHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ClientHeartBeatHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext?, msg: HeartBeat) {
-        log.info("receive server heart beat|{}", msg)
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext?, msg: HeartBeat) {
+    log.info("receive server heart beat|{}", msg)
+  }
 }

@@ -14,21 +14,21 @@ import io.netty.channel.SimpleChannelInboundHandler
  */
 class DispatchToServiceHandler : SimpleChannelInboundHandler<DispatchPacket>() {
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: DispatchPacket) {
-        // 获取到数据包，e.g. user --- frp-server:3306 的数据包
-        ctx.channel().getDispatchManager().dispatch(msg, Listeners.read())
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: DispatchPacket) {
+    // 获取到数据包，e.g. user --- frp-server:3306 的数据包
+    ctx.channel().getDispatchManager().dispatch(msg, Listeners.read())
+  }
 
-    @Throws(Exception::class)
-    override fun channelReadComplete(ctx: ChannelHandlerContext) {
-        ctx.channel().getFrpChannel()
-            .activeRead()
-    }
+  @Throws(Exception::class)
+  override fun channelReadComplete(ctx: ChannelHandlerContext) {
+    ctx.channel().getFrpChannel()
+      .activeRead()
+  }
 
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        ctx.channel().getDispatchManager().releaseAll()
-    }
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    ctx.channel().getDispatchManager().releaseAll()
+  }
 
 }

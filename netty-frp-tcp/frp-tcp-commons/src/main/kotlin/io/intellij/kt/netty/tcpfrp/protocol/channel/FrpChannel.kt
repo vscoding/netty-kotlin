@@ -14,91 +14,91 @@ import io.netty.util.AttributeKey
  * @author tech@intellij.io
  */
 data class FrpChannel(
-    val ch: Channel
+  val ch: Channel,
 ) {
 
-    companion object {
-        private val log = getLogger(FrpChannel::class.java)
+  companion object {
+    private val log = getLogger(FrpChannel::class.java)
 
-        val FRP_CHANNEL_KEY: AttributeKey<FrpChannel> = AttributeKey.valueOf<FrpChannel>("frpChannel")
+    val FRP_CHANNEL_KEY: AttributeKey<FrpChannel> = AttributeKey.valueOf<FrpChannel>("frpChannel")
 
+  }
+
+  fun write(dispatchPacket: DispatchPacket, vararg listeners: ChannelFutureListener): ChannelFuture {
+    return this.writeObj(dispatchPacket, *listeners)
+  }
+
+  fun write(dispatchPacket: FrpBasicMsg, vararg listeners: ChannelFutureListener): ChannelFuture {
+    return this.writeObj(dispatchPacket, *listeners)
+  }
+
+  fun flush(): FrpChannel {
+    if (ch.isActive) {
+      ch.flush()
     }
+    return this
+  }
 
-    fun write(dispatchPacket: DispatchPacket, vararg listeners: ChannelFutureListener): ChannelFuture {
-        return this.writeObj(dispatchPacket, *listeners)
+  fun writeAndFlushEmpty(vararg listeners: ChannelFutureListener): ChannelFuture {
+    return this.writeAndFlushObj(Unpooled.EMPTY_BUFFER, *listeners)
+  }
+
+  fun writeAndFlush(dispatchPacket: DispatchPacket, vararg listeners: ChannelFutureListener): ChannelFuture {
+    return this.writeAndFlushObj(dispatchPacket, *listeners)
+  }
+
+  fun writeAndFlush(basicMsg: FrpBasicMsg, vararg listeners: ChannelFutureListener): ChannelFuture {
+    return this.writeAndFlushObj(basicMsg, *listeners)
+  }
+
+
+  @Throws(Exception::class)
+  private fun writeObj(msg: Any, vararg listeners: ChannelFutureListener): ChannelFuture {
+    if (ch.isActive) {
+      return ch.writeAndFlush(msg).addListeners(*listeners)
     }
+    log.error("Channel is not active(or is null), cannot write message")
+    throw RuntimeException("Channel is not active(or is null), cannot write message")
+  }
 
-    fun write(dispatchPacket: FrpBasicMsg, vararg listeners: ChannelFutureListener): ChannelFuture {
-        return this.writeObj(dispatchPacket, *listeners)
+  @Throws(Exception::class)
+  private fun writeAndFlushObj(msg: Any, vararg listeners: ChannelFutureListener): ChannelFuture {
+    if (ch.isActive) {
+      return ch.writeAndFlush(msg).addListeners(*listeners)
     }
+    log.error("Channel is not active(or is null), cannot write and flush message")
+    throw RuntimeException("Channel is not active(or is null), cannot write and flush message")
+  }
 
-    fun flush(): FrpChannel {
-        if (ch.isActive) {
-            ch.flush()
-        }
-        return this
+
+  fun activeRead() {
+    if (ch.isActive) {
+      ch.read()
+    } else {
+      log.error("Channel is not active(or is null), cannot read message")
     }
+  }
 
-    fun writeAndFlushEmpty(vararg listeners: ChannelFutureListener): ChannelFuture {
-        return this.writeAndFlushObj(Unpooled.EMPTY_BUFFER, *listeners)
+  fun close() {
+    if (ch.isActive) {
+      ch.close()
     }
-
-    fun writeAndFlush(dispatchPacket: DispatchPacket, vararg listeners: ChannelFutureListener): ChannelFuture {
-        return this.writeAndFlushObj(dispatchPacket, *listeners)
-    }
-
-    fun writeAndFlush(basicMsg: FrpBasicMsg, vararg listeners: ChannelFutureListener): ChannelFuture {
-        return this.writeAndFlushObj(basicMsg, *listeners)
-    }
-
-
-    @Throws(Exception::class)
-    private fun writeObj(msg: Any, vararg listeners: ChannelFutureListener): ChannelFuture {
-        if (ch.isActive) {
-            return ch.writeAndFlush(msg).addListeners(*listeners)
-        }
-        log.error("Channel is not active(or is null), cannot write message")
-        throw RuntimeException("Channel is not active(or is null), cannot write message")
-    }
-
-    @Throws(Exception::class)
-    private fun writeAndFlushObj(msg: Any, vararg listeners: ChannelFutureListener): ChannelFuture {
-        if (ch.isActive) {
-            return ch.writeAndFlush(msg).addListeners(*listeners)
-        }
-        log.error("Channel is not active(or is null), cannot write and flush message")
-        throw RuntimeException("Channel is not active(or is null), cannot write and flush message")
-    }
-
-
-    fun activeRead() {
-        if (ch.isActive) {
-            ch.read()
-        } else {
-            log.error("Channel is not active(or is null), cannot read message")
-        }
-    }
-
-    fun close() {
-        if (ch.isActive) {
-            ch.close()
-        }
-    }
+  }
 }
 
 
 fun Channel.initFrpChannel() {
-    attr(FrpChannel.FRP_CHANNEL_KEY).set(FrpChannel(this))
+  attr(FrpChannel.FRP_CHANNEL_KEY).set(FrpChannel(this))
 }
 
 fun Channel.getFrpChannel(): FrpChannel {
-    return attr(FrpChannel.FRP_CHANNEL_KEY).get() ?: throw RuntimeException("FrpChannel is not initialized")
+  return attr(FrpChannel.FRP_CHANNEL_KEY).get() ?: throw RuntimeException("FrpChannel is not initialized")
 }
 
 fun FrpChannel.initDispatchManager() {
-    return ch.initDispatchManager()
+  return ch.initDispatchManager()
 }
 
 fun FrpChannel.getDispatchManager(): DispatchManager {
-    return ch.getDispatchManager()
+  return ch.getDispatchManager()
 }

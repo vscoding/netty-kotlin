@@ -16,26 +16,26 @@ import io.intellij.kt.netty.commons.getLogger
  * @author tech@intellij.io
  */
 object Environment {
-    private val log = getLogger(Environment::class.java)
+  private val log = getLogger(Environment::class.java)
 
-    val PORT: Int get() = _PORT
+  val PORT: Int get() = _PORT
 
-    val SOCKS5_USERNAME: String = System.getenv("SOCKS5_USERNAME") ?: ""
-    val SOCKS5_PASSWORD: String = System.getenv("SOCKS5_PASSWORD") ?: ""
+  val SOCKS5_USERNAME: String = System.getenv("SOCKS5_USERNAME") ?: ""
+  val SOCKS5_PASSWORD: String = System.getenv("SOCKS5_PASSWORD") ?: ""
 
-    private var _PORT: Int = 1080
+  private var _PORT: Int = 1080
 
-    init {
-        val portStr = System.getenv("SERVER_PORT")
-        if (portStr == null || portStr.isEmpty()) {
-            log.info("SERVER_PORT is not set, use default port: {}", _PORT)
-        } else {
-            runCatching {
-                _PORT = portStr.toInt()
-            }.onFailure {
-                log.error("SERVER_PORT is invalid: {}", portStr)
-            }
-        }
+  init {
+    val portStr = System.getenv("SERVER_PORT")
+    if (portStr == null || portStr.isEmpty()) {
+      log.info("SERVER_PORT is not set, use default port: {}", _PORT)
+    } else {
+      runCatching {
+        _PORT = portStr.toInt()
+      }.onFailure {
+        log.error("SERVER_PORT is invalid: {}", portStr)
+      }
     }
+  }
 
 }

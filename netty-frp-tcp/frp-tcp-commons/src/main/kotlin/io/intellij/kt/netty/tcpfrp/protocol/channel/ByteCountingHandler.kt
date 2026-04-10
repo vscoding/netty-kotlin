@@ -11,31 +11,31 @@ import io.netty.channel.ChannelInboundHandlerAdapter
  * @author tech@intellij.io
  */
 class ByteCountingHandler : ChannelInboundHandlerAdapter() {
-    companion object {
-        private val log = getLogger(ByteCountingHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ByteCountingHandler::class.java)
+  }
 
-    private var total: Long = 0
+  private var total: Long = 0
 
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        // must
-        ctx.read()
-        // for pipeline.fireChannelActive()
-        super.channelActive(ctx)
-    }
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    // must
+    ctx.read()
+    // for pipeline.fireChannelActive()
+    super.channelActive(ctx)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        if (msg is ByteBuf) {
-            total += msg.readableBytes().toLong()
-        }
-        super.channelRead(ctx, msg)
+  @Throws(Exception::class)
+  override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
+    if (msg is ByteBuf) {
+      total += msg.readableBytes().toLong()
     }
+    super.channelRead(ctx, msg)
+  }
 
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        log.info("byte counting|id={}|received={}B", DispatchIdUtils.generateId(ctx.channel()), total)
-        super.channelInactive(ctx)
-    }
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    log.info("byte counting|id={}|received={}B", DispatchIdUtils.generateId(ctx.channel()), total)
+    super.channelInactive(ctx)
+  }
 }

@@ -16,26 +16,26 @@ import io.netty.handler.codec.socksx.v5.Socks5PasswordAuthStatus
  * @author tech@intellij.io
  */
 class AuthenticateHandler(
-    private val authenticator: Authenticator
+  private val authenticator: Authenticator,
 ) : SimpleChannelInboundHandler<Socks5PasswordAuthRequest>() {
 
-    private val log = getLogger(AuthenticateHandler::class.java)
+  private val log = getLogger(AuthenticateHandler::class.java)
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, authRequest: Socks5PasswordAuthRequest) {
-        val username = authRequest.username()
-        val password = authRequest.password()
-        val authenticateResponse = authenticator.authenticate(username, password)
-        if (authenticateResponse.success) {
-            ctx.pipeline().remove(Socks5PasswordAuthRequestDecoder::class.java)
-            ctx.pipeline().addFirst(Socks5CommandRequestDecoder())
-            ctx.pipeline().remove(this)
-            ctx.writeAndFlush(DefaultSocks5PasswordAuthResponse(Socks5PasswordAuthStatus.SUCCESS))
-        } else {
-            log.error("Authentication failed: {}", authenticateResponse.message)
-            ctx.pipeline().remove(this)
-            ctx.writeAndFlush(DefaultSocks5PasswordAuthResponse(Socks5PasswordAuthStatus.FAILURE))
-                .addListener(ChannelFutureListener.CLOSE)
-        }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, authRequest: Socks5PasswordAuthRequest) {
+    val username = authRequest.username()
+    val password = authRequest.password()
+    val authenticateResponse = authenticator.authenticate(username, password)
+    if (authenticateResponse.success) {
+      ctx.pipeline().remove(Socks5PasswordAuthRequestDecoder::class.java)
+      ctx.pipeline().addFirst(Socks5CommandRequestDecoder())
+      ctx.pipeline().remove(this)
+      ctx.writeAndFlush(DefaultSocks5PasswordAuthResponse(Socks5PasswordAuthStatus.SUCCESS))
+    } else {
+      log.error("Authentication failed: {}", authenticateResponse.message)
+      ctx.pipeline().remove(this)
+      ctx.writeAndFlush(DefaultSocks5PasswordAuthResponse(Socks5PasswordAuthStatus.FAILURE))
+        .addListener(ChannelFutureListener.CLOSE)
     }
+  }
 }

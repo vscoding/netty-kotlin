@@ -22,41 +22,43 @@ import io.netty.channel.SimpleChannelInboundHandler
  * @author tech@intellij.io
  */
 class ListeningResponseHandler(val configMap: Map<String, ListeningConfig>) :
-    SimpleChannelInboundHandler<ListeningResponse>() {
+  SimpleChannelInboundHandler<ListeningResponse>() {
 
-    companion object {
-        private val log = getLogger(ListeningResponseHandler::class.java)
+  companion object {
+    private val log = getLogger(ListeningResponseHandler::class.java)
+  }
+
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    ctx.read()
+  }
+
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, listeningResponse: ListeningResponse) {
+    if (listeningResponse.success) {
+      log.info("listening request success")
+      ctx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER)
+        .addListener(
+          ChannelFutureListener { channelFuture: ChannelFuture ->
+            if (channelFuture.isSuccess) {
+              val p = ctx.pipeline()
+              p.remove(this)
+              p.addLast(HeartBeatHandler())
+                .addLast(ReceiveUserStateHandler(configMap))
+                .addLast(DispatchToServiceHandler())
+
+              log.info("ListeningResponseHandler channelRead0|fireChannelActive")
+              p.fireChannelActive()
+            } else {
+              ChannelUtils.closeOnFlush(ctx.channel())
+            }
+          },
+        )
+    } else {
+      val listeningStatus: Map<Int, Boolean> = listeningResponse.listeningStatus
+      log.warn("listening request failure|{}", listeningStatus)
+      ctx.close()
     }
-
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        ctx.read()
-    }
-
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, listeningResponse: ListeningResponse) {
-        if (listeningResponse.success) {
-            log.info("listening request success")
-            ctx.channel().writeAndFlush(Unpooled.EMPTY_BUFFER)
-                .addListener(ChannelFutureListener { channelFuture: ChannelFuture ->
-                    if (channelFuture.isSuccess) {
-                        val p = ctx.pipeline()
-                        p.remove(this)
-                        p.addLast(HeartBeatHandler())
-                            .addLast(ReceiveUserStateHandler(configMap))
-                            .addLast(DispatchToServiceHandler())
-
-                        log.info("ListeningResponseHandler channelRead0|fireChannelActive")
-                        p.fireChannelActive()
-                    } else {
-                        ChannelUtils.closeOnFlush(ctx.channel())
-                    }
-                })
-        } else {
-            val listeningStatus: Map<Int, Boolean> = listeningResponse.listeningStatus
-            log.warn("listening request failure|{}", listeningStatus)
-            ctx.close()
-        }
-    }
+  }
 
 }

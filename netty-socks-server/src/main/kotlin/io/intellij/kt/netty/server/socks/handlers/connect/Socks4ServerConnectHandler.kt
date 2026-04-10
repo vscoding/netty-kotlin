@@ -24,56 +24,62 @@ import io.netty.util.concurrent.FutureListener
  * @author tech@intellij.io
  */
 class Socks4ServerConnectHandler : SimpleChannelInboundHandler<Socks4CommandRequest>() {
-    companion object {
-        private val log = getLogger(Socks4ServerConnectHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(Socks4ServerConnectHandler::class.java)
+  }
 
-    private val b = Bootstrap()
+  private val b = Bootstrap()
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, request: Socks4CommandRequest) {
-        val inboundChannel = ctx.channel()
-        val promise = ctx.executor().newPromise<Channel>()
-        promise.addListener(FutureListener { future: Future<Channel> ->
-            val outboundChannel = future.getNow()
-            if (future.isSuccess) {
-                // send SUCCESS, then add RelayHandler to both channels
-                val responseFuture = ctx.channel().writeAndFlush(
-                    DefaultSocks4CommandResponse(Socks4CommandStatus.SUCCESS)
-                )
-                responseFuture.addListener(ChannelFutureListener { channelFuture: ChannelFuture? ->
-                    ctx.pipeline().remove(this@Socks4ServerConnectHandler)
-                    outboundChannel.pipeline().addLast(RelayHandler(inboundChannel, Direction.OUTBOUND))
-                    ctx.pipeline().addLast(RelayHandler(outboundChannel, Direction.INBOUND))
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, request: Socks4CommandRequest) {
+    val inboundChannel = ctx.channel()
+    val promise = ctx.executor().newPromise<Channel>()
+    promise.addListener(
+      FutureListener { future: Future<Channel> ->
+        val outboundChannel = future.getNow()
+        if (future.isSuccess) {
+          // send SUCCESS, then add RelayHandler to both channels
+          val responseFuture = ctx.channel().writeAndFlush(
+            DefaultSocks4CommandResponse(Socks4CommandStatus.SUCCESS),
+          )
+          responseFuture.addListener(
+            ChannelFutureListener { channelFuture: ChannelFuture? ->
+              ctx.pipeline().remove(this@Socks4ServerConnectHandler)
+              outboundChannel.pipeline().addLast(RelayHandler(inboundChannel, Direction.OUTBOUND))
+              ctx.pipeline().addLast(RelayHandler(outboundChannel, Direction.INBOUND))
 
-                    ctx.channel().attr(INBOUND_CONN_INFO).set(CtxUtils.getRemoteAddress(ctx))
-                    outboundChannel.attr(OUTBOUND_CONN_INFO).set(ConnInfo(request.dstAddr(), request.dstPort()))
-                })
-            } else {
-                ctx.channel().writeAndFlush(DefaultSocks4CommandResponse(Socks4CommandStatus.REJECTED_OR_FAILED))
-                closeOnFlush(ctx.channel())
-            }
-        })
+              ctx.channel().attr(INBOUND_CONN_INFO).set(CtxUtils.getRemoteAddress(ctx))
+              outboundChannel.attr(OUTBOUND_CONN_INFO).set(ConnInfo(request.dstAddr(), request.dstPort()))
+            },
+          )
+        } else {
+          ctx.channel().writeAndFlush(DefaultSocks4CommandResponse(Socks4CommandStatus.REJECTED_OR_FAILED))
+          closeOnFlush(ctx.channel())
+        }
+      },
+    )
 
-        val dstAddr = request.dstAddr()
-        val dstPort = request.dstPort()
-        b.group(inboundChannel.eventLoop())
-            .channel(NioSocketChannel::class.java)
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-            .option(ChannelOption.SO_KEEPALIVE, true)
-            .handler(DirectClientHandler(promise))
+    val dstAddr = request.dstAddr()
+    val dstPort = request.dstPort()
+    b.group(inboundChannel.eventLoop())
+      .channel(NioSocketChannel::class.java)
+      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+      .option(ChannelOption.SO_KEEPALIVE, true)
+      .handler(DirectClientHandler(promise))
 
-        b.connect(dstAddr, dstPort).addListener(ChannelFutureListener { future: ChannelFuture ->
-            if (future.isSuccess) {
-                log.info("connect to {}:{} success", dstAddr, dstPort)
-            } else {
-                // Close the connection if the connection attempt has failed.
-                log.error("connect to {}:{} failed", request.dstAddr(), request.dstPort())
-                ctx.channel().writeAndFlush(
-                    DefaultSocks4CommandResponse(Socks4CommandStatus.REJECTED_OR_FAILED)
-                )
-                closeOnFlush(inboundChannel)
-            }
-        })
-    }
+    b.connect(dstAddr, dstPort).addListener(
+      ChannelFutureListener { future: ChannelFuture ->
+        if (future.isSuccess) {
+          log.info("connect to {}:{} success", dstAddr, dstPort)
+        } else {
+          // Close the connection if the connection attempt has failed.
+          log.error("connect to {}:{} failed", request.dstAddr(), request.dstPort())
+          ctx.channel().writeAndFlush(
+            DefaultSocks4CommandResponse(Socks4CommandStatus.REJECTED_OR_FAILED),
+          )
+          closeOnFlush(inboundChannel)
+        }
+      },
+    )
+  }
 }

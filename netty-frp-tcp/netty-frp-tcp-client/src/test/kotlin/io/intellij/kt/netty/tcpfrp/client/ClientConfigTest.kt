@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test
  */
 class ClientConfigTest {
 
-    @Test
-    fun testGetClientConfig() {
-        val clientConfig =
-            ClientConfig.init(ClientConfigTest::class.java.classLoader.getResourceAsStream("client-config.json"))
-        System.err.println(clientConfig)
-        Assertions.assertTrue(clientConfig.valid)
-    }
+  @Test
+  fun testGetClientConfig() {
+    val clientConfig =
+      ClientConfig.init(ClientConfigTest::class.java.classLoader.getResourceAsStream("client-config.json"))
+    System.err.println(clientConfig)
+    Assertions.assertTrue(clientConfig.valid)
+  }
 
 }

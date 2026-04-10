@@ -17,96 +17,96 @@ import java.util.Objects
  * @author tech@intellij.io
  */
 data class ClientConfig(
-    val valid: Boolean,
-    val serverHost: String = "",
-    val serverPort: Int = 0,
-    val authToken: String = "",
-    val listeningConfigMap: Map<String, ListeningConfig> = emptyMap(),
-    val enableSSL: Boolean = false,
-    val sslContext: SslContext? = null
+  val valid: Boolean,
+  val serverHost: String = "",
+  val serverPort: Int = 0,
+  val authToken: String = "",
+  val listeningConfigMap: Map<String, ListeningConfig> = emptyMap(),
+  val enableSSL: Boolean = false,
+  val sslContext: SslContext? = null,
 ) {
-    companion object {
-        private val log = getLogger(ClientConfig::class.java)
-        private val INVALID_CONFIG: ClientConfig = ClientConfig(false)
+  companion object {
+    private val log = getLogger(ClientConfig::class.java)
+    private val INVALID_CONFIG: ClientConfig = ClientConfig(false)
 
 
-        fun init(inputStream: InputStream?): ClientConfig {
-            try {
-                if (inputStream == null) {
-                    return INVALID_CONFIG
-                }
+    fun init(inputStream: InputStream?): ClientConfig {
+      try {
+        if (inputStream == null) {
+          return INVALID_CONFIG
+        }
 
-                val json: String = IOUtils.readLines(inputStream, Charsets.UTF_8)
-                    .joinToString(separator = "")
+        val json: String = IOUtils.readLines(inputStream, Charsets.UTF_8)
+          .joinToString(separator = "")
 
-                val evalServerHost = JSONPath.eval(json, "$.server.host") as String?
-                val evalServerPort = JSONPath.eval(json, "$.server.port") as Int?
-                val evalAuthToken = JSONPath.eval(json, "$.server.auth.token") as String?
+        val evalServerHost = JSONPath.eval(json, "$.server.host") as String?
+        val evalServerPort = JSONPath.eval(json, "$.server.port") as Int?
+        val evalAuthToken = JSONPath.eval(json, "$.server.auth.token") as String?
 
-                if (evalServerHost == null || evalServerPort == null || evalAuthToken == null) {
-                    return INVALID_CONFIG
-                }
+        if (evalServerHost == null || evalServerPort == null || evalAuthToken == null) {
+          return INVALID_CONFIG
+        }
 
-                val array = JSONPath.eval(json, "$.clients") as JSONArray
-                val map = HashMap<String, ListeningConfig>()
-                if (array.isEmpty()) {
-                    return INVALID_CONFIG
-                } else {
-                    for (i in array.indices) {
-                        val name = JSONPath.eval(json, "$.clients[$i].name") as String?
-                        val localIp = JSONPath.eval(json, "$.clients[$i].local_ip") as String?
-                        val localPort = JSONPath.eval(json, "$.clients[$i].local_port") as Int?
-                        val remotePort = JSONPath.eval(json, "$.clients[$i].remote_port") as Int?
+        val array = JSONPath.eval(json, "$.clients") as JSONArray
+        val map = HashMap<String, ListeningConfig>()
+        if (array.isEmpty()) {
+          return INVALID_CONFIG
+        } else {
+          for (i in array.indices) {
+            val name = JSONPath.eval(json, "$.clients[$i].name") as String?
+            val localIp = JSONPath.eval(json, "$.clients[$i].local_ip") as String?
+            val localPort = JSONPath.eval(json, "$.clients[$i].local_port") as Int?
+            val remotePort = JSONPath.eval(json, "$.clients[$i].remote_port") as Int?
 
-                        if (name == null || localIp == null || localPort == null || remotePort == null) {
-                            return INVALID_CONFIG
-                        }
-
-                        map[name] = ListeningConfig(name, localIp, localPort, remotePort)
-                    }
-
-                    return ClientConfig(
-                        valid = true,
-                        serverHost = evalServerHost,
-                        serverPort = evalServerPort,
-                        authToken = evalAuthToken,
-                        listeningConfigMap = map,
-                        enableSSL = SysConfig.get().enableSsl,
-                        sslContext = TlsContexts.buildClient()
-                    )
-                }
-            } catch (e: Exception) {
-                log.error(e.message)
-                return INVALID_CONFIG
-            } finally {
-                if (Objects.nonNull(inputStream)) {
-                    try {
-                        inputStream!!.close()
-                    } catch (e: Exception) {
-                        log.error(e.message)
-                    }
-                }
+            if (name == null || localIp == null || localPort == null || remotePort == null) {
+              return INVALID_CONFIG
             }
-        }
 
-        fun loadConfig(path: String): ClientConfig {
-            val clientConfig: ClientConfig = init(ClientConfig::class.java.classLoader.getResourceAsStream(path))
-            if (clientConfig.valid) {
-                log.info("client config|{}", clientConfig)
-                SysConfig.get().logDetails()
-            }
-            return clientConfig
+            map[name] = ListeningConfig(name, localIp, localPort, remotePort)
+          }
+
+          return ClientConfig(
+            valid = true,
+            serverHost = evalServerHost,
+            serverPort = evalServerPort,
+            authToken = evalAuthToken,
+            listeningConfigMap = map,
+            enableSSL = SysConfig.get().enableSsl,
+            sslContext = TlsContexts.buildClient(),
+          )
         }
+      } catch (e: Exception) {
+        log.error(e.message)
+        return INVALID_CONFIG
+      } finally {
+        if (Objects.nonNull(inputStream)) {
+          try {
+            inputStream!!.close()
+          } catch (e: Exception) {
+            log.error(e.message)
+          }
+        }
+      }
     }
 
-    fun then(consumer: (ClientConfig) -> Unit) {
-        if (valid) {
-            consumer(this)
-        }
+    fun loadConfig(path: String): ClientConfig {
+      val clientConfig: ClientConfig = init(ClientConfig::class.java.classLoader.getResourceAsStream(path))
+      if (clientConfig.valid) {
+        log.info("client config|{}", clientConfig)
+        SysConfig.get().logDetails()
+      }
+      return clientConfig
     }
+  }
 
-    override fun toString(): String {
-        return "ClientConfig(valid=$valid, serverHost='$serverHost', serverPort=$serverPort, authToken='$authToken', listeningConfigMap=$listeningConfigMap)"
+  fun then(consumer: (ClientConfig) -> Unit) {
+    if (valid) {
+      consumer(this)
     }
+  }
+
+  override fun toString(): String {
+    return "ClientConfig(valid=$valid, serverHost='$serverHost', serverPort=$serverPort, authToken='$authToken', listeningConfigMap=$listeningConfigMap)"
+  }
 
 }

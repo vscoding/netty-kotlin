@@ -13,36 +13,36 @@ import io.netty.channel.ChannelInboundHandlerAdapter
  * @author tech@intellij.io
  */
 class HexDumpProxyBackendHandler(
-    val inboundChannel: Channel
+  val inboundChannel: Channel,
 ) : ChannelInboundHandlerAdapter() {
 
-    @Throws(Exception::class)
-    override fun channelActive(ctx: ChannelHandlerContext) {
-        ctx.read()
-    }
+  @Throws(Exception::class)
+  override fun channelActive(ctx: ChannelHandlerContext) {
+    ctx.read()
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        inboundChannel.writeAndFlush(msg).addListener(
-            ChannelFutureListener { future: ChannelFuture ->
-                if (future.isSuccess) {
-                    ctx.channel().read()
-                } else {
-                    future.channel().close()
-                }
-            }
-        )
-    }
+  @Throws(Exception::class)
+  override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
+    inboundChannel.writeAndFlush(msg).addListener(
+      ChannelFutureListener { future: ChannelFuture ->
+        if (future.isSuccess) {
+          ctx.channel().read()
+        } else {
+          future.channel().close()
+        }
+      },
+    )
+  }
 
-    @Throws(Exception::class)
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        closeOnFlush(inboundChannel)
-    }
+  @Throws(Exception::class)
+  override fun channelInactive(ctx: ChannelHandlerContext) {
+    closeOnFlush(inboundChannel)
+  }
 
-    @Throws(Exception::class)
-    override fun exceptionCaught(ctx: ChannelHandlerContext?, cause: Throwable) {
-        // cause.printStackTrace();
-        closeOnFlush(inboundChannel)
-    }
+  @Throws(Exception::class)
+  override fun exceptionCaught(ctx: ChannelHandlerContext?, cause: Throwable) {
+    // cause.printStackTrace();
+    closeOnFlush(inboundChannel)
+  }
 
 }

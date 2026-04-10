@@ -19,63 +19,65 @@ import io.netty.channel.socket.SocketChannel
  * @author tech@intellij.io
  */
 class ClientConnector(
-    val selector: BackendSelector,
-    val inboundChannel: Channel
+  val selector: BackendSelector,
+  val inboundChannel: Channel,
 ) {
-    private val b = Bootstrap()
+  private val b = Bootstrap()
 
-    companion object {
-        private val log = getLogger(ClientConnector::class.java)
+  companion object {
+    private val log = getLogger(ClientConnector::class.java)
+  }
+
+  fun connect() {
+    b.group(inboundChannel.eventLoop())
+      .channel(inboundChannel.javaClass)
+      .handler(
+        object : ChannelInitializer<SocketChannel>() {
+          @Throws(Exception::class)
+          override fun initChannel(ch: SocketChannel) {
+            // do nothing, just for init a pipeline
+            // 避免 BackendOutboundHandler 需要 @Sharable
+          }
+        },
+      )
+      .option(ChannelOption.AUTO_READ, false)
+      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+
+    this.loopConnect(selector.select())
+  }
+
+  private fun loopConnect(backend: Backend?) {
+    if (backend == null) {
+      log.error("No available backend server to connect")
+      ChannelUtils.closeOnFlush(inboundChannel)
+      return
     }
 
-    fun connect() {
-        b.group(inboundChannel.eventLoop())
-            .channel(inboundChannel.javaClass)
-            .handler(object : ChannelInitializer<SocketChannel>() {
-                @Throws(Exception::class)
-                override fun initChannel(ch: SocketChannel) {
-                    // do nothing, just for init a pipeline
-                    // 避免 BackendOutboundHandler 需要 @Sharable
-                }
-            })
-            .option(ChannelOption.AUTO_READ, false)
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+    val f: ChannelFuture = b.connect(backend.host, backend.port)
+    f.addListener(
+      ChannelFutureListener { channelFuture: ChannelFuture ->
+        if (channelFuture.isSuccess) {
+          log.info("connect to backend success: {}", backend)
+          val outboundChannel = channelFuture.channel()
+          inboundChannel.attr(OUTBOUND_CHANNEL_KEY).set(outboundChannel)
 
-        this.loopConnect(selector.select())
-    }
+          outboundChannel.pipeline()
+            .addLast(BackendOutboundHandler(inboundChannel, selector, backend))
 
-    private fun loopConnect(backend: Backend?) {
-        if (backend == null) {
-            log.error("No available backend server to connect")
+          // read after connected
+          inboundChannel.read()
+        } else {
+          log.error("connect to backend failed: {}", channelFuture.cause().message)
+          val next: Backend? = selector.nextIfConnectFailed(backend)
+
+          if (next != null) {
+            loopConnect(next)
+          } else {
+            log.error("No available backend server After all failed")
             ChannelUtils.closeOnFlush(inboundChannel)
-            return
+          }
         }
-
-        val f: ChannelFuture = b.connect(backend.host, backend.port)
-        f.addListener(
-            ChannelFutureListener { channelFuture: ChannelFuture ->
-                if (channelFuture.isSuccess) {
-                    log.info("connect to backend success: {}", backend)
-                    val outboundChannel = channelFuture.channel()
-                    inboundChannel.attr(OUTBOUND_CHANNEL_KEY).set(outboundChannel)
-
-                    outboundChannel.pipeline()
-                        .addLast(BackendOutboundHandler(inboundChannel, selector, backend))
-
-                    // read after connected
-                    inboundChannel.read()
-                } else {
-                    log.error("connect to backend failed: {}", channelFuture.cause().message)
-                    val next: Backend? = selector.nextIfConnectFailed(backend)
-
-                    if (next != null) {
-                        loopConnect(next)
-                    } else {
-                        log.error("No available backend server After all failed")
-                        ChannelUtils.closeOnFlush(inboundChannel)
-                    }
-                }
-            }
-        )
-    }
+      },
+    )
+  }
 }

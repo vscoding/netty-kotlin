@@ -13,16 +13,16 @@ import java.util.Date
  */
 class ServerHeartBeatHandler : SimpleChannelInboundHandler<HeartBeat>() {
 
-    companion object {
-        private val log = getLogger(ServerHeartBeatHandler::class.java)
-    }
+  companion object {
+    private val log = getLogger(ServerHeartBeatHandler::class.java)
+  }
 
-    @Throws(Exception::class)
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: HeartBeat) {
-        log.info("receive client heart beat|{}", msg)
-        val hbResponse = HeartBeat(Date(), msg.id, msg.seq + 1)
-        log.info("send server heart beat|{}", hbResponse)
-        ctx.writeAndFlush(hbResponse)
-    }
+  @Throws(Exception::class)
+  override fun channelRead0(ctx: ChannelHandlerContext, msg: HeartBeat) {
+    log.info("receive client heart beat|{}", msg)
+    val hbResponse = HeartBeat(Date(), msg.id, msg.seq + 1)
+    log.info("send server heart beat|{}", hbResponse)
+    ctx.writeAndFlush(hbResponse)
+  }
 
 }
