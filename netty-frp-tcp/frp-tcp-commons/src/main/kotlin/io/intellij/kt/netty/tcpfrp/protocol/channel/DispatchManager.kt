@@ -63,7 +63,7 @@ data class DispatchManager(
   fun dispatch(data: DispatchPacket, vararg listeners: ChannelFutureListener) {
     val channel = getChannelById(data.dispatchId)
     if (channel != null && channel.isActive) {
-      channel.writeAndFlush(data.packet).addListeners(*listeners)
+      channel.writeAndFlush(data.content().retain()).addListeners(*listeners)
     } else {
       log.error("DispatchManager dispatch failed|dispatchId={}|channel={}", data.dispatchId, channel)
     }

@@ -16,6 +16,8 @@ class DispatchEncoder : MessageToByteEncoder<DispatchPacket>() {
 
   @Throws(Exception::class)
   override fun encode(ctx: ChannelHandlerContext?, msg: DispatchPacket, out: ByteBuf) {
+    val packet = msg.content()
+
     // type
     out.writeByte(FrpMsgType.DATA_PACKET.type)
 
@@ -23,11 +25,10 @@ class DispatchEncoder : MessageToByteEncoder<DispatchPacket>() {
     out.writeBytes(msg.dispatchId.toByteArray(StandardCharsets.UTF_8))
 
     // len
-    val length: Int = msg.packet.readableBytes()
+    val length: Int = packet.readableBytes()
     out.writeInt(length)
 
     // data
-    val packet: ByteBuf = msg.packet
     out.writeBytes(packet)
   }
 }
